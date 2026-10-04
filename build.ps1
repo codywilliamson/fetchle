@@ -8,9 +8,12 @@ $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 
 # aot link needs vswhere.exe on PATH, see docs/release.md
-$vsInstaller = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer'
-if ($IsWindows -and (Test-Path $vsInstaller) -and ($env:PATH -notlike "*$vsInstaller*")) {
-    $env:PATH = "$env:PATH;$vsInstaller"
+# $IsWindows doesn't exist in windows powershell 5.1, and ProgramFiles(x86) is unset off windows
+if ($env:OS -eq 'Windows_NT') {
+    $vsInstaller = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer'
+    if ((Test-Path $vsInstaller) -and ($env:PATH -notlike "*$vsInstaller*")) {
+        $env:PATH = "$env:PATH;$vsInstaller"
+    }
 }
 
 function Invoke-Step([string[]]$cmd) {

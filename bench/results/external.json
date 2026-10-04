@@ -6,73 +6,73 @@
     {
       "tool": "fetchle naive, full walk",
       "shape": "realistic",
-      "median_ms": 458,
+      "median_ms": 421,
       "runs_ms": [
-        455,
-        458,
-        460,
-        450,
-        963
+        478,
+        467,
+        421,
+        415,
+        404
       ]
     },
     {
       "tool": "rg --files",
       "shape": "realistic",
-      "median_ms": 183,
+      "median_ms": 164,
       "runs_ms": [
-        372,
-        354,
-        161,
-        175,
-        183
+        174,
+        194,
+        164,
+        164,
+        163
       ]
     },
     {
       "tool": "rg -j1 --files",
       "shape": "realistic",
-      "median_ms": 548,
+      "median_ms": 501,
       "runs_ms": [
-        615,
-        551,
-        517,
-        513,
-        548
+        485,
+        465,
+        501,
+        571,
+        542
       ]
     },
     {
       "tool": "fetchle naive, full walk",
       "shape": "dir-heavy",
-      "median_ms": 4912,
+      "median_ms": 4752,
       "runs_ms": [
-        4868,
-        5222,
-        5245,
-        4912,
-        4744
+        4752,
+        4940,
+        4704,
+        4944,
+        4719
       ]
     },
     {
       "tool": "rg --files",
       "shape": "dir-heavy",
-      "median_ms": 1390,
+      "median_ms": 1290,
       "runs_ms": [
-        1390,
-        1285,
-        1456,
-        1280,
-        1417
+        1396,
+        1249,
+        1306,
+        1290,
+        1209
       ]
     },
     {
       "tool": "rg -j1 --files",
       "shape": "dir-heavy",
-      "median_ms": 5136,
+      "median_ms": 4939,
       "runs_ms": [
-        5199,
-        5136,
-        5065,
-        4928,
-        5164
+        4804,
+        5112,
+        4844,
+        5344,
+        4939
       ]
     }
   ]

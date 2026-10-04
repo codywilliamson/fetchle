@@ -9,6 +9,9 @@ namespace Fetchle.Bench;
 public static class ExternalBench
 {
     const int Runs = 5;
+    const int RgSuccess = 0;
+    // the fetchle query matches nothing on purpose, so a full walk exits "no results"
+    const int FetchleNoResults = 1;
 
     public static void Run(string repo, string resultsDir)
     {
@@ -21,14 +24,14 @@ public static class ExternalBench
         {
             var root = BenchCorpus.Ensure(shape);
             if (File.Exists(fetchle))
-                results.Add(Time("fetchle naive, full walk", shape, fetchle, ["zzz", "--root", root, "--budget", "5m", "--plain"]));
+                results.Add(Time("fetchle naive, full walk", shape, fetchle, ["zzz", "--root", root, "--budget", "5m", "--plain"], FetchleNoResults));
             else
                 Console.WriteLine($"skipping fetchle: no exe at {fetchle}, run ./build.ps1 publish or set FETCHLE_EXE");
 
             if (OnPath("rg") is { } rg)
             {
-                results.Add(Time("rg --files", shape, rg, ["--files", "--hidden", "--no-ignore", root]));
-                results.Add(Time("rg -j1 --files", shape, rg, ["-j1", "--files", "--hidden", "--no-ignore", root]));
+                results.Add(Time("rg --files", shape, rg, ["--files", "--hidden", "--no-ignore", root], RgSuccess));
+                results.Add(Time("rg -j1 --files", shape, rg, ["-j1", "--files", "--hidden", "--no-ignore", root], RgSuccess));
             }
             else
             {
@@ -42,26 +45,31 @@ public static class ExternalBench
         Console.WriteLine($"wrote {path}");
     }
 
-    static ExternalResult Time(string tool, string shape, string exe, string[] args)
+    static ExternalResult Time(string tool, string shape, string exe, string[] args, int expectedExitCode)
     {
         var runs = new long[Runs];
         // one untimed warmup so every tool sees a warm cache
-        RunOnce(exe, args);
-        for (var i = 0; i < Runs; i++) runs[i] = RunOnce(exe, args);
+        RunOnce(exe, args, expectedExitCode);
+        for (var i = 0; i < Runs; i++) runs[i] = RunOnce(exe, args, expectedExitCode);
         var sorted = (long[])runs.Clone();
         Array.Sort(sorted);
         return new ExternalResult(tool, shape, sorted[Runs / 2], runs);
     }
 
-    static long RunOnce(string exe, string[] args)
+    // a failed run would otherwise look like a fast one, so any unexpected exit code aborts the bench
+    static long RunOnce(string exe, string[] args, int expectedExitCode)
     {
         var psi = new ProcessStartInfo(exe, args) { RedirectStandardOutput = true, RedirectStandardError = true };
         psi.Environment.Remove("CLAUDECODE");
         var start = Stopwatch.GetTimestamp();
         using var p = Process.Start(psi)!;
+        var stderr = p.StandardError.ReadToEndAsync();
         p.StandardOutput.BaseStream.CopyTo(Stream.Null);
         p.WaitForExit();
-        return (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        var elapsed = (long)Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        if (p.ExitCode != expectedExitCode)
+            throw new InvalidOperationException($"{exe} {string.Join(' ', args)} exited {p.ExitCode}, expected {expectedExitCode}:\n{stderr.Result}");
+        return elapsed;
     }
 
     static string? OnPath(string name)

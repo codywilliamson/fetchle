@@ -24,6 +24,18 @@ When behavior and spec disagree, fix one of them in the same change. Don't let t
 - All JSON goes through source-generated `JsonSerializerContext`.
 - Any new dependency must publish under NativeAOT with zero IL2xxx/IL3xxx warnings. Check before adding it.
 
+## Principles
+
+- Every task has a runnable pass/fail check: a test, build exit code, eval or benchmark. "Looks done" is not done.
+- Evidence over assertion. Show the command and its output, and label guesses as guesses.
+- Deep modules, local behavior. Lots of behavior behind a small interface, so most changes touch one place.
+- Fast loops. Keep unit and e2e runs quick; slow suites run on main, not every iteration.
+- One obvious way to do each thing. Follow the existing pattern; don't add a second one.
+- Explicit and greppable over clever. Unique names, no magic wiring, no reflection.
+- Write down what can't be inferred. Decisions and their evidence go in [docs/decisions.md](docs/decisions.md).
+- KISS, SRP, YAGNI.
+- One source of truth for knowledge (shapes, constants, specs). Duplicated code that keeps behavior local is fine; don't abstract after seeing two similar blocks.
+
 ## Performance rules
 
 Performance is a core principle of this project. See [docs/vision.md](docs/vision.md).

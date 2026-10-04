@@ -25,15 +25,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
-      - name: build
-        run: dotnet build fetchle.slnx -c Release
-
-      - name: unit
-        run: dotnet test --project tests/Fetchle.Tests -c Release --no-build
-
-      - name: e2e
-        run: dotnet test --project tests/Fetchle.E2E -c Release --no-build
-
-      - name: evals
-        run: dotnet run --project evals/Fetchle.Evals -c Release --no-build
+      - name: ci
+        run: dotnet build.cs ci

@@ -49,4 +49,4 @@ Agents can talk their way past a code review. They can't fake a p50.
 
 ## Where it runs
 
-Every PR runs unit tests, e2e and evals on Windows, Linux and macOS. Benchmarks run on main and on release tags, because shared CI runners are too noisy for per-PR perf gates.
+Every PR runs unit tests, e2e and evals on Windows, Linux and macOS through `dotnet build.cs ci`. It restores, builds and publishes the native exe once, then runs the suites with `--no-build` and points the e2e suite at that exe with `FETCHLE_EXE`. Run the same pipeline locally with `dotnet build.cs ci`, or one piece with `dotnet build.cs <restore|build|test|e2e|eval|publish|bench>`. Benchmarks run on main and on release tags, because shared CI runners are too noisy for per-PR perf gates.

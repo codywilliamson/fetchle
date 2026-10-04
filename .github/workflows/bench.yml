@@ -18,12 +18,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - name: install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
       - name: bench
-        run: ./build.sh bench
+        run: dotnet build.cs bench
 
       - uses: actions/upload-artifact@v4
         with:

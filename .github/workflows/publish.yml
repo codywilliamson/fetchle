@@ -48,7 +48,7 @@ jobs:
           global-json-file: global.json
 
       - name: publish
-        run: dotnet publish src/Fetchle.Cli -c Release -r ${{ matrix.rid }} -o out
+        run: dotnet build.cs publish --rid ${{ matrix.rid }}
 
       - name: archive
         id: archive
@@ -57,11 +57,11 @@ jobs:
           name="fetchle-${version}-${{ matrix.rid }}"
           mkdir -p "stage/$name" dist
           if [[ "${{ matrix.rid }}" == win-* ]]; then
-            cp out/fetchle.exe "stage/$name/"
+            cp artifacts/publish/fetchle.exe "stage/$name/"
             (cd stage && 7z a -tzip "../dist/$name.zip" "$name" > /dev/null)
             archive="dist/$name.zip"
           else
-            cp out/fetchle "stage/$name/"
+            cp artifacts/publish/fetchle "stage/$name/"
             tar -czf "dist/$name.tar.gz" -C stage "$name"
             archive="dist/$name.tar.gz"
           fi

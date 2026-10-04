@@ -21,10 +21,10 @@ release-please with `release-type: simple`. Conventional commits drive the versi
 
 | workflow | trigger | does |
 |---|---|---|
-| `ci.yml` | push to any branch, PRs from forks | Build, unit, e2e and evals on windows-latest, ubuntu-latest, macos-latest. |
-| `bench.yml` | push to main, release | BenchmarkDotNet plus the rg comparison, results uploaded as an artifact. Not yet: comparing to committed JSON and failing past a threshold. The committed baseline comes from a dev machine, so comparing it to a shared runner would be noise; that needs a runner-made baseline first. |
+| `ci.yml` | push to any branch, PRs from forks | `dotnet build.cs ci` on windows-latest, ubuntu-latest, macos-latest: locked restore, build and native publish once, then unit, e2e and evals reuse those outputs. |
+| `bench.yml` | push to main, release | `dotnet build.cs bench`: BenchmarkDotNet plus the rg comparison, results uploaded as an artifact. Not yet: comparing to committed JSON and failing past a threshold. The committed baseline comes from a dev machine, so comparing it to a shared runner would be noise; that needs a runner-made baseline first. |
 | `release-please.yml` | push to main | Opens or updates the release PR. |
-| `publish.yml` | release created | NativeAOT matrix, archives, checksums, provenance, upload. Not yet: the NuGet tool package. |
+| `publish.yml` | release created | `dotnet build.cs publish --rid <rid>` per RID in the NativeAOT matrix, archives, checksums, provenance, upload. Not yet: the NuGet tool package. |
 | `demos.yml` | release published | Re-render VHS tapes, attach GIFs. See [demos.md](demos.md). |
 
 A release made with `GITHUB_TOKEN` doesn't trigger other workflows, so `release-please.yml` calls `publish.yml` and `bench.yml` as reusable workflows when it creates a release. `publish.yml` also runs on a manually published release and on `workflow_dispatch` with a tag.
@@ -41,7 +41,7 @@ NativeAOT can't cross-compile across operating systems, so each OS builds its ow
 | linux-arm64 | ubuntu-24.04-arm |
 | osx-arm64 | macos-latest |
 
-Local Windows builds need the VS Build Tools C++ workload and `vswhere.exe` on PATH. Without the latter, link fails with `'vswhere.exe' is not recognized` baked into the linker command. Hosted runners have both.
+Local Windows builds need the VS Build Tools C++ workload and `vswhere.exe` on PATH. Without the latter, link fails with `'vswhere.exe' is not recognized` baked into the linker command. `build.cs` adds the VS Installer directory to PATH for the commands it runs. Hosted runners have both.
 
 ## Release artifacts
 

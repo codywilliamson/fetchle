@@ -1,5 +1,6 @@
 using System.Reflection;
 using Fetchle.Core;
+using Fetchle.Mcp;
 using XenoAtom.CommandLine;
 
 namespace Fetchle.Cli;
@@ -85,7 +86,18 @@ static class FetchleApp
         {
             Stub("roots", onAction),
             Stub("index", onAction),
-            Stub("mcp", onAction),
+            new Command("mcp", Describe("mcp"))
+            {
+                new HelpOption(),
+                async (_, _) =>
+                {
+                    onAction();
+                    // default root is the working directory until roots ship
+                    var tools = new Tools(new NaiveFileSearch(PruneRules.Default), Environment.CurrentDirectory);
+                    await McpServerHost.RunAsync(tools, Version, CancellationToken.None);
+                    return ExitCodes.Success;
+                },
+            },
             Stub("setup", onAction),
             Stub("doctor", onAction, "fix", "Run the fixes"),
             Stub("update", onAction),

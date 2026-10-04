@@ -1,0 +1,80 @@
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag to build and upload to, e.g. v0.1.0
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+env:
+  TAG: ${{ inputs.tag || github.event.release.tag_name }}
+
+jobs:
+  native:
+    # nativeaot can't cross-compile across operating systems, docs/release.md#native-build-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: win-x64, os: windows-latest }
+          - { rid: win-arm64, os: windows-latest }
+          - { rid: linux-x64, os: ubuntu-latest }
+          - { rid: linux-arm64, os: ubuntu-24.04-arm }
+          - { rid: osx-arm64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: publish
+        run: dotnet publish src/Fetchle.Cli -c Release -r ${{ matrix.rid }} -o out
+
+      # the model joins the archive once embeddings ship
+      - name: archive
+        id: archive
+        run: |
+          version="${TAG#v}"
+          name="fetchle-${version}-${{ matrix.rid }}"
+          mkdir -p "stage/$name" dist
+          if [[ "${{ matrix.rid }}" == win-* ]]; then
+            cp out/fetchle.exe "stage/$name/"
+            (cd stage && 7z a -tzip "../dist/$name.zip" "$name" > /dev/null)
+            archive="dist/$name.zip"
+          else
+            cp out/fetchle "stage/$name/"
+            tar -czf "dist/$name.tar.gz" -C stage "$name"
+            archive="dist/$name.tar.gz"
+          fi
+          (cd dist && shasum -a 256 "$(basename "$archive")" > "$(basename "$archive").sha256")
+          echo "path=$archive" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ steps.archive.outputs.path }}
+
+      - name: upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/* --clobber

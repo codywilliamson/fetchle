@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # same-repo branches already run on push; pull_request is for forks
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: build
+        run: dotnet build fetchle.slnx -c Release
+
+      - name: unit
+        run: dotnet test --project tests/Fetchle.Tests -c Release --no-build
+
+      # publishes the native exe once, then drives it
+      - name: e2e
+        run: dotnet test --project tests/Fetchle.E2E -c Release --no-build
+
+      - name: evals
+        run: dotnet run --project evals/Fetchle.Evals -c Release --no-build

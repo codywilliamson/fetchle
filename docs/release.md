@@ -21,11 +21,13 @@ release-please with `release-type: simple`. Conventional commits drive the versi
 
 | workflow | trigger | does |
 |---|---|---|
-| `ci.yml` | PR, push to main | Build, unit, e2e and evals on windows-latest, ubuntu-latest, macos-latest. |
-| `bench.yml` | push to main, release | BenchmarkDotNet, compare to committed JSON, fail past threshold. |
+| `ci.yml` | push to any branch, PRs from forks | Build, unit, e2e and evals on windows-latest, ubuntu-latest, macos-latest. |
+| `bench.yml` | push to main, release | BenchmarkDotNet plus the rg comparison, results uploaded as an artifact. Not yet: comparing to committed JSON and failing past a threshold. The committed baseline comes from a dev machine, so comparing it to a shared runner would be noise; that needs a runner-made baseline first. |
 | `release-please.yml` | push to main | Opens or updates the release PR. |
-| `publish.yml` | release published | NativeAOT matrix, archives, checksums, provenance, upload, NuGet tool package. |
+| `publish.yml` | release created | NativeAOT matrix, archives, checksums, provenance, upload. Not yet: the NuGet tool package. |
 | `demos.yml` | release published | Re-render VHS tapes, attach GIFs. See [demos.md](demos.md). |
+
+A release made with `GITHUB_TOKEN` doesn't trigger other workflows, so `release-please.yml` calls `publish.yml` and `bench.yml` as reusable workflows when it creates a release. `publish.yml` also runs on a manually published release and on `workflow_dispatch` with a tag.
 
 ## Native build matrix
 
@@ -43,7 +45,7 @@ Local Windows builds need the VS Build Tools C++ workload and `vswhere.exe` on P
 
 ## Release artifacts
 
-Per RID: `fetchle-<version>-<rid>.zip` (Windows) or `.tar.gz` (Unix) containing the exe and the int8 model, plus `.sha256`.
+Per RID: `fetchle-<version>-<rid>.zip` (Windows) or `.tar.gz` (Unix) containing the exe and the int8 model, plus `.sha256`. Until embeddings ship, the archive holds only the exe.
 
 Provenance is signed with `actions/attest-build-provenance`, so users can verify with `gh attestation verify`.
 

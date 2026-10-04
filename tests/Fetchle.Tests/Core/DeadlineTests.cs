@@ -24,4 +24,11 @@ public class DeadlineTests
     [Test]
     public async Task Huge_budget_never_overflows() =>
         await Assert.That(Deadline.After(TimeSpan.MaxValue, Stopwatch.GetTimestamp()).IsExpired(long.MaxValue - 1)).IsFalse();
+
+    [Test]
+    public async Task Long_budget_near_the_timestamp_ceiling_does_not_wrap()
+    {
+        var start = long.MaxValue - 10;
+        await Assert.That(Deadline.After(TimeSpan.FromDays(200_000), start).IsExpired(long.MaxValue - 1)).IsFalse();
+    }
 }

@@ -10,8 +10,12 @@ public readonly struct Deadline
 
     Deadline(long end) => _end = end;
 
-    public static Deadline After(TimeSpan budget, long startTimestamp) =>
-        new(budget >= TimeSpan.MaxValue / 2 ? long.MaxValue : startTimestamp + (long)(budget.TotalSeconds * Stopwatch.Frequency));
+    public static Deadline After(TimeSpan budget, long startTimestamp)
+    {
+        // in doubles first: a long budget times a high Stopwatch.Frequency overflows long
+        var ticks = budget.TotalSeconds * Stopwatch.Frequency;
+        return new(ticks >= long.MaxValue - startTimestamp ? long.MaxValue : startTimestamp + (long)ticks);
+    }
 
     public bool IsExpired(long nowTimestamp) => nowTimestamp >= _end;
 

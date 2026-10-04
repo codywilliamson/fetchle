@@ -36,7 +36,7 @@ No args. Returns roots, file counts, last full scan time, whether vectors are co
 
 ## Errors
 
-Unknown tools and bad arguments throw `McpProtocolException` with `McpErrorCode.InvalidParams`, which reaches the client as JSON-RPC error -32602. A plain `McpException` would come back as an `isError: true` tool result instead, which agents treat as a search failure.
+Unknown tools, unknown argument names and bad argument values throw `McpProtocolException` with `McpErrorCode.InvalidParams`, which reaches the client as JSON-RPC error -32602. A plain `McpException` would come back as an `isError: true` tool result instead, which agents treat as a search failure.
 
 ## Shutdown
 

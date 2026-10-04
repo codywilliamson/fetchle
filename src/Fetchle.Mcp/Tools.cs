@@ -21,11 +21,12 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
             "root": { "type": "string", "description": "Restrict to one root." },
             "ext": { "type": "array", "items": { "type": "string" }, "description": "Extension filter." }
           },
-          "required": ["query"]
+          "required": ["query"],
+          "additionalProperties": false
         }
         """;
 
-    const string IndexStatusSchema = """{ "type": "object", "properties": {} }""";
+    const string IndexStatusSchema = """{ "type": "object", "properties": {}, "additionalProperties": false }""";
 
     public static readonly List<Tool> Definitions =
     [
@@ -43,12 +44,21 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         },
     ];
 
-    public CallToolResult Call(string name, IDictionary<string, JsonElement>? arguments) => name switch
+    public CallToolResult Call(string name, IDictionary<string, JsonElement>? arguments)
     {
-        "find_files" => FindFiles(new Args(arguments)),
-        "index_status" => IndexStatus(),
-        _ => throw InvalidParams($"unknown tool '{name}'"),
-    };
+        var args = new Args(arguments);
+        switch (name)
+        {
+            case "find_files":
+                args.RejectUnknown("query", "limit", "budget_ms", "root", "ext");
+                return FindFiles(args);
+            case "index_status":
+                args.RejectUnknown();
+                return IndexStatus();
+            default:
+                throw InvalidParams($"unknown tool '{name}'");
+        }
+    }
 
     CallToolResult FindFiles(Args args)
     {
@@ -105,6 +115,14 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
 
     readonly struct Args(IDictionary<string, JsonElement>? values)
     {
+        // a misspelled argument would otherwise silently fall back to its default
+        public void RejectUnknown(params string[] known)
+        {
+            if (values is null) return;
+            foreach (var name in values.Keys)
+                if (Array.IndexOf(known, name) < 0) throw InvalidParams($"unknown argument '{name}'");
+        }
+
         public string? String(string name) => Get(name, JsonValueKind.String) is { } e ? e.GetString() : null;
 
         public int? Int(string name) =>

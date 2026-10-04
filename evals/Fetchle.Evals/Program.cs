@@ -10,12 +10,12 @@ using Fetchle.Fixtures;
 // runs evals/queries.json over the generated corpus, writes artifacts/evals/results.json,
 // and fails when top-1 or top-3 drops below evals/baseline.json
 
-const int CorpusFiller = 20_000;
-const int Limit = 10;
+const int CORPUS_FILLER = 20_000;
+const int LIMIT = 10;
 
 var repo = RepoRoot();
 var queries = JsonSerializer.Deserialize(File.ReadAllText(Path.Combine(repo, "evals", "queries.json")), EvalJson.Default.EvalQueryArray)!;
-var corpus = Corpus.Ensure(Corpus.DefaultRoot(CorpusFiller), CorpusFiller);
+var corpus = Corpus.Ensure(Corpus.DefaultRoot(CORPUS_FILLER), CORPUS_FILLER);
 
 foreach (var q in queries)
     foreach (var expected in q.Expected)
@@ -26,7 +26,7 @@ IFileSearch search = new NaiveFileSearch(PruneRules.Default);
 var results = new List<EvalQueryResult>();
 foreach (var q in queries)
 {
-    var result = search.Search(new SearchRequest(q.Query, [corpus], Limit, TimeSpan.FromSeconds(30)), CancellationToken.None);
+    var result = search.Search(new SearchRequest(q.Query, [corpus], LIMIT, TimeSpan.FromSeconds(30)), CancellationToken.None);
     int? rank = null;
     for (var i = 0; i < result.Hits.Count && rank is null; i++)
     {
@@ -39,7 +39,7 @@ foreach (var q in queries)
 
 var top1 = Rate(results, 1);
 var top3 = Rate(results, 3);
-var report = new EvalReport("NaiveFileSearch", CorpusFiller, top1, top3, results);
+var report = new EvalReport("NaiveFileSearch", CORPUS_FILLER, top1, top3, results);
 Console.WriteLine($"top-1 {top1:P0}  top-3 {top3:P0}  ({results.Count} queries)");
 
 var resultsPath = Path.Combine(repo, "artifacts", "evals", "results.json");

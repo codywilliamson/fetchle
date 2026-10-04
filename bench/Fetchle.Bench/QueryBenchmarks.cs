@@ -12,7 +12,7 @@ public class QueryBenchmarks
     SearchRequest _request = null!;
 
     [ParamsSource(nameof(Shapes))]
-    public string Shape { get; set; } = BenchCorpus.Realistic;
+    public string Shape { get; set; } = BenchCorpus.REALISTIC;
 
     public static IEnumerable<string> Shapes => BenchCorpus.Shapes;
 

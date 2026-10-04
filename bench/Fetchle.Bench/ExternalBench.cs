@@ -8,10 +8,10 @@ namespace Fetchle.Bench;
 // process vs process is the fair comparison; in-process numbers come from benchmarkdotnet
 public static class ExternalBench
 {
-    const int Runs = 5;
-    const int RgSuccess = 0;
+    const int RUNS = 5;
+    const int RG_SUCCESS = 0;
     // the fetchle query matches nothing on purpose, so a full walk exits "no results"
-    const int FetchleNoResults = 1;
+    const int FETCHLE_NO_RESULTS = 1;
 
     public static void Run(string repo, string resultsDir)
     {
@@ -24,14 +24,14 @@ public static class ExternalBench
         {
             var root = BenchCorpus.Ensure(shape);
             if (File.Exists(fetchle))
-                results.Add(Time("fetchle naive, full walk", shape, fetchle, ["zzz", "--root", root, "--budget", "5m", "--plain"], FetchleNoResults));
+                results.Add(Time("fetchle naive, full walk", shape, fetchle, ["zzz", "--root", root, "--budget", "5m", "--plain"], FETCHLE_NO_RESULTS));
             else
                 Console.WriteLine($"skipping fetchle: no exe at {fetchle}, run ./build.ps1 publish or set FETCHLE_EXE");
 
             if (OnPath("rg") is { } rg)
             {
-                results.Add(Time("rg --files", shape, rg, ["--files", "--hidden", "--no-ignore", root], RgSuccess));
-                results.Add(Time("rg -j1 --files", shape, rg, ["-j1", "--files", "--hidden", "--no-ignore", root], RgSuccess));
+                results.Add(Time("rg --files", shape, rg, ["--files", "--hidden", "--no-ignore", root], RG_SUCCESS));
+                results.Add(Time("rg -j1 --files", shape, rg, ["-j1", "--files", "--hidden", "--no-ignore", root], RG_SUCCESS));
             }
             else
             {
@@ -41,19 +41,19 @@ public static class ExternalBench
 
         foreach (var r in results) Console.WriteLine($"{r.Shape,-10} {r.Tool,-26} median {r.MedianMs,6} ms  runs {string.Join(", ", r.RunsMs)}");
         var path = Path.Combine(resultsDir, "external.json");
-        File.WriteAllText(path, JsonSerializer.Serialize(new ExternalReport(Environment.MachineName, RuntimeInfo(), BenchCorpus.Filler, results), ExternalJson.Default.ExternalReport) + "\n");
+        File.WriteAllText(path, JsonSerializer.Serialize(new ExternalReport(Environment.MachineName, RuntimeInfo(), BenchCorpus.FILLER, results), ExternalJson.Default.ExternalReport) + "\n");
         Console.WriteLine($"wrote {path}");
     }
 
     static ExternalResult Time(string tool, string shape, string exe, string[] args, int expectedExitCode)
     {
-        var runs = new long[Runs];
+        var runs = new long[RUNS];
         // one untimed warmup so every tool sees a warm cache
         RunOnce(exe, args, expectedExitCode);
-        for (var i = 0; i < Runs; i++) runs[i] = RunOnce(exe, args, expectedExitCode);
+        for (var i = 0; i < RUNS; i++) runs[i] = RunOnce(exe, args, expectedExitCode);
         var sorted = (long[])runs.Clone();
         Array.Sort(sorted);
-        return new ExternalResult(tool, shape, sorted[Runs / 2], runs);
+        return new ExternalResult(tool, shape, sorted[RUNS / 2], runs);
     }
 
     // a failed run would otherwise look like a fast one, so any unexpected exit code aborts the bench

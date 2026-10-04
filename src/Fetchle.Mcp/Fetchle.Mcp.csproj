@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Fetchle.Core\Fetchle.Core.csproj" />
+  </ItemGroup>
+</Project>

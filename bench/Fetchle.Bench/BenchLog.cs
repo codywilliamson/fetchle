@@ -7,7 +7,7 @@ static partial class BenchLog
     [LoggerMessage(Level = LogLevel.Information, Message = "wrote {Path}")]
     public static partial void WroteResults(this ILogger logger, string path);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "skipping fetchle: no exe at {Path}, run ./build.ps1 publish or set FETCHLE_EXE")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "skipping fetchle: no exe at {Path}, run dotnet build.cs publish or set FETCHLE_EXE")]
     public static partial void SkippingFetchle(this ILogger logger, string path);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "skipping rg: not on PATH")]

@@ -33,7 +33,7 @@ public sealed class FixtureTree : IDisposable
 
     public static FixtureTree Create(int seed = 42, int fillerFiles = 200)
     {
-        var root = Path.Combine(Path.GetTempPath(), $"fetchle-fixture-{seed}-{Guid.NewGuid():N}");
+        var root = Path.Combine(ResolveLinks(Path.GetTempPath()), $"fetchle-fixture-{seed}-{Guid.NewGuid():N}");
         var filler = Filler(seed, fillerFiles);
         var tree = new FixtureTree(root, filler);
         foreach (var file in (string[])[SettingsFile, "src/app/main.cs", "docs/readme.md", PrunedSettingsFile, GitSettingsFile, .. UnicodeFiles, .. filler])
@@ -43,6 +43,19 @@ public sealed class FixtureTree : IDisposable
         tree.CreateLocked();
         tree.CreateCaseCollision();
         return tree;
+    }
+
+    // macos temp is under /var, a symlink to /private/var, and a child process started there
+    // reports the resolved path as its working directory
+    static string ResolveLinks(string path)
+    {
+        var resolved = Path.GetPathRoot(path)!;
+        foreach (var segment in path[resolved.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
+        {
+            resolved = Path.Combine(resolved, segment);
+            if (Directory.ResolveLinkTarget(resolved, returnFinalTarget: true) is { } target) resolved = target.FullName;
+        }
+        return resolved;
     }
 
     public string Full(string relative) => Path.Combine(Root, relative.Replace('/', Path.DirectorySeparatorChar));

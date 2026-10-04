@@ -1,16 +1,27 @@
+using System.Collections.Frozen;
+
 namespace Fetchle.Core.Walking;
 
-// directories dropped before descending, docs/architecture.md#building-the-index
 public sealed class PruneRules
 {
-    static readonly string[] DefaultNames = ["node_modules", ".git"];
+    static readonly string[] DefaultNames =
+    [
+        // version control
+        ".git", ".svn", ".hg", ".bzr",
+        // package and build caches
+        "node_modules", "bower_components", ".next", ".nuxt", ".parcel-cache", ".turbo",
+        "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".tox", ".venv",
+        ".gradle", ".terraform", ".vs", ".cache",
+        // os trash and volume metadata
+        "$RECYCLE.BIN", "System Volume Information", ".Trash", ".Trashes",
+    ];
 
-    readonly string[] _names;
+    readonly FrozenSet<string>.AlternateLookup<ReadOnlySpan<char>> _names;
     readonly string[] _paths;
 
     public PruneRules(string[] names, string[] paths)
     {
-        _names = names;
+        _names = names.ToFrozenSet(PathComparison.Comparer).GetAlternateLookup<ReadOnlySpan<char>>();
         _paths = Array.ConvertAll(paths, p => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p)));
     }
 
@@ -18,15 +29,20 @@ public sealed class PruneRules
 
     public bool ShouldPrune(ReadOnlySpan<char> parentDirectory, ReadOnlySpan<char> name)
     {
-        foreach (var n in _names)
-            if (name.Equals(n, PathComparison.Default)) return true;
+        if (_names.Contains(name))
+        {
+            return true;
+        }
+
         foreach (var p in _paths)
         {
             // only compare the full path when the last segment matches, so nothing allocates
             var pathName = Path.GetFileName(p.AsSpan());
             if (name.Equals(pathName, PathComparison.Default)
                 && Path.TrimEndingDirectorySeparator(parentDirectory).Equals(Path.GetDirectoryName(p.AsSpan()), PathComparison.Default))
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -36,11 +52,18 @@ public sealed class PruneRules
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var paths = new List<string> { Path.GetTempPath() };
         if (OperatingSystem.IsWindows())
+        {
             paths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp"));
+        }
         else if (OperatingSystem.IsMacOS())
+        {
             paths.Add(Path.Combine(home, "Library", "Caches"));
+        }
         else
+        {
             paths.Add(Path.Combine(home, ".cache"));
+        }
+
         return [.. paths];
     }
 }

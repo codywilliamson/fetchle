@@ -4,4 +4,6 @@ namespace Fetchle.Core.Walking;
 public static class PathComparison
 {
     public static readonly StringComparison Default = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+
+    public static readonly StringComparer Comparer = OperatingSystem.IsLinux() ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 }

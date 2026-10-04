@@ -14,6 +14,9 @@ case "$target" in
   e2e)     step test --project tests/Fetchle.E2E -c Release ;;
   eval)    step run --project evals/Fetchle.Evals -c Release ;;
   publish) step publish src/Fetchle.Cli -c Release -o artifacts/publish ${rid:+-r "$rid"} ;;
-  bench)   step run --project bench/Fetchle.Bench -c Release ;;
+  bench)   # external harness times the published exe against rg
+           step publish src/Fetchle.Cli -c Release -o artifacts/publish ${rid:+-r "$rid"}
+           step run --project bench/Fetchle.Bench -c Release
+           step run --project bench/Fetchle.Bench -c Release -- --external ;;
   *) echo "unknown target: $target (build|test|e2e|eval|publish|bench)" >&2; exit 2 ;;
 esac

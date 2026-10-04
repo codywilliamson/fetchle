@@ -1,0 +1,80 @@
+{
+  "searcher": "NaiveFileSearch",
+  "corpus_filler": 20000,
+  "top1": 0,
+  "top3": 0,
+  "queries": [
+    {
+      "query": "desktop app bundled claude binary",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 584
+    },
+    {
+      "query": "powershell command history",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 578
+    },
+    {
+      "query": "vscode user settings",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 504
+    },
+    {
+      "query": "windows terminal config",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 504
+    },
+    {
+      "query": "chrome browsing history",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 429
+    },
+    {
+      "query": "firefox bookmarks database",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 423
+    },
+    {
+      "query": "node version manager settings",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 437
+    },
+    {
+      "query": "github desktop executable",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 481
+    },
+    {
+      "query": "discord app executable",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 451
+    },
+    {
+      "query": "obsidian vault list",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 382
+    },
+    {
+      "query": "thunderbird mail search index",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 390
+    },
+    {
+      "query": "music streaming app",
+      "rank": null,
+      "total_matches": 0,
+      "elapsed_ms": 363
+    }
+  ]
+}

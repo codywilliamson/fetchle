@@ -1,0 +1,285 @@
+{
+   "Title":"Fetchle.Bench.QueryBenchmarks-20261003-231246",
+   "HostEnvironmentInfo":{
+      "BenchmarkDotNetCaption":"BenchmarkDotNet",
+      "BenchmarkDotNetVersion":"0.15.8",
+      "OsVersion":"Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)",
+      "ProcessorName":"AMD Ryzen 7 5700",
+      "PhysicalProcessorCount":1,
+      "PhysicalCoreCount":8,
+      "LogicalCoreCount":16,
+      "RuntimeVersion":".NET 10.0.12 (10.0.12, 10.0.1226.42308)",
+      "Architecture":"X64",
+      "HasAttachedDebugger":false,
+      "HasRyuJit":true,
+      "Configuration":"RELEASE",
+      "DotNetCliVersion":"10.0.401",
+      "ChronometerFrequency":{
+         "Hertz":10000000
+      },
+      "HardwareTimerKind":"Unknown"
+   },
+   "Benchmarks":[
+      {
+         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=dir-heavy]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"NaiveSearch",
+         "MethodTitle":"NaiveSearch",
+         "Parameters":"Query=settings&Shape=dir-heavy",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"settings\", Shape: \"dir-heavy\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               5051806600,4882789200,4968895600,4973154700
+            ],
+            "N":4,
+            "Min":4882789200,
+            "LowerFence":4879195987.5,
+            "Q1":4947369000,
+            "Median":4971025150,
+            "Mean":4969161525,
+            "Q3":4992817675,
+            "UpperFence":5060990687.5,
+            "Max":5051806600,
+            "InterquartileRange":45448675,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":34528253.05739671,
+            "Variance":4768801036782500,
+            "StandardDeviation":69056506.11479342,
+            "Skewness":-0.060584699746506016,
+            "Kurtosis":1.1246666881966858,
+            "ConfidenceInterval":{
+               "N":4,
+               "Mean":4969161525,
+               "StandardError":34528253.05739671,
+               "Level":12,
+               "Margin":446242405.61697894,
+               "Lower":4522919119.383021,
+               "Upper":5415403930.616979
+            },
+            "Percentiles":{
+               "P0":4882789200,
+               "P25":4947369000,
+               "P50":4971025150,
+               "P67":4973941219,
+               "P80":5004615460,
+               "P85":5016413245,
+               "P90":5028211030,
+               "P95":5040008815,
+               "P100":5051806600
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":7728000
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=realistic]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"NaiveSearch",
+         "MethodTitle":"NaiveSearch",
+         "Parameters":"Query=settings&Shape=realistic",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"settings\", Shape: \"realistic\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               349863800,376034200,371375800,409645700,460698300
+            ],
+            "N":5,
+            "Min":349863800,
+            "LowerFence":313970950,
+            "Q1":371375800,
+            "Median":376034200,
+            "Mean":393523560,
+            "Q3":409645700,
+            "UpperFence":467050550,
+            "Max":460698300,
+            "InterquartileRange":38269900,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":19332543.44587385,
+            "Variance":1868736180433000,
+            "StandardDeviation":43228881.32294196,
+            "Skewness":0.5146508528016098,
+            "Kurtosis":1.3972611886070678,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":393523560,
+               "StandardError":19332543.44587385,
+               "Level":12,
+               "Margin":166459029.03900322,
+               "Lower":227064530.96099678,
+               "Upper":559982589.0390033
+            },
+            "Percentiles":{
+               "P0":349863800,
+               "P25":371375800,
+               "P50":376034200,
+               "P67":398890020,
+               "P80":419856220,
+               "P85":430066740,
+               "P90":440277260,
+               "P95":450487780,
+               "P100":460698300
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":739288
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=dir-heavy]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"NaiveSearch",
+         "MethodTitle":"NaiveSearch",
+         "Parameters":"Query=zzz&Shape=dir-heavy",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"zzz\", Shape: \"dir-heavy\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               4616658500,4722719200,4670490300,4712413900,4709228900
+            ],
+            "N":5,
+            "Min":4616658500,
+            "LowerFence":4607604900,
+            "Q1":4670490300,
+            "Median":4709228900,
+            "Mean":4686302160,
+            "Q3":4712413900,
+            "UpperFence":4775299300,
+            "Max":4722719200,
+            "InterquartileRange":41923600,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":19537033.385434955,
+            "Variance":1908478367518000,
+            "StandardDeviation":43686134.72851541,
+            "Skewness":-0.6323086065543675,
+            "Kurtosis":1.432467787433872,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":4686302160,
+               "StandardError":19537033.385434955,
+               "Level":12,
+               "Margin":168219749.08512068,
+               "Lower":4518082410.914879,
+               "Upper":4854521909.085121
+            },
+            "Percentiles":{
+               "P0":4616658500,
+               "P25":4670490300,
+               "P50":4709228900,
+               "P67":4711394700,
+               "P80":4714474960,
+               "P85":4716536020,
+               "P90":4718597080,
+               "P95":4720658140,
+               "P100":4722719200
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":7727000
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=realistic]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"NaiveSearch",
+         "MethodTitle":"NaiveSearch",
+         "Parameters":"Query=zzz&Shape=realistic",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"zzz\", Shape: \"realistic\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               359441500,357830900,390568200,384071200,386253300
+            ],
+            "N":5,
+            "Min":357830900,
+            "LowerFence":319223800,
+            "Q1":359441500,
+            "Median":384071200,
+            "Mean":375633020,
+            "Q3":386253300,
+            "UpperFence":426471000,
+            "Max":390568200,
+            "InterquartileRange":26811800,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":7021871.641620914,
+            "Variance":246533406757000,
+            "StandardDeviation":15701382.319942407,
+            "Skewness":-0.2457557927927405,
+            "Kurtosis":0.7789343716631482,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":375633020,
+               "StandardError":7021871.641620914,
+               "Level":12,
+               "Margin":60460432.367485404,
+               "Lower":315172587.6325146,
+               "Upper":436093452.3674854
+            },
+            "Percentiles":{
+               "P0":357830900,
+               "P25":359441500,
+               "P50":384071200,
+               "P67":385555028,
+               "P80":387116280,
+               "P85":387979260,
+               "P90":388842240,
+               "P95":389705220,
+               "P100":390568200
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":738288
+         }
+      }
+   ]
+}

@@ -27,5 +27,10 @@ switch ($Target) {
     'e2e' { Invoke-Step @('test', '--project', 'tests/Fetchle.E2E', '-c', 'Release') }
     'eval' { Invoke-Step @('run', '--project', 'evals/Fetchle.Evals', '-c', 'Release') }
     'publish' { Invoke-Step (@('publish', 'src/Fetchle.Cli', '-c', 'Release', '-o', 'artifacts/publish') + $ridArgs) }
-    'bench' { Invoke-Step @('run', '--project', 'bench/Fetchle.Bench', '-c', 'Release') }
+    'bench' {
+        # external harness times the published exe against rg
+        Invoke-Step (@('publish', 'src/Fetchle.Cli', '-c', 'Release', '-o', 'artifacts/publish') + $ridArgs)
+        Invoke-Step @('run', '--project', 'bench/Fetchle.Bench', '-c', 'Release')
+        Invoke-Step @('run', '--project', 'bench/Fetchle.Bench', '-c', 'Release', '--', '--external')
+    }
 }

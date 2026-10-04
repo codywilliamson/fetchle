@@ -5,4 +5,8 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Fetchle.Core\Fetchle.Core.csproj" />
+    <ProjectReference Include="..\..\tests\Fetchle.Fixtures\Fetchle.Fixtures.csproj" />
+  </ItemGroup>
 </Project>

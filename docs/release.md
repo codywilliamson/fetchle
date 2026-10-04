@@ -54,3 +54,9 @@ The .NET tool package ships the same native binaries as a platform-specific tool
 ## Dependencies
 
 Renovate, grouped weekly, automerge for patch updates that pass CI.
+
+Every project except `Fetchle.Cli` commits a `packages.lock.json`, and CI restores with `--locked-mode`. `setup-dotnet` caches the NuGet folder keyed on those lock files. `Fetchle.Cli` has no lock file because `PublishAot` adds the host's ILCompiler runtime package to its restore graph, so its lock file would differ on every OS. Its third-party packages are still locked through `Fetchle.Tests`, which references it. `build.cs` has no lock file for the same reason.
+
+The SDK adds implicit packages such as `Microsoft.NET.ILLink.Tasks` at its bundled runtime version. When the 10.0 SDK on the runners moves to a new patch, locked restore fails with NU1004 until the lock files are regenerated with `dotnet build.cs restore` on that SDK.
+
+`dotnet build.cs publish --rid <rid>` restores the library projects for that RID too, which adds a RID section to their lock files in the working tree. That's fine on release runners. Locally, discard those lock file changes before the next locked restore.

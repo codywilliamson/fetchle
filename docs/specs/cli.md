@@ -23,9 +23,9 @@ Reference for every command, flag and output mode. Behavior described here is th
 
 | flag | default | meaning |
 |---|---|---|
-| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. |
+| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. At least 1, or exit 2. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
-| `--root <path>` | all roots | Restrict to one root. Repeatable. |
+| `--root <path>` | all roots | Restrict to one root. Repeatable. Until `roots` ships, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |
 | `--since <duration>` | none | Modified within, e.g. `3d`. |
 | `--type <f\|d>` | both | Files or directories only. |
@@ -43,7 +43,9 @@ fetchle picks a mode from where stdout goes.
 | agent | an agent env var is set, e.g. `CLAUDECODE=1` | Plain paths, then one footer line: `312 matches, showing 10, 4ms` or `..., stopped early: budget`. |
 | json | `--json` | JSON lines: `{"path", "score", "size", "modified"}`, then `{"total", "shown", "elapsed_ms", "stopped_early"}`. |
 
-Which env vars each agent actually sets must be confirmed before the agent mode ships.
+When several apply, the first match wins: `--json`, `--plain`, agent env var, redirected stdout, then pretty. Only pretty mode may start live widgets.
+
+Which env vars each agent actually sets must be confirmed before the agent mode ships. Until then only `CLAUDECODE` is checked.
 
 Pretty mode uses synchronized output (DEC 2026) for live regions, emits OSC 9;4 taskbar progress while indexing (rate-limited), and respects `NO_COLOR`. `NO_COLOR` drops color but keeps bold, dim and links, per no-color.org.
 
@@ -78,6 +80,8 @@ The store holds counts and totals only, never query text. Output shows totals an
 
 ## Help text
 
-`--help` is short: usage line and flags. `fetchle help <command>` is long, examples first, tldr-style. Man pages, the docs site and the agent skill text are all generated from the same source so they can't drift.
+`--help` is short: usage line and flags. `fetchle help <command>` is long, examples first, tldr-style. Until the long help is written, `fetchle help <command>` prints the command's `--help`.
+
+Commands that aren't implemented yet print `not implemented yet` to stderr and exit 2. Man pages, the docs site and the agent skill text are all generated from the same source so they can't drift.
 
 Agents read help too. The first screen of every command should be dense and copy-pasteable.

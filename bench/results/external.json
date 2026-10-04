@@ -1,0 +1,79 @@
+{
+  "machine": "WIMZI-R5",
+  "os": "Microsoft Windows 10.0.26200, 16 cpus",
+  "corpus_filler": 20000,
+  "results": [
+    {
+      "tool": "fetchle naive, full walk",
+      "shape": "realistic",
+      "median_ms": 381,
+      "runs_ms": [
+        413,
+        381,
+        380,
+        379,
+        632
+      ]
+    },
+    {
+      "tool": "rg --files",
+      "shape": "realistic",
+      "median_ms": 153,
+      "runs_ms": [
+        159,
+        153,
+        146,
+        354,
+        141
+      ]
+    },
+    {
+      "tool": "rg -j1 --files",
+      "shape": "realistic",
+      "median_ms": 515,
+      "runs_ms": [
+        519,
+        515,
+        532,
+        487,
+        492
+      ]
+    },
+    {
+      "tool": "fetchle naive, full walk",
+      "shape": "dir-heavy",
+      "median_ms": 7333,
+      "runs_ms": [
+        7351,
+        7231,
+        7333,
+        7355,
+        7148
+      ]
+    },
+    {
+      "tool": "rg --files",
+      "shape": "dir-heavy",
+      "median_ms": 2129,
+      "runs_ms": [
+        2384,
+        2197,
+        2082,
+        2078,
+        2129
+      ]
+    },
+    {
+      "tool": "rg -j1 --files",
+      "shape": "dir-heavy",
+      "median_ms": 7422,
+      "runs_ms": [
+        7720,
+        7276,
+        7422,
+        7405,
+        7490
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  { "query": "desktop app bundled claude binary", "expected": ["AppData/Roaming/Claude/claude-code/2.1.286/635c1867224a/claude.exe", "AppData/Roaming/Claude/claude-code/2.1.284/3f4bed3e44ad/claude.exe"] },
+  { "query": "powershell command history", "expected": ["AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/ConsoleHost_history.txt"] },
+  { "query": "vscode user settings", "expected": ["AppData/Roaming/Code/User/settings.json"] },
+  { "query": "windows terminal config", "expected": ["AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"] },
+  { "query": "chrome browsing history", "expected": ["AppData/Local/Google/Chrome/User Data/Default/History"] },
+  { "query": "firefox bookmarks database", "expected": ["AppData/Roaming/Mozilla/Firefox/Profiles/k2x9qv1a.default-release/places.sqlite"] },
+  { "query": "node version manager settings", "expected": ["AppData/Roaming/nvm/settings.txt"] },
+  { "query": "github desktop executable", "expected": ["AppData/Local/GitHubDesktop/GitHubDesktop.exe", "AppData/Local/GitHubDesktop/app-3.4.9/GitHubDesktop.exe"] },
+  { "query": "discord app executable", "expected": ["AppData/Local/Discord/app-1.0.9163/Discord.exe"] },
+  { "query": "obsidian vault list", "expected": ["AppData/Roaming/obsidian/obsidian.json"] },
+  { "query": "thunderbird mail search index", "expected": ["AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite"] },
+  { "query": "music streaming app", "expected": ["AppData/Roaming/Spotify/Spotify.exe"] }
+]

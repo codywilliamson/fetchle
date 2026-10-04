@@ -11,10 +11,12 @@ Ranked search over the index.
 | arg | type | default | meaning |
 |---|---|---|---|
 | `query` | string | required | Plain-words description or partial name. |
-| `limit` | int | 10 | Max results. |
+| `limit` | int | 10 | Max results. At least 1. |
 | `budget_ms` | int | 2000 | Hard time cap. Clamped to 25000 to stay under client transport timeouts. |
-| `root` | string | all roots | Restrict to one indexed root. |
-| `ext` | string[] | none | Extension filter. |
+| `root` | string or null | all roots | Restrict to one indexed root. Null means the default. |
+| `ext` | string[] or null | none | Extension filter. Null means no filter. |
+
+The arg records in `Fetchle.Mcp` are the source of truth: arguments deserialize into them, and each tool's `inputSchema` is generated from them, so the schema and the validation can't drift.
 
 Returns text content (one path per line plus the footer) and `structuredContent`:
 
@@ -28,7 +30,7 @@ Returns text content (one path per line plus the footer) and `structuredContent`
 }
 ```
 
-`stopped_early` is `null`, `"budget"` or `"limit"`. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
+`stopped_early` is `null`, `"budget"` or `"limit"`. Until `roots` ships, the default root is the server's working directory, and a `root` that doesn't exist or isn't a valid path is an invalid-params error. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
 
 ### `index_status`
 
@@ -36,7 +38,11 @@ No args. Returns roots, file counts, last full scan time, whether vectors are co
 
 ## Errors
 
-Unknown tools and bad arguments throw `McpProtocolException` with `McpErrorCode.InvalidParams`, which reaches the client as JSON-RPC error -32602. A plain `McpException` would come back as an `isError: true` tool result instead, which agents treat as a search failure.
+Unknown tools, unknown argument names, a missing `query` and bad argument values (including an explicit null for a non-nullable arg such as `limit`) throw `McpProtocolException` with `McpErrorCode.InvalidParams`, which reaches the client as JSON-RPC error -32602. A plain `McpException` would come back as an `isError: true` tool result instead, which agents treat as a search failure.
+
+## Shutdown
+
+Closing stdin stops the server with exit code 0. Requests still in flight at that moment are dropped, not answered. That's the SDK's stdio transport, and real clients wait for each response, so it doesn't bite them. A script that pipes a batch and closes stdin will see no answers.
 
 ## Schema compatibility
 

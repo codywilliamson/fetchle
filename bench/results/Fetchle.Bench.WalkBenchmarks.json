@@ -1,0 +1,155 @@
+{
+   "Title":"Fetchle.Bench.WalkBenchmarks-20261004-061044",
+   "HostEnvironmentInfo":{
+      "BenchmarkDotNetCaption":"BenchmarkDotNet",
+      "BenchmarkDotNetVersion":"0.15.8",
+      "OsVersion":"Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)",
+      "ProcessorName":"AMD Ryzen 7 5700",
+      "PhysicalProcessorCount":1,
+      "PhysicalCoreCount":8,
+      "LogicalCoreCount":16,
+      "RuntimeVersion":".NET 10.0.12 (10.0.12, 10.0.1226.42308)",
+      "Architecture":"X64",
+      "HasAttachedDebugger":false,
+      "HasRyuJit":true,
+      "Configuration":"RELEASE",
+      "DotNetCliVersion":"10.0.401",
+      "ChronometerFrequency":{
+         "Hertz":10000000
+      },
+      "HardwareTimerKind":"Unknown"
+   },
+   "Benchmarks":[
+      {
+         "DisplayInfo":"WalkBenchmarks.NaiveWalk: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Shape=dir-heavy]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"WalkBenchmarks",
+         "Method":"NaiveWalk",
+         "MethodTitle":"NaiveWalk",
+         "Parameters":"Shape=dir-heavy",
+         "FullName":"Fetchle.Bench.WalkBenchmarks.NaiveWalk(Shape: \"dir-heavy\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               7032854700,7150369600,6941207100,6876740300,6958915700
+            ],
+            "N":5,
+            "Min":6876740300,
+            "LowerFence":6803735700,
+            "Q1":6941207100,
+            "Median":6958915700,
+            "Mean":6992017480,
+            "Q3":7032854700,
+            "UpperFence":7170326100,
+            "Max":7150369600,
+            "InterquartileRange":91647600,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":46748969.63008276,
+            "Variance":10927330807372000,
+            "StandardDeviation":104533873.97093825,
+            "Skewness":0.4096205491246506,
+            "Kurtosis":1.36678464552213,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":6992017480,
+               "StandardError":46748969.63008276,
+               "Level":12,
+               "Margin":402522726.2509163,
+               "Lower":6589494753.7490835,
+               "Upper":7394540206.2509165
+            },
+            "Percentiles":{
+               "P0":6876740300,
+               "P25":6941207100,
+               "P50":6958915700,
+               "P67":7009194220,
+               "P80":7056357680,
+               "P85":7079860660,
+               "P90":7103363640,
+               "P95":7126866620,
+               "P100":7150369600
+            }
+         },
+         "Memory":{
+            "Gen0Collections":1,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":11474312
+         }
+      },{
+         "DisplayInfo":"WalkBenchmarks.NaiveWalk: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Shape=realistic]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"WalkBenchmarks",
+         "Method":"NaiveWalk",
+         "MethodTitle":"NaiveWalk",
+         "Parameters":"Shape=realistic",
+         "FullName":"Fetchle.Bench.WalkBenchmarks.NaiveWalk(Shape: \"realistic\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               333545300,362505500,362610600,351924300,364670700
+            ],
+            "N":5,
+            "Min":333545300,
+            "LowerFence":335894850,
+            "Q1":351924300,
+            "Median":362505500,
+            "Mean":355051280,
+            "Q3":362610600,
+            "UpperFence":378640050,
+            "Max":364670700,
+            "InterquartileRange":10686300,
+            "LowerOutliers":[
+               333545300
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               333545300
+            ],
+            "StandardError":5820339.919145617,
+            "Variance":169381783872000,
+            "StandardDeviation":13014675.711365229,
+            "Skewness":-0.7476669507061942,
+            "Kurtosis":1.5958331410107622,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":355051280,
+               "StandardError":5820339.919145617,
+               "Level":12,
+               "Margin":50114881.90006947,
+               "Lower":304936398.0999305,
+               "Upper":405166161.9000695
+            },
+            "Percentiles":{
+               "P0":333545300,
+               "P25":351924300,
+               "P50":362505500,
+               "P67":362576968,
+               "P80":363022620,
+               "P85":363434640,
+               "P90":363846660,
+               "P95":364258680,
+               "P100":364670700
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":737512
+         }
+      }
+   ]
+}

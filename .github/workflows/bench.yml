@@ -1,0 +1,33 @@
+name: bench
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: bench
+        run: dotnet build.cs bench
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench/results/

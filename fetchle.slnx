@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fetchle.Core/Fetchle.Core.csproj" />
+    <Project Path="src/Fetchle.Watch/Fetchle.Watch.csproj" />
+    <Project Path="src/Fetchle.Mcp/Fetchle.Mcp.csproj" />
+    <Project Path="src/Fetchle.Cli/Fetchle.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fetchle.Fixtures/Fetchle.Fixtures.csproj" />
+    <Project Path="tests/Fetchle.Tests/Fetchle.Tests.csproj" />
+    <Project Path="tests/Fetchle.E2E/Fetchle.E2E.csproj" />
+  </Folder>
+  <Folder Name="/bench/">
+    <Project Path="bench/Fetchle.Bench/Fetchle.Bench.csproj" />
+  </Folder>
+  <Folder Name="/evals/">
+    <Project Path="evals/Fetchle.Evals/Fetchle.Evals.csproj" />
+  </Folder>
+</Solution>

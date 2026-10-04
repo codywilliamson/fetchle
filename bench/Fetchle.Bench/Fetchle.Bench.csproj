@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Fetchle.Core\Fetchle.Core.csproj" />
+    <ProjectReference Include="..\..\tests\Fetchle.Fixtures\Fetchle.Fixtures.csproj" />
+  </ItemGroup>
+</Project>

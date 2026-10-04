@@ -8,7 +8,9 @@ Ranking and scoring, segment tokenizing, the noise filter for hashes and GUIDs, 
 
 Glue code gets no unit tests. If a class only wires two others together, the e2e suite covers it.
 
-TUnit is the candidate framework. It uses source generators and runs under NativeAOT, so the unit tests could also run against an AOT build.
+The framework is TUnit. It uses source generators and runs under NativeAOT, so the unit tests can also run against an AOT build: `dotnet publish tests/Fetchle.Tests -p:PublishAot=true`, then run the exe.
+
+The e2e project publishes the native exe once per run, before any test starts. Set `FETCHLE_EXE` to point it at an existing build instead. Fixture trees come from `tests/Fetchle.Fixtures`. A feature the OS or user can't create, such as a case collision on NTFS or an unreadable dir when running as root, is skipped with a reason rather than passed silently.
 
 ## End-to-end against fixture trees
 
@@ -47,4 +49,4 @@ Agents can talk their way past a code review. They can't fake a p50.
 
 ## Where it runs
 
-Every PR runs unit tests, e2e and evals on Windows, Linux and macOS. Benchmarks run on main and on release tags, because shared CI runners are too noisy for per-PR perf gates.
+Every PR runs unit tests, e2e and evals on Windows, Linux and macOS through `dotnet build.cs ci`. It restores, builds and publishes the native exe once, then runs the suites with `--no-build` and points the e2e suite at that exe with `FETCHLE_EXE`. Run the same pipeline locally with `dotnet build.cs ci`, or one piece with `dotnet build.cs <restore|build|test|e2e|eval|publish|bench>`. Benchmarks run on main and on release tags, because shared CI runners are too noisy for per-PR perf gates.

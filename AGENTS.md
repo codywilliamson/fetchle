@@ -4,7 +4,7 @@ fetchle is a ranked file finder for agents and humans: one NativeAOT .NET 10 bin
 
 ## Status
 
-Pre-alpha. The repo holds specs and spike results. v0.1 in [docs/roadmap.md](docs/roadmap.md) is the next work.
+Pre-alpha. Every spec'd command exists, but most exit 2 with "not implemented yet". Search runs end to end on a naive placeholder walker and substring match. The real walker, path store, rankers, embeddings and watcher are the next work; [docs/roadmap.md](docs/roadmap.md) orders them.
 
 ## Where things are specified
 
@@ -14,6 +14,8 @@ Pre-alpha. The repo holds specs and spike results. v0.1 in [docs/roadmap.md](doc
 - Tests, evals, benchmarks: [docs/testing.md](docs/testing.md)
 
 When behavior and spec disagree, fix one of them in the same change. Don't let them drift.
+
+Docs referenced from this file stay high-level and current. Low-level detail lives in code and tests, where it can't go stale. Update a referenced doc in the same change that makes it wrong.
 
 ## Rules that came from spikes
 
@@ -48,9 +50,7 @@ Performance is a core principle of this project. See [docs/vision.md](docs/visio
 
 ## The loop
 
-Build, test, eval, bench. A change isn't done until the native exe passes e2e, not just the JIT build.
-
-Local Windows AOT publish needs the VS Build Tools C++ workload and `${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer` on PATH, or link fails with `'vswhere.exe' is not recognized`.
+`dotnet build.cs <target>` runs every step: build, test, eval, bench. A change isn't done until the native exe passes `dotnet build.cs e2e`, not just the JIT build. `dotnet build.cs ci` runs the whole pipeline once.
 
 ## Conventions
 

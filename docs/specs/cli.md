@@ -23,7 +23,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 
 | flag | default | meaning |
 |---|---|---|
-| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. |
+| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. At least 1, or exit 2. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
 | `--root <path>` | all roots | Restrict to one root. Repeatable. Until `roots` ships, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |

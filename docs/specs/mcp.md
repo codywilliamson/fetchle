@@ -11,7 +11,7 @@ Ranked search over the index.
 | arg | type | default | meaning |
 |---|---|---|---|
 | `query` | string | required | Plain-words description or partial name. |
-| `limit` | int | 10 | Max results. |
+| `limit` | int | 10 | Max results. At least 1. |
 | `budget_ms` | int | 2000 | Hard time cap. Clamped to 25000 to stay under client transport timeouts. |
 | `root` | string | all roots | Restrict to one indexed root. |
 | `ext` | string[] | none | Extension filter. |

@@ -55,7 +55,7 @@ static class FetchleApp
             new CommandUsage("Usage: {NAME} [options] <query>"),
             _,
             { "i", "Live picker, re-ranks as you type", _ => search.Interactive = true },
-            { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => search.Limit = v },
+            { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => search.Limit = v >= 1 ? v : throw new CommandOptionException("limit must be at least 1", "limit") },
             { "budget=", "Stop after {DURATION} and report what was skipped (default 2s)", v => search.Budget = Durations.Parse(v, "budget") },
             { "root=", "Restrict to {PATH}, repeatable (default: current directory)", search.Roots },
             { "ext=", "Only this {EXT}ension, repeatable", search.Extensions },

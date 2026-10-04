@@ -16,8 +16,8 @@ public class QueryBenchmarks
 
     public static IEnumerable<string> Shapes => BenchCorpus.Shapes;
 
-    // "settings" hits a handful of landmarks, "zzz" hits nothing and costs a full walk
-    [Params("settings", "zzz")]
+    // "settings" hits a handful of landmarks, ".json" hits thousands, "zzz" hits nothing
+    [Params("settings", ".json", "zzz")]
     public string Query { get; set; } = "";
 
     [GlobalSetup]

@@ -24,7 +24,8 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
 
         var ranker = new SubstringRanker(request.Query);
         var walker = new NaiveWalker(prune);
-        var hits = new List<SearchHit>();
+        var hits = new TopHits(request.Limit);
+        var total = 0;
         var relative = new char[256];
         foreach (var root in roots)
         {
@@ -41,21 +42,18 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
                 var path = relativeDir.IsEmpty ? entry.FileName : relative.AsSpan(0, length);
 
                 var score = ranker.Score(path, entry.FileName);
-                if (score > 0)
+                if (score <= 0) return;
+                total++;
+                // only allocate the full path for hits that make the cut
+                var fullLength = entry.Directory.Length + (Path.EndsInDirectorySeparator(entry.Directory) ? 0 : 1) + entry.FileName.Length;
+                if (hits.WouldKeep(score, fullLength))
                     hits.Add(new SearchHit(entry.ToFullPath(), score, entry.IsDirectory ? null : entry.Length, entry.LastWriteTimeUtc));
             }, deadline);
         }
         cancellationToken.ThrowIfCancellationRequested();
 
-        hits.Sort(static (a, b) =>
-        {
-            var c = b.Score.CompareTo(a.Score);
-            if (c == 0) c = a.Path.Length.CompareTo(b.Path.Length);
-            return c != 0 ? c : string.CompareOrdinal(a.Path, b.Path);
-        });
-        var shown = hits.Count > request.Limit ? hits.GetRange(0, request.Limit) : hits;
         var stoppedEarly = completed ? null : StopReasons.Budget;
-        return new SearchResult(shown, hits.Count, Stopwatch.GetElapsedTime(start), stoppedEarly);
+        return new SearchResult(hits.ToSortedList(), total, Stopwatch.GetElapsedTime(start), stoppedEarly);
     }
 
     static string NormalizeRoot(string root)

@@ -11,9 +11,6 @@ public sealed class ProcessTimer
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
-        // CLAUDECODE switches fetchle into agent mode, time the plain output instead
-        startInfo.Environment.Remove("CLAUDECODE");
-
         var start = Stopwatch.GetTimestamp();
         using var process = Process.Start(startInfo)!;
         var stderr = process.StandardError.ReadToEndAsync();

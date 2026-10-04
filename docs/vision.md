@@ -20,6 +20,14 @@ Every competitor we found filters. None of them rank. An agent asking for "the b
 
 Lexical matching still wins on exact names, so fetchle fuses both. [architecture.md](architecture.md) has the pipeline.
 
+## Performance is the point
+
+fetchle exists partly to show how fast .NET can go, so performance is a core principle, not a phase. The bar is the best tool in each category: rg for walking, Everything for indexed lookup, fd for ergonomics. Being fast for .NET doesn't count.
+
+Every hot path has a BenchmarkDotNet benchmark with allocation counts, the results are committed, and CI fails on regressions. Each optimization that lands gets measured before and after, and the good ones become posts. The toolbox is modern .NET used on purpose: NativeAOT, spans and `stackalloc`, pooled buffers, SIMD through `Vector<T>` and `TensorPrimitives`, struct-of-arrays layouts, memory-mapped files, source generators instead of reflection, and direct OS calls where the managed layer costs too much.
+
+A claim without a committed number doesn't go in the README.
+
 ## Privacy is structural
 
 The index, the embedding model and the query log all live on disk. There is no telemetry and no network call in the search path. `fetchle savings` stores counts, never queries. An optional generative model for the human CLI is off by default, and it can only reach the network if the user points it somewhere.
@@ -33,6 +41,7 @@ These are the README headline numbers, and CI holds the project to them once the
 | warm query, p50 | under 10 ms |
 | right file in top 3 | 90% of the eval set |
 | cold index of a home dir, no admin | under 30 s |
+| cold walk vs `rg --files` on the same tree | faster, at equal or lower peak memory |
 | agent tokens for a "find X" task | 10x below the `gci` baseline |
 | native exe | under 15 MB, model shipped beside it |
 

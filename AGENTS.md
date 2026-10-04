@@ -24,6 +24,16 @@ When behavior and spec disagree, fix one of them in the same change. Don't let t
 - All JSON goes through source-generated `JsonSerializerContext`.
 - Any new dependency must publish under NativeAOT with zero IL2xxx/IL3xxx warnings. Check before adding it.
 
+## Performance rules
+
+Performance is a core principle of this project. See [docs/vision.md](docs/vision.md).
+
+- Any change to a hot path (walk, index, tokenize, embed, rank, output) comes with BenchmarkDotNet numbers before and after, `[MemoryDiagnoser]` on. Put them in the commit body.
+- No allocations in per-entry loops. Use spans, `stackalloc`, pooled buffers and struct-of-arrays.
+- No LINQ, reflection or boxing on hot paths.
+- Compare against the best external tool for the job (rg, fd, Everything), not just our previous version.
+- Guesses about why something is slow are labeled as guesses until a profile or benchmark confirms them.
+
 ## The loop
 
 Build, test, eval, bench. A change isn't done until the native exe passes e2e, not just the JIT build.

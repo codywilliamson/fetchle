@@ -8,7 +8,8 @@ Each iteration is a vertical slice sized for a day or two of agent work. It ends
 - Walker with default prune rules, path store, memory-mapped snapshot.
 - `fetchle <query>` with substring and glob matching, plain and pretty output, budgets.
 - `fetchle index`, `fetchle roots`, `fetchle doctor` (basic checks).
-- Benchmark against `gci`, `dir /s /b` and fd on a fixture corpus.
+- Benchmark against `gci`, `dir /s /b`, `rg --files` and fd on a fixture corpus.
+- Work-stealing walker with per-worker LIFO deques, chasing rg's thread scaling.
 
 Exit check: e2e green on three OSes, benchmark JSON committed, install script works twice in a row on a clean runner.
 

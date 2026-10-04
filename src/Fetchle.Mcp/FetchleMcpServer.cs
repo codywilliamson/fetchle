@@ -4,10 +4,9 @@ using ModelContextProtocol.Server;
 
 namespace Fetchle.Mcp;
 
-// stdio mcp server with hand-written handlers and no hosting, see docs/spikes/mcp.md
-public static class McpServerHost
+public sealed class FetchleMcpServer(Tools tools, string version)
 {
-    public static async Task RunAsync(Tools tools, string version, CancellationToken cancellationToken)
+    public async Task RunAsync(CancellationToken cancellationToken)
     {
         var options = new McpServerOptions
         {

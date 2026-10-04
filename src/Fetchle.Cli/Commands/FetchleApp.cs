@@ -96,7 +96,7 @@ static class FetchleApp
                     onAction();
                     // default root is the working directory until roots ship
                     var tools = new Tools(new NaiveFileSearch(PruneRules.Default), Environment.CurrentDirectory);
-                    await McpServerHost.RunAsync(tools, Version, CancellationToken.None);
+                    await new FetchleMcpServer(tools, Version).RunAsync(CancellationToken.None);
                     return ExitCodes.Success;
                 },
             },

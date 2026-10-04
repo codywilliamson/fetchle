@@ -1,4 +1,3 @@
-using Fetchle.Cli;
 using Fetchle.Cli.Output;
 using Fetchle.Core.Search;
 using XenoAtom.Ansi;
@@ -8,7 +7,7 @@ using XenoAtom.Terminal.Backends;
 namespace Fetchle.Tests.Cli;
 
 [NotInParallel(nameof(Terminal))]
-public class PrettyOutputTests
+public class PrettyResultWriterTests
 {
     static readonly DateTimeOffset Now = new(2026, 10, 3, 12, 0, 0, TimeSpan.Zero);
     static readonly string FilePath = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "app", "Settings.json"));
@@ -18,7 +17,7 @@ public class PrettyOutputTests
         var backend = new InMemoryTerminalBackend(new TerminalSize(120, 40), capabilities);
         using var _ = Terminal.Open(backend, new TerminalOptions(), force: true);
         var result = new SearchResult([new SearchHit(FilePath, 1, 1_536, Now.AddDays(-2))], 1, TimeSpan.FromMilliseconds(3), null);
-        PrettyOutput.Write(result, "settings", Now);
+        new PrettyResultWriter("settings", new FixedClock(Now)).Write(result);
         return backend.GetOutText();
     }
 
@@ -40,4 +39,9 @@ public class PrettyOutputTests
         await Assert.That(text).DoesNotContain("\e");
         await Assert.That(text).Contains(FilePath + "  1.5 KB  2d ago");
     }
+}
+
+sealed class FixedClock(DateTimeOffset now) : TimeProvider
+{
+    public override DateTimeOffset GetUtcNow() => now;
 }

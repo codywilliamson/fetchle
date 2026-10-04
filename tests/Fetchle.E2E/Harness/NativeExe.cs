@@ -2,8 +2,7 @@ using System.Diagnostics;
 
 namespace Fetchle.E2E.Harness;
 
-// the published native exe is the product, so e2e drives it, docs/testing.md.
-// published once per run; set FETCHLE_EXE to reuse an existing build
+// set FETCHLE_EXE to reuse an existing build instead of publishing
 public static class NativeExe
 {
     public static string Path { get; private set; } = "";
@@ -24,17 +23,21 @@ public static class NativeExe
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
-        // aot link needs vswhere.exe on PATH, see docs/release.md
+        // aot link needs vswhere.exe on PATH
         var vsInstaller = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Visual Studio", "Installer");
         if (OperatingSystem.IsWindows() && Directory.Exists(vsInstaller))
+        {
             psi.Environment["PATH"] = Environment.GetEnvironmentVariable("PATH") + System.IO.Path.PathSeparator + vsInstaller;
+        }
 
         using var process = Process.Start(psi)!;
         var stdout = process.StandardOutput.ReadToEndAsync();
         var stderr = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
         if (process.ExitCode != 0)
+        {
             throw new InvalidOperationException($"native publish failed ({process.ExitCode}):\n{await stdout}\n{await stderr}");
+        }
 
         Path = System.IO.Path.Combine(output, OperatingSystem.IsWindows() ? "fetchle.exe" : "fetchle");
     }
@@ -42,7 +45,13 @@ public static class NativeExe
     static string RepoRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-            if (File.Exists(System.IO.Path.Combine(dir.FullName, "fetchle.slnx"))) return dir.FullName;
+        {
+            if (File.Exists(System.IO.Path.Combine(dir.FullName, "fetchle.slnx")))
+            {
+                return dir.FullName;
+            }
+        }
+
         throw new InvalidOperationException("can't find fetchle.slnx above " + AppContext.BaseDirectory);
     }
 }

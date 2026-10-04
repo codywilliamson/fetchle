@@ -8,9 +8,9 @@ public class SinceCutoffTests
 
     [Test]
     public async Task Subtracts_the_window() =>
-        await Assert.That(SearchCommand.SinceCutoff(TimeSpan.FromDays(3), Now)).IsEqualTo(Now.AddDays(-3));
+        await Assert.That(SearchArgs.SinceCutoff(TimeSpan.FromDays(3), Now)).IsEqualTo(Now.AddDays(-3));
 
     [Test]
     public async Task Clamps_windows_older_than_time_itself() =>
-        await Assert.That(SearchCommand.SinceCutoff(TimeSpan.FromDays(1_000_000), Now)).IsEqualTo(DateTimeOffset.MinValue);
+        await Assert.That(SearchArgs.SinceCutoff(TimeSpan.FromDays(1_000_000), Now)).IsEqualTo(DateTimeOffset.MinValue);
 }

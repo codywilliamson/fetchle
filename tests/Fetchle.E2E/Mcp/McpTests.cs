@@ -31,12 +31,12 @@ public class McpTests
 
         var find = await mcp.CallAsync("find_files", new JsonObject { ["query"] = "settings" });
         var structured = find["result"]!["structuredContent"]!;
-        await Assert.That(structured["paths"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Full(FixtureTree.SettingsFile));
+        await Assert.That(structured["paths"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Full(FixtureTree.SETTINGS_FILE));
         await Assert.That(structured["total_matches"]!.GetValue<int>()).IsEqualTo(1);
         await Assert.That(structured["shown"]!.GetValue<int>()).IsEqualTo(1);
         await Assert.That(structured["stopped_early"]).IsNull();
         var text = find["result"]!["content"]![0]!["text"]!.GetValue<string>();
-        await Assert.That(text).StartsWith(tree.Full(FixtureTree.SettingsFile) + "\n1 matches, showing 1, ");
+        await Assert.That(text).StartsWith(tree.Full(FixtureTree.SETTINGS_FILE) + "\n1 matches, showing 1, ");
 
         var status = await mcp.CallAsync("index_status", new JsonObject());
         await Assert.That(status["result"]!["structuredContent"]!["roots"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Root);
@@ -86,7 +86,7 @@ public class McpTests
         await using var mcp = await McpSession.StartInitializedAsync(tree.Root);
 
         var find = await mcp.CallAsync("find_files", new JsonObject { ["query"] = "settings", ["root"] = null, ["ext"] = null });
-        await Assert.That(find["result"]!["structuredContent"]!["paths"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Full(FixtureTree.SettingsFile));
+        await Assert.That(find["result"]!["structuredContent"]!["paths"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Full(FixtureTree.SETTINGS_FILE));
     }
 
     [Test]
@@ -162,7 +162,10 @@ public class McpTests
                     ?? throw new InvalidOperationException($"server closed stdout: {await _process.StandardError.ReadToEndAsync()}");
                 var message = JsonNode.Parse(line)!;
                 // skip notifications and anything that isn't our answer
-                if (message["id"]?.GetValueKind() == JsonValueKind.Number && message["id"]!.GetValue<int>() == id) return message;
+                if (message["id"]?.GetValueKind() == JsonValueKind.Number && message["id"]!.GetValue<int>() == id)
+                {
+                    return message;
+                }
             }
         }
 

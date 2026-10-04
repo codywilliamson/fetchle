@@ -4,8 +4,7 @@ using Fetchle.Core.Walking;
 
 namespace Fetchle.Core.Naive;
 
-// PLACEHOLDER: single-threaded recursive walk. the parallel work-stealing walker replaces this.
-// exists so e2e and bench have something real to drive and the real walker has a baseline
+// PLACEHOLDER: replaced by the parallel walker
 public sealed class NaiveWalker(PruneRules prune)
 {
     public delegate void EntryVisitor(ref FileSystemEntry entry);
@@ -23,7 +22,11 @@ public sealed class NaiveWalker(PruneRules prune)
     public bool Walk(string root, EntryVisitor visit, Deadline deadline)
     {
         // an empty root never reaches the predicates, so check once up front
-        if (deadline.IsExpired()) return false;
+        if (deadline.IsExpired())
+        {
+            return false;
+        }
+
         var stopped = false;
         var enumerable = new FileSystemEnumerable<byte>(root, static (ref _) => 0, Options)
         {
@@ -31,8 +34,16 @@ public sealed class NaiveWalker(PruneRules prune)
                 !(stopped |= deadline.IsExpired()) && !prune.ShouldPrune(entry.Directory, entry.FileName),
             ShouldIncludePredicate = (ref entry) =>
             {
-                if (stopped |= deadline.IsExpired()) return false;
-                if (entry.IsDirectory && prune.ShouldPrune(entry.Directory, entry.FileName)) return false;
+                if (stopped |= deadline.IsExpired())
+                {
+                    return false;
+                }
+
+                if (entry.IsDirectory && prune.ShouldPrune(entry.Directory, entry.FileName))
+                {
+                    return false;
+                }
+
                 visit(ref entry);
                 return false;
             },

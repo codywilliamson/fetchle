@@ -22,7 +22,7 @@ public class QueryBenchmarks
 
     [GlobalSetup]
     public void Setup() =>
-        _request = new SearchRequest(Query, [BenchCorpus.Ensure(Shape)], SearchRequest.DefaultLimit, TimeSpan.FromMinutes(5));
+        _request = new SearchRequest(Query, [BenchCorpus.Ensure(Shape)], SearchRequest.DEFAULT_LIMIT, TimeSpan.FromMinutes(5));
 
     [Benchmark]
     public int NaiveSearch() => _search.Search(_request, CancellationToken.None).TotalMatches;

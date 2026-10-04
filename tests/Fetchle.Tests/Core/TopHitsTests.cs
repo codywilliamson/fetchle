@@ -11,7 +11,13 @@ public class TopHitsTests
     {
         var top = new TopHits(limit);
         foreach (var hit in hits)
-            if (top.WouldKeep(hit.Score, hit.Path.Length)) top.Add(hit);
+        {
+            if (top.WouldKeep(hit.Score, hit.Path.Length))
+            {
+                top.Add(hit);
+            }
+        }
+
         return top.ToSortedList().ConvertAll(h => h.Path);
     }
 

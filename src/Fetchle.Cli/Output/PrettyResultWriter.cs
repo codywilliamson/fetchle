@@ -4,30 +4,39 @@ using XenoAtom.Terminal;
 
 namespace Fetchle.Cli.Output;
 
-// tty only: clickable paths, query match highlighted, size and age dimmed, footer.
-// goes through Terminal so NO_COLOR and capability detection apply
-static class PrettyOutput
+// writes through Terminal so NO_COLOR and capability detection apply
+sealed class PrettyResultWriter(string query, TimeProvider clock) : IResultWriter
 {
-    public static void Write(SearchResult result, string query, DateTimeOffset? now = null)
+    public void Write(SearchResult result)
     {
-        var at = now ?? DateTimeOffset.UtcNow;
+        var now = clock.GetUtcNow();
         foreach (var hit in result.Hits)
         {
             Terminal.BeginLink(new Uri(hit.Path).AbsoluteUri);
-            WriteHighlighted(hit.Path, query);
+            WriteHighlighted(hit.Path);
             Terminal.EndLink();
-            Terminal.Decorate(AnsiDecorations.Dim);
-            Terminal.Write(hit.Size is { } size ? $"  {Humanize.Size(size)}  {Humanize.Age(at - hit.Modified)}" : $"  {Humanize.Age(at - hit.Modified)}");
-            Terminal.ResetStyle();
+            WriteDim(Details(hit, now));
             Terminal.WriteLine();
         }
-        Terminal.Decorate(AnsiDecorations.Dim);
-        Terminal.Write(result.Footer());
-        Terminal.ResetStyle();
+
+        WriteDim(result.Footer());
         Terminal.WriteLine();
     }
 
-    static void WriteHighlighted(string path, string query)
+    static string Details(SearchHit hit, DateTimeOffset now)
+    {
+        var age = Humanize.Age(now - hit.Modified);
+        return hit.Size is { } size ? $"  {Humanize.Size(size)}  {age}" : $"  {age}";
+    }
+
+    static void WriteDim(string text)
+    {
+        Terminal.Decorate(AnsiDecorations.Dim);
+        Terminal.Write(text);
+        Terminal.ResetStyle();
+    }
+
+    void WriteHighlighted(string path)
     {
         var at = path.LastIndexOf(query, StringComparison.OrdinalIgnoreCase);
         if (at < 0)
@@ -35,6 +44,7 @@ static class PrettyOutput
             Terminal.Write(path);
             return;
         }
+
         Terminal.Write(path[..at]);
         Terminal.Foreground(AnsiColors.Yellow);
         Terminal.Decorate(AnsiDecorations.Bold);

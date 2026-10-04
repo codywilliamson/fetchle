@@ -4,19 +4,18 @@ using System.Security.Principal;
 
 namespace Fetchle.Fixtures;
 
-// a temp tree with the things that break walkers, docs/testing.md#end-to-end-against-fixture-trees.
-// same seed, same tree. features the os or user can't create are left out and reported in Created
+// features the os or user can't create are left out and reported in Created
 public sealed class FixtureTree : IDisposable
 {
-    public const string SettingsFile = "src/app/Settings.json";
-    public const string PrunedSettingsFile = "node_modules/pkg/node_modules/inner/lib/settings.json";
-    public const string GitSettingsFile = ".git/settings";
-    public const string JunctionDir = "links/to-src";
-    public const string LoopDir = "links/loop";
-    public const string LockedFile = "locked/secret-locked.txt";
-    public const string CaseLower = "case/readme-collide.md";
-    public const string CaseUpper = "case/README-COLLIDE.md";
-    public const string LongPathMarker = "deep-target.txt";
+    public const string SETTINGS_FILE = "src/app/Settings.json";
+    public const string PRUNED_SETTINGS_FILE = "node_modules/pkg/node_modules/inner/lib/settings.json";
+    public const string GIT_SETTINGS_FILE = ".git/settings";
+    public const string JUNCTION_DIR = "links/to-src";
+    public const string LOOP_DIR = "links/loop";
+    public const string LOCKED_FILE = "locked/secret-locked.txt";
+    public const string CASE_LOWER = "case/readme-collide.md";
+    public const string CASE_UPPER = "case/README-COLLIDE.md";
+    public const string LONG_PATH_MARKER = "deep-target.txt";
 
     public static readonly string[] UnicodeFiles = ["unicode/café.txt", "unicode/日本語.md", "unicode/🦊 fox notes.txt"];
 
@@ -36,8 +35,11 @@ public sealed class FixtureTree : IDisposable
         var root = Path.Combine(ResolveLinks(Path.GetTempPath()), $"fetchle-fixture-{seed}-{Guid.NewGuid():N}");
         var filler = Filler(seed, fillerFiles);
         var tree = new FixtureTree(root, filler);
-        foreach (var file in (string[])[SettingsFile, "src/app/main.cs", "docs/readme.md", PrunedSettingsFile, GitSettingsFile, .. UnicodeFiles, .. filler])
+        foreach (var file in (string[])[SETTINGS_FILE, "src/app/main.cs", "docs/readme.md", PRUNED_SETTINGS_FILE, GIT_SETTINGS_FILE, .. UnicodeFiles, .. filler])
+        {
             tree.Touch(file);
+        }
+
         tree.CreateLongPath();
         tree.CreateLinks();
         tree.CreateLocked();
@@ -53,7 +55,10 @@ public sealed class FixtureTree : IDisposable
         foreach (var segment in path[resolved.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
         {
             resolved = Path.Combine(resolved, segment);
-            if (Directory.ResolveLinkTarget(resolved, returnFinalTarget: true) is { } target) resolved = target.FullName;
+            if (Directory.ResolveLinkTarget(resolved, returnFinalTarget: true) is { } target)
+            {
+                resolved = target.FullName;
+            }
         }
         return resolved;
     }
@@ -70,8 +75,12 @@ public sealed class FixtureTree : IDisposable
     void CreateLongPath()
     {
         var segments = new List<string> { "long" };
-        while (Full(string.Join('/', segments)).Length < 300) segments.Add(new string('d', 40) + segments.Count);
-        segments.Add(LongPathMarker);
+        while (Full(string.Join('/', segments)).Length < 300)
+        {
+            segments.Add(new string('d', 40) + segments.Count);
+        }
+
+        segments.Add(LONG_PATH_MARKER);
         LongPathFile = string.Join('/', segments);
         Touch(LongPathFile);
         Created |= FixtureFeatures.LongPath;
@@ -80,8 +89,15 @@ public sealed class FixtureTree : IDisposable
     void CreateLinks()
     {
         Directory.CreateDirectory(Full("links"));
-        if (TryLink(Full(JunctionDir), Full("src"))) Created |= FixtureFeatures.Junction;
-        if (TryLink(Full(LoopDir), Root)) Created |= FixtureFeatures.SymlinkLoop;
+        if (TryLink(Full(JUNCTION_DIR), Full("src")))
+        {
+            Created |= FixtureFeatures.Junction;
+        }
+
+        if (TryLink(Full(LOOP_DIR), Root))
+        {
+            Created |= FixtureFeatures.SymlinkLoop;
+        }
     }
 
     // a junction on windows (no privilege needed), a directory symlink elsewhere
@@ -110,7 +126,7 @@ public sealed class FixtureTree : IDisposable
 
     void CreateLocked()
     {
-        Touch(LockedFile);
+        Touch(LOCKED_FILE);
         var dir = Full("locked");
         if (OperatingSystem.IsWindows())
         {
@@ -137,7 +153,11 @@ public sealed class FixtureTree : IDisposable
     void Unlock()
     {
         var dir = Full("locked");
-        if (!Directory.Exists(dir)) return;
+        if (!Directory.Exists(dir))
+        {
+            return;
+        }
+
         if (OperatingSystem.IsWindows())
         {
             var info = new DirectoryInfo(dir);
@@ -153,10 +173,14 @@ public sealed class FixtureTree : IDisposable
 
     void CreateCaseCollision()
     {
-        Touch(CaseLower);
+        Touch(CASE_LOWER);
         // on a case-insensitive file system the second name is the same file
-        if (File.Exists(Full(CaseUpper))) return;
-        Touch(CaseUpper);
+        if (File.Exists(Full(CASE_UPPER)))
+        {
+            return;
+        }
+
+        Touch(CASE_UPPER);
         Created |= FixtureFeatures.CaseCollision;
     }
 
@@ -180,8 +204,14 @@ public sealed class FixtureTree : IDisposable
         {
             Unlock();
             // remove links first so a recursive delete can't wander through them
-            foreach (var link in (string[])[JunctionDir, LoopDir])
-                if (Directory.Exists(Full(link))) Directory.Delete(Full(link));
+            foreach (var link in (string[])[JUNCTION_DIR, LOOP_DIR])
+            {
+                if (Directory.Exists(Full(link)))
+                {
+                    Directory.Delete(Full(link));
+                }
+            }
+
             Directory.Delete(Root, recursive: true);
         }
         catch (IOException)

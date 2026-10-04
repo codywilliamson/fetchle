@@ -12,5 +12,5 @@ public class FooterTests
 
     [Test]
     public async Task Stopped_early() =>
-        await Assert.That(new SearchResult([], 0, TimeSpan.FromMilliseconds(2001), StopReasons.Budget).Footer()).IsEqualTo("0 matches, showing 0, 2001ms, stopped early: budget");
+        await Assert.That(new SearchResult([], 0, TimeSpan.FromMilliseconds(2001), StopReasons.BUDGET).Footer()).IsEqualTo("0 matches, showing 0, 2001ms, stopped early: budget");
 }

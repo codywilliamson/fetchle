@@ -4,7 +4,6 @@ public sealed record SearchHit(string Path, double Score, long? Size, DateTimeOf
 
 public sealed record SearchResult(IReadOnlyList<SearchHit> Hits, int TotalMatches, TimeSpan Elapsed, string? StoppedEarly)
 {
-    // footer shared by agent mode and mcp text content, docs/specs/cli.md#output-modes
     public string Footer()
     {
         var footer = $"{TotalMatches} matches, showing {Hits.Count}, {(long)Elapsed.TotalMilliseconds}ms";
@@ -12,9 +11,8 @@ public sealed record SearchResult(IReadOnlyList<SearchHit> Hits, int TotalMatche
     }
 }
 
-// wire values of stopped_early, docs/specs/mcp.md
 public static class StopReasons
 {
-    public const string Budget = "budget";
-    public const string Limit = "limit";
+    public const string BUDGET = "budget";
+    public const string LIMIT = "limit";
 }

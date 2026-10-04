@@ -1,35 +1,46 @@
+using System.Collections.Frozen;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using XenoAtom.CommandLine;
 
 namespace Fetchle.Cli.Commands;
 
-// parses "250ms", "2s", "1.5m", "1h", "3d"
-static class Durations
+static partial class Durations
 {
+    static readonly FrozenDictionary<string, TimeSpan> Units = new Dictionary<string, TimeSpan>
+    {
+        ["ms"] = TimeSpan.FromMilliseconds(1),
+        ["s"] = TimeSpan.FromSeconds(1),
+        ["m"] = TimeSpan.FromMinutes(1),
+        ["h"] = TimeSpan.FromHours(1),
+        ["d"] = TimeSpan.FromDays(1),
+    }.ToFrozenDictionary();
+
+    [GeneratedRegex(@"^\s*(?<value>\d+(\.\d+)?)(?<unit>ms|s|m|h|d)\s*$")]
+    private static partial Regex Pattern();
+
     public static bool TryParse(string? text, out TimeSpan duration)
     {
         duration = default;
-        if (string.IsNullOrWhiteSpace(text)) return false;
-        var s = text.AsSpan().Trim();
-        var unitStart = 0;
-        while (unitStart < s.Length && (char.IsAsciiDigit(s[unitStart]) || s[unitStart] == '.')) unitStart++;
-        if (unitStart == 0 || !double.TryParse(s[..unitStart], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value))
-            return false;
-        double? ms = s[unitStart..] switch
+        var match = Pattern().Match(text ?? "");
+        if (!match.Success)
         {
-            "ms" => value,
-            "s" => value * 1_000,
-            "m" => value * 60_000,
-            "h" => value * 3_600_000,
-            "d" => value * 86_400_000,
-            _ => null,
-        };
-        // a huge number would overflow TimeSpan, so it's a parse failure like any other
-        if (ms is not { } total || !double.IsFinite(total) || total > TimeSpan.MaxValue.TotalMilliseconds) return false;
-        duration = TimeSpan.FromMilliseconds(total);
+            return false;
+        }
+
+        var value = double.Parse(match.Groups["value"].ValueSpan, CultureInfo.InvariantCulture);
+        var milliseconds = value * Units[match.Groups["unit"].Value].TotalMilliseconds;
+        if (milliseconds > TimeSpan.MaxValue.TotalMilliseconds)
+        {
+            return false;
+        }
+
+        duration = TimeSpan.FromMilliseconds(milliseconds);
         return true;
     }
 
     public static TimeSpan Parse(string? text, string option) =>
-        TryParse(text, out var d) ? d : throw new CommandOptionException($"invalid duration '{text}', use e.g. 250ms, 2s, 3d", option);
+        TryParse(text, out var duration)
+            ? duration
+            : throw new CommandOptionException($"invalid duration '{text}', use e.g. 250ms, 2s, 3d", option);
 }

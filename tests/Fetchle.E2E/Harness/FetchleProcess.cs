@@ -8,7 +8,6 @@ public sealed record CliRun(int ExitCode, string Stdout, byte[] StdoutBytes, str
     public string[] Lines => Stdout.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }
 
-// runs the native exe with stdout redirected, so it never sees a tty
 public static class FetchleProcess
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
@@ -23,7 +22,10 @@ public static class FetchleProcess
         };
         // the suite may itself run under an agent, so set agent mode explicitly either way
         psi.Environment.Remove("CLAUDECODE");
-        if (agent) psi.Environment["CLAUDECODE"] = "1";
+        if (agent)
+        {
+            psi.Environment["CLAUDECODE"] = "1";
+        }
 
         using var process = Process.Start(psi)!;
         using var stdout = new MemoryStream();

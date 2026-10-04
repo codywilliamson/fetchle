@@ -1,170 +1,174 @@
-using System.Reflection;
-using Fetchle.Core.Naive;
 using Fetchle.Core.Search;
-using Fetchle.Core.Walking;
 using Fetchle.Mcp;
 using XenoAtom.CommandLine;
 
 namespace Fetchle.Cli.Commands;
 
-// xenoatom won't mix root positionals with subcommands, so args[0] picks one of two apps:
-// a known command name goes to the commands app, anything else is a search
-static class FetchleApp
-{
-    const string _ = "";
+sealed record CommandInfo(string Name, string Description);
 
-    static readonly (string Name, string Description)[] Commands =
+sealed class FetchleApp(IFileSearch search, CliEnvironment env)
+{
+    const string BLANK_LINE = "";
+
+    static readonly CommandInfo[] Commands =
     [
-        ("roots", "Manage indexed roots: add, remove, list"),
-        ("index", "Show index health or rebuild it: status, rebuild"),
-        ("mcp", "Run the stdio MCP server"),
-        ("setup", "Detect agents and register fetchle with them"),
-        ("doctor", "Check the install and print a fix for each failure"),
-        ("update", "Self-update from GitHub releases"),
-        ("cleanup", "Prune stale index data and leftover files"),
-        ("uninstall", "Undo everything the install receipt records"),
-        ("savings", "Show time and tokens saved"),
-        ("help", "Help for a command"),
+        new("roots", "Manage indexed roots: add, remove, list"),
+        new("index", "Show index health or rebuild it: status, rebuild"),
+        new("mcp", "Run the stdio MCP server"),
+        new("setup", "Detect agents and register fetchle with them"),
+        new("doctor", "Check the install and print a fix for each failure"),
+        new("update", "Self-update from GitHub releases"),
+        new("cleanup", "Prune stale index data and leftover files"),
+        new("uninstall", "Undo everything the install receipt records"),
+        new("savings", "Show time and tokens saved"),
+        new("help", "Help for a command"),
     ];
 
-    static string Version => typeof(FetchleApp).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+    bool _actionRan;
 
-    public static async Task<int> RunAsync(string[] args)
+    public async Task<ExitCode> RunAsync(string[] args)
     {
-        var actionRan = false;
-        var app = args.Length > 0 && IsCommand(args[0])
-            ? CreateCommandsApp(() => actionRan = true)
-            : CreateSearchApp(() => actionRan = true);
-        var exitCode = await app.RunAsync(args);
-        // the parser reports bad args as 1, which the spec reserves for "no results"
-        return exitCode != ExitCodes.Success && !actionRan ? ExitCodes.Usage : exitCode;
+        var app = args.Length > 0 && Find(args[0]) is not null ? CreateCommandsApp() : CreateSearchApp();
+        var exitCode = (ExitCode)await app.RunAsync(args);
+        // the parser reports bad args as 1, which is our "no results"
+        return exitCode != ExitCode.Success && !_actionRan ? ExitCode.Usage : exitCode;
     }
 
-    static bool IsCommand(string arg)
+    CommandApp CreateSearchApp()
     {
-        foreach (var (name, _) in Commands)
-            if (name == arg) return true;
-        return false;
-    }
-
-    static CommandApp CreateSearchApp(Action onAction)
-    {
-        var search = new SearchArgs();
+        var args = new SearchArgs();
         var app = new CommandApp("fetchle")
         {
             new CommandUsage("Usage: {NAME} [options] <query>"),
-            _,
-            { "i", "Live picker, re-ranks as you type", _ => search.Interactive = true },
-            { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => search.Limit = v >= 1 ? v : throw new CommandOptionException("limit must be at least 1", "limit") },
-            { "budget=", "Stop after {DURATION} and report what was skipped (default 2s)", v => search.Budget = Durations.Parse(v, "budget") },
-            { "root=", "Restrict to {PATH}, repeatable (default: current directory)", search.Roots },
-            { "ext=", "Only this {EXT}ension, repeatable", search.Extensions },
-            { "since=", "Modified within {DURATION}, e.g. 3d", v => search.Since = Durations.Parse(v, "since") },
-            { "type=", "{f|d}: files or directories only", v => search.Type = ParseType(v) },
-            { "json", "One JSON object per line", _ => search.Json = true },
-            { "plain", "Force plain output on a TTY", _ => search.Plain = true },
+            BLANK_LINE,
+            { "i", "Live picker, re-ranks as you type", _ => args.Interactive = true },
+            { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => args.Limit = ParseLimit(v) },
+            { "budget=", "Stop after {DURATION} and report what was skipped (default 2s)", v => args.Budget = Durations.Parse(v, "budget") },
+            { "root=", "Restrict to {PATH}, repeatable (default: current directory)", args.Roots },
+            { "ext=", "Only this {EXT}ension, repeatable", args.Extensions },
+            { "since=", "Modified within {DURATION}, e.g. 3d", v => args.Since = Durations.Parse(v, "since") },
+            { "type=", "{f|d}: files or directories only", v => args.Type = ParseType(v) },
+            { "json", "One JSON object per line", _ => args.Json = true },
+            { "plain", "Force plain output on a TTY", _ => args.Plain = true },
             new HelpOption(),
-            new VersionOption(Version),
-            _,
+            new VersionOption(env.Version),
+            BLANK_LINE,
             "Arguments:",
-            { "<query>*", "Plain-words description or partial name", search.QueryWords },
-            _,
+            { "<query>*", "Plain-words description or partial name", args.QueryWords },
+            BLANK_LINE,
             "Commands:",
         };
-        foreach (var (name, description) in Commands)
-            app.Add($"  {name,-27}{description}");
+
+        foreach (var command in Commands)
+        {
+            app.Add($"  {command.Name,-27}{command.Description}");
+        }
+
         app.Add((ctx, _) =>
         {
-            onAction();
-            return search.Interactive ? NotImplemented(ctx, "-i") : SearchCommand.RunAsync(ctx, search);
+            _actionRan = true;
+            var exitCode = args.Interactive ? NotImplemented(ctx, "-i") : new SearchCommand(search, env).Run(ctx, args);
+            return ValueTask.FromResult((int)exitCode);
         });
         return app;
     }
 
-    static CommandApp CreateCommandsApp(Action onAction)
+    CommandApp CreateCommandsApp()
     {
-        var helpTarget = new List<string>();
         var app = new CommandApp("fetchle")
         {
-            Stub("roots", onAction),
-            Stub("index", onAction),
-            new Command("mcp", Describe("mcp"))
-            {
-                new HelpOption(),
-                async (_, _) =>
-                {
-                    onAction();
-                    // default root is the working directory until roots ship
-                    var tools = new Tools(new NaiveFileSearch(PruneRules.Default), Environment.CurrentDirectory);
-                    await new FetchleMcpServer(tools, Version).RunAsync(CancellationToken.None);
-                    return ExitCodes.Success;
-                },
-            },
-            Stub("setup", onAction),
-            Stub("doctor", onAction, "fix", "Run the fixes"),
-            Stub("update", onAction),
-            Stub("cleanup", onAction, "yes", "Don't ask for confirmation"),
-            Stub("uninstall", onAction, "yes", "Don't ask for confirmation"),
-            Stub("savings", onAction),
+            Stub("roots"),
+            Stub("index"),
+            Mcp(),
+            Stub("setup"),
+            Stub("doctor", "fix", "Run the fixes"),
+            Stub("update"),
+            Stub("cleanup", "yes", "Don't ask for confirmation"),
+            Stub("uninstall", "yes", "Don't ask for confirmation"),
+            Stub("savings"),
         };
-        app.Add(new Command("help", Describe("help"))
-        {
-            new HelpOption(),
-            { "<command>?", "Command name", helpTarget },
-            (ctx, _) =>
-            {
-                onAction();
-                return ValueTask.FromResult(ShowHelp(ctx, app, helpTarget));
-            },
-        });
+        app.Add(Help(app));
         return app;
     }
 
-    static Command Stub(string name, Action onAction, string? flag = null, string? flagHelp = null)
+    Command Mcp() => new("mcp", Describe("mcp"))
+    {
+        new HelpOption(),
+        async (_, _) =>
+        {
+            _actionRan = true;
+            var tools = new Tools(search, env.CurrentDirectory);
+            await new FetchleMcpServer(tools, env.Version).RunAsync(CancellationToken.None);
+            return (int)ExitCode.Success;
+        },
+    };
+
+    Command Help(CommandApp commandsApp)
+    {
+        var target = new List<string>();
+        return new Command("help", Describe("help"))
+        {
+            new HelpOption(),
+            { "<command>?", "Command name", target },
+            (ctx, _) =>
+            {
+                _actionRan = true;
+                return ValueTask.FromResult((int)ShowHelp(ctx, commandsApp, target));
+            },
+        };
+    }
+
+    Command Stub(string name, string? flag = null, string? flagHelp = null)
     {
         var command = new Command(name, Describe(name)) { new HelpOption() };
-        if (flag is not null) command.Add(flag, flagHelp!, _ => { });
+        if (flag is not null)
+        {
+            command.Add(flag, flagHelp!, _ => { });
+        }
+
         command.Add("<args>*", "Arguments", new List<string>());
         command.Add((ctx, _) =>
         {
-            onAction();
-            return NotImplemented(ctx, name);
+            _actionRan = true;
+            return ValueTask.FromResult((int)NotImplemented(ctx, name));
         });
         return command;
     }
 
-    static string Describe(string name)
-    {
-        foreach (var (n, description) in Commands)
-            if (n == name) return description;
-        throw new ArgumentException(name);
-    }
-
-    static ValueTask<int> NotImplemented(CommandRunContext ctx, string name)
-    {
-        ctx.Error.WriteLine($"fetchle {name}: not implemented yet");
-        return ValueTask.FromResult(ExitCodes.Usage);
-    }
-
     // long tldr-style help isn't written yet, so this shows the command's --help
-    static int ShowHelp(CommandRunContext ctx, CommandApp commandsApp, List<string> target)
+    ExitCode ShowHelp(CommandRunContext ctx, CommandApp commandsApp, List<string> target)
     {
         if (target.Count == 0)
         {
-            CreateSearchApp(() => { }).ShowHelp(ctx.RunConfig);
-            return ExitCodes.Success;
+            CreateSearchApp().ShowHelp(ctx.RunConfig);
+            return ExitCode.Success;
         }
+
         foreach (var node in commandsApp)
         {
-            if (node is Command c && c.Name == target[0])
+            if (node is Command command && command.Name == target[0])
             {
-                c.ShowHelp(ctx.RunConfig);
-                return ExitCodes.Success;
+                command.ShowHelp(ctx.RunConfig);
+                return ExitCode.Success;
             }
         }
+
         ctx.Error.WriteLine($"fetchle help: unknown command '{target[0]}'");
-        return ExitCodes.Usage;
+        return ExitCode.Usage;
     }
+
+    static ExitCode NotImplemented(CommandRunContext ctx, string name)
+    {
+        ctx.Error.WriteLine($"fetchle {name}: not implemented yet");
+        return ExitCode.Usage;
+    }
+
+    static CommandInfo? Find(string name) => Array.Find(Commands, command => command.Name == name);
+
+    static string Describe(string name) => Find(name)?.Description ?? throw new ArgumentException(name);
+
+    static int ParseLimit(int value) =>
+        value >= 1 ? value : throw new CommandOptionException("limit must be at least 1", "limit");
 
     static EntryType ParseType(string? value) => value switch
     {

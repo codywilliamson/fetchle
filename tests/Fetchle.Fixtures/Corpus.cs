@@ -1,12 +1,11 @@
 namespace Fetchle.Fixtures;
 
-// a generated home dir for bench and evals: the app files the embeddings spike searched for,
-// near-miss distractors, then seeded filler. same seed and size, same tree
+// the generated fake home dir that bench and evals search: real app files, near-miss distractors, seeded filler
 public static class Corpus
 {
-    public const int DefaultSeed = 42;
+    public const int DEFAULT_SEED = 42;
 
-    // targets and distractors from docs/spikes/embeddings.md, relative to the corpus root
+    // eval targets and their near-miss distractors
     public static readonly string[] Landmarks =
     [
         "AppData/Roaming/Claude/claude-code/2.1.286/635c1867224a/claude.exe",
@@ -46,28 +45,42 @@ public static class Corpus
     static readonly string[] Tops = ["AppData/Local", "AppData/Roaming", "source/repos", "Documents", "Downloads"];
 
     // real trees average roughly this many files per directory; per-directory cost dominates a walk
-    public const int RealisticFilesPerDirectory = 20;
+    public const int REALISTIC_FILES_PER_DIRECTORY = 20;
 
     // one file per directory: a load test for the per-directory cost
-    public const int DirHeavyFilesPerDirectory = 1;
+    public const int DIR_HEAVY_FILES_PER_DIRECTORY = 1;
 
     // bump when the generated layout changes, so cached corpora on disk get rebuilt
-    const int LayoutVersion = 2;
+    const int LAYOUT_VERSION = 2;
 
-    // writes the corpus under root unless a matching one is already there. returns root
-    public static string Ensure(string root, int fillerFiles, int filesPerDirectory = RealisticFilesPerDirectory, int seed = DefaultSeed)
+    public static string Ensure(string root, int fillerFiles, int filesPerDirectory = REALISTIC_FILES_PER_DIRECTORY, int seed = DEFAULT_SEED)
     {
-        var marker = Path.Combine(root, $".corpus-v{LayoutVersion}-{seed}-{fillerFiles}-{filesPerDirectory}");
-        if (File.Exists(marker)) return root;
-        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var marker = Path.Combine(root, $".corpus-v{LAYOUT_VERSION}-{seed}-{fillerFiles}-{filesPerDirectory}");
+        if (File.Exists(marker))
+        {
+            return root;
+        }
 
-        foreach (var file in Landmarks) Touch(root, file);
-        foreach (var file in Filler(seed, fillerFiles, filesPerDirectory)) Touch(root, file);
+        if (Directory.Exists(root))
+        {
+            Directory.Delete(root, recursive: true);
+        }
+
+        foreach (var file in Landmarks)
+        {
+            Touch(root, file);
+        }
+
+        foreach (var file in Filler(seed, fillerFiles, filesPerDirectory))
+        {
+            Touch(root, file);
+        }
+
         File.WriteAllText(marker, "");
         return root;
     }
 
-    public static string DefaultRoot(int fillerFiles, int filesPerDirectory = RealisticFilesPerDirectory, int seed = DefaultSeed) =>
+    public static string DefaultRoot(int fillerFiles, int filesPerDirectory = REALISTIC_FILES_PER_DIRECTORY, int seed = DEFAULT_SEED) =>
         Path.Combine(Path.GetTempPath(), $"fetchle-corpus-{seed}-{fillerFiles}-{filesPerDirectory}");
 
     static IEnumerable<string> Filler(int seed, int count, int filesPerDirectory)
@@ -80,11 +93,20 @@ public static class Corpus
         while (dirs.Count < dirCount)
         {
             var dir = $"{Tops[rng.Next(Tops.Length)]}/{Vendors[rng.Next(Vendors.Length)]}/{Products[rng.Next(Products.Length)]}";
-            for (var d = rng.Next(1, 5); d > 0; d--) dir += $"/{Words[rng.Next(Words.Length)]}{rng.Next(4)}";
-            if (seen.Add(dir)) dirs.Add(dir);
+            for (var d = rng.Next(1, 5); d > 0; d--)
+            {
+                dir += $"/{Words[rng.Next(Words.Length)]}{rng.Next(4)}";
+            }
+
+            if (seen.Add(dir))
+            {
+                dirs.Add(dir);
+            }
         }
         for (var i = 0; i < count; i++)
+        {
             yield return $"{dirs[i % dirs.Count]}/{Words[rng.Next(Words.Length)]}_{i:D6}{Extensions[rng.Next(Extensions.Length)]}";
+        }
     }
 
     static void Touch(string root, string relative)

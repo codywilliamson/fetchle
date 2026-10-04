@@ -11,6 +11,7 @@ public sealed record SearchRequest(
     DateTimeOffset? ModifiedSince = null,
     EntryType Type = EntryType.Any)
 {
-    public const int DefaultLimit = 10;
-    public static readonly TimeSpan DefaultBudget = TimeSpan.FromSeconds(2);
+    public const int DEFAULT_LIMIT = 10;
+    public const int DEFAULT_BUDGET_MS = 2000;
+    public static readonly TimeSpan DefaultBudget = TimeSpan.FromMilliseconds(DEFAULT_BUDGET_MS);
 }

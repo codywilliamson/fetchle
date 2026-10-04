@@ -6,7 +6,7 @@ namespace Fetchle.E2E.Cli;
 
 public class CliOutputTests
 {
-    const byte Escape = 0x1b;
+    const byte ESCAPE = 0x1b;
 
     [Test]
     public async Task Plain_prints_one_path_per_line_and_no_escapes()
@@ -15,8 +15,8 @@ public class CliOutputTests
         var run = await FetchleProcess.RunAsync(["settings", "--root", tree.Root]);
 
         await Assert.That(run.ExitCode).IsEqualTo(0);
-        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(FixtureTree.SettingsFile)]);
-        await Assert.That(run.StdoutBytes.Contains(Escape)).IsFalse();
+        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(FixtureTree.SETTINGS_FILE)]);
+        await Assert.That(run.StdoutBytes.Contains(ESCAPE)).IsFalse();
     }
 
     [Test]
@@ -27,9 +27,9 @@ public class CliOutputTests
 
         await Assert.That(run.ExitCode).IsEqualTo(0);
         await Assert.That(run.Lines.Length).IsEqualTo(2);
-        await Assert.That(run.Lines[0]).IsEqualTo(tree.Full(FixtureTree.SettingsFile));
+        await Assert.That(run.Lines[0]).IsEqualTo(tree.Full(FixtureTree.SETTINGS_FILE));
         await Assert.That(run.Lines[1]).Matches(@"^1 matches, showing 1, \d+ms$");
-        await Assert.That(run.StdoutBytes.Contains(Escape)).IsFalse();
+        await Assert.That(run.StdoutBytes.Contains(ESCAPE)).IsFalse();
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class CliOutputTests
         await Assert.That(run.ExitCode).IsEqualTo(0);
         await Assert.That(run.Lines.Length).IsEqualTo(2);
         using var hit = JsonDocument.Parse(run.Lines[0]);
-        await Assert.That(hit.RootElement.GetProperty("path").GetString()).IsEqualTo(tree.Full(FixtureTree.SettingsFile));
+        await Assert.That(hit.RootElement.GetProperty("path").GetString()).IsEqualTo(tree.Full(FixtureTree.SETTINGS_FILE));
         await Assert.That(hit.RootElement.GetProperty("score").GetDouble()).IsGreaterThan(0);
         await Assert.That(hit.RootElement.GetProperty("size").GetInt64()).IsGreaterThan(0);
         await Assert.That(hit.RootElement.GetProperty("modified").GetDateTimeOffset()).IsLessThanOrEqualTo(DateTimeOffset.UtcNow);
@@ -79,7 +79,7 @@ public class CliOutputTests
     public async Task Paths_over_260_chars_are_found()
     {
         using var tree = FixtureTree.Create();
-        var run = await FetchleProcess.RunAsync([FixtureTree.LongPathMarker, "--root", tree.Root]);
+        var run = await FetchleProcess.RunAsync([FixtureTree.LONG_PATH_MARKER, "--root", tree.Root]);
 
         await Assert.That(run.Lines).IsEquivalentTo([tree.Full(tree.LongPathFile)]);
         await Assert.That(run.Lines[0].Length).IsGreaterThan(260);
@@ -104,7 +104,7 @@ public class CliOutputTests
         Skip.Unless(tree.Created.HasFlag(FixtureFeatures.CaseCollision), "case-insensitive file system");
         var run = await FetchleProcess.RunAsync(["readme-collide", "--root", tree.Root]);
 
-        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(FixtureTree.CaseLower), tree.Full(FixtureTree.CaseUpper)]);
+        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(FixtureTree.CASE_LOWER), tree.Full(FixtureTree.CASE_UPPER)]);
     }
 
     [Test]

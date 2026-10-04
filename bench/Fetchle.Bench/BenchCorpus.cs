@@ -13,7 +13,7 @@ public static class BenchCorpus
 
     public static string Ensure(string shape)
     {
-        var filesPerDirectory = shape == DIR_HEAVY ? Corpus.DirHeavyFilesPerDirectory : Corpus.RealisticFilesPerDirectory;
+        var filesPerDirectory = shape == DIR_HEAVY ? Corpus.DIR_HEAVY_FILES_PER_DIRECTORY : Corpus.REALISTIC_FILES_PER_DIRECTORY;
         return Corpus.Ensure(Corpus.DefaultRoot(FILLER, filesPerDirectory), FILLER, filesPerDirectory);
     }
 }

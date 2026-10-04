@@ -4,13 +4,15 @@ using Fetchle.Core.Search;
 
 namespace Fetchle.Cli.Output;
 
-// json lines: one hit per line, then a summary line
-static class JsonOutput
+sealed class JsonResultWriter(TextWriter output) : IResultWriter
 {
-    public static void Write(TextWriter output, SearchResult result)
+    public void Write(SearchResult result)
     {
         foreach (var hit in result.Hits)
+        {
             output.WriteLine(JsonSerializer.Serialize(hit, CliJson.Default.SearchHit));
+        }
+
         var summary = new JsonSummary(result.TotalMatches, result.Hits.Count, (long)result.Elapsed.TotalMilliseconds, result.StoppedEarly);
         output.WriteLine(JsonSerializer.Serialize(summary, CliJson.Default.JsonSummary));
     }

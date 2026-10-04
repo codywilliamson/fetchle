@@ -5,8 +5,7 @@ using Fetchle.Core.Walking;
 
 namespace Fetchle.Core.Naive;
 
-// PLACEHOLDER: walks every root on every query with NaiveWalker + SubstringRanker.
-// no index, so GetStatus has nothing to report
+// PLACEHOLDER: replaced by the indexed search
 public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
 {
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
@@ -16,7 +15,10 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
         for (var i = 0; i < roots.Length; i++)
         {
             roots[i] = NormalizeRoot(request.Roots[i]);
-            if (!Directory.Exists(roots[i])) throw InvalidRootException.NotFound(request.Roots[i]);
+            if (!Directory.Exists(roots[i]))
+            {
+                throw InvalidRootException.NotFound(request.Roots[i]);
+            }
         }
 
         var deadline = Deadline.After(request.Budget, start);
@@ -29,30 +31,48 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
         var relative = new char[256];
         foreach (var root in roots)
         {
-            if (!completed || cancellationToken.IsCancellationRequested) break;
+            if (!completed || cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             completed = walker.Walk(root, (ref entry) =>
             {
-                if (!Matches(ref entry, request)) return;
+                if (!Matches(ref entry, request))
+                {
+                    return;
+                }
+
                 var relativeDir = entry.Directory[root.Length..].TrimStart(['/', '\\']);
                 var length = relativeDir.Length + 1 + entry.FileName.Length;
-                if (relative.Length < length) relative = new char[length * 2];
+                if (relative.Length < length)
+                {
+                    relative = new char[length * 2];
+                }
+
                 relativeDir.CopyTo(relative);
                 relative[relativeDir.Length] = Path.DirectorySeparatorChar;
                 entry.FileName.CopyTo(relative.AsSpan(relativeDir.Length + 1));
                 var path = relativeDir.IsEmpty ? entry.FileName : relative.AsSpan(0, length);
 
                 var score = ranker.Score(path, entry.FileName);
-                if (score <= 0) return;
+                if (score <= 0)
+                {
+                    return;
+                }
+
                 total++;
                 // only allocate the full path for hits that make the cut
                 var fullLength = entry.Directory.Length + (Path.EndsInDirectorySeparator(entry.Directory) ? 0 : 1) + entry.FileName.Length;
                 if (hits.WouldKeep(score, fullLength))
+                {
                     hits.Add(new SearchHit(entry.ToFullPath(), score, entry.IsDirectory ? null : entry.Length, entry.LastWriteTimeUtc));
+                }
             }, deadline);
         }
         cancellationToken.ThrowIfCancellationRequested();
 
-        var stoppedEarly = completed ? null : StopReasons.Budget;
+        var stoppedEarly = completed ? null : StopReasons.BUDGET;
         return new SearchResult(hits.ToSortedList(), total, Stopwatch.GetElapsedTime(start), stoppedEarly);
     }
 
@@ -73,16 +93,34 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
 
     static bool Matches(ref FileSystemEntry entry, SearchRequest request)
     {
-        if (request.Type == EntryType.Files && entry.IsDirectory) return false;
-        if (request.Type == EntryType.Directories && !entry.IsDirectory) return false;
-        if (request.ModifiedSince is { } since && entry.LastWriteTimeUtc < since) return false;
+        if (request.Type == EntryType.Files && entry.IsDirectory)
+        {
+            return false;
+        }
+
+        if (request.Type == EntryType.Directories && !entry.IsDirectory)
+        {
+            return false;
+        }
+
+        if (request.ModifiedSince is { } since && entry.LastWriteTimeUtc < since)
+        {
+            return false;
+        }
+
         if (request.Extensions is { Count: > 0 } extensions)
         {
             var ext = Path.GetExtension(entry.FileName).TrimStart('.');
             var any = false;
             foreach (var e in extensions)
+            {
                 if (ext.Equals(e.TrimStart('.'), StringComparison.OrdinalIgnoreCase)) { any = true; break; }
-            if (!any) return false;
+            }
+
+            if (!any)
+            {
+                return false;
+            }
         }
         return true;
     }

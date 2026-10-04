@@ -1,0 +1,51 @@
+# Decisions
+
+Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
+
+## 2026-10-03: ship potion-retrieval-32M int8 beside the exe
+
+The exe stays at ~5.6 MB and the 32 MB model ships in the same archive. Embedding the model gives a 39 MB exe but still needs a temp extract, because Model2Vec.Net only loads from a directory. retrieval-32M beat base-8M on descriptive queries. int8 matched f32 rankings at a quarter of the size. Cold start ~110 ms. Fallback if size wins: base-8M int8 embedded, 13.6 MB, ~65 ms.
+
+Evidence: [spikes/embeddings.md](spikes/embeddings.md).
+
+## 2026-10-03: two retrievers fused by RRF, not lexical-then-rerank
+
+Lexical missed the target entirely in 5 of 12 spike queries, so reranking its candidates couldn't recover them. Running lexical and semantic as independent candidate sources and fusing with RRF found targets that each one alone missed.
+
+Evidence: [spikes/embeddings.md](spikes/embeddings.md).
+
+## 2026-10-03: prune by default
+
+Unpruned `AppData` was 2.6M files with a six minute walk, and Temp copies drowned real results. Pruning `node_modules`, `.git`, Temp and cache dirs cut it to 568k files and 37 s.
+
+Evidence: [spikes/embeddings.md](spikes/embeddings.md).
+
+## 2026-10-03: MCP on ModelContextProtocol.Core without hosting
+
+Zero AOT warnings, 8.65 MB native exe, 40 to 85 ms to the first response. The hosted variant pulled 31 assemblies against Core's 4 and relies on reflection-based tool discovery that hasn't been proven at runtime under AOT.
+
+Evidence: [spikes/mcp.md](spikes/mcp.md).
+
+## 2026-10-03: XenoAtom for terminal and arg parsing, not Spectre.Console
+
+Zero AOT warnings, 5.2 MB exe, native OSC 8 and synchronized output, clean plain text when redirected. fetchle owns three workarounds: skip live widgets when redirected, focus the picker's input explicitly, rate-limit OSC 9;4. Also file the startup detection cost upstream.
+
+Evidence: [spikes/terminal.md](spikes/terminal.md).
+
+## 2026-10-03: name is fetchle
+
+Free on NuGet, npm, crates, PyPI, Homebrew, scoop, GitHub and .dev at the time of checking. fetchle.dev is registered on Cloudflare. Repo lives at `codywilliamson/fetchle` for now. Rejected: fwip (fwip.dev registered, fwip.app is a local-first dev tools product), scout (overloaded), snaffle (Snaffler is a known C# file-finding pentest tool).
+
+Evidence: [spikes/naming.md](spikes/naming.md).
+
+## 2026-10-03: MIT license
+
+Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
+
+## Open
+
+- Walker spike pending: why `gci` took 120 s on 84k entries, and which .NET walker variant wins.
+- Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.
+- Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
+- potion model license needs confirming before redistribution.
+- Which env vars each agent sets, for agent output mode detection.

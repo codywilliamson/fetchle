@@ -125,7 +125,9 @@ public class CliOutputTests
         var run = await FetchleProcess.RunAsync(["settings", "--root", tree.Root, "--budget", "0ms"], agent: true);
 
         await Assert.That(run.ExitCode).IsEqualTo(4);
-        await Assert.That(run.Lines).IsEquivalentTo(["0 matches, showing 0, 0ms, stopped early: budget"]);
+        await Assert.That(run.Lines.Length).IsEqualTo(1);
+        // elapsed covers root checks too, so under load it isn't always 0ms
+        await Assert.That(run.Lines[0]).Matches(@"^0 matches, showing 0, \d+ms, stopped early: budget$");
     }
 
     [Test]

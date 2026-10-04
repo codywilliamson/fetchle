@@ -11,6 +11,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Deterministic>true</Deterministic>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Authors>Cody Williamson</Authors>
     <Copyright>Copyright (c) Cody Williamson</Copyright>
     <RepositoryUrl>https://github.com/codywilliamson/fetchle</RepositoryUrl>

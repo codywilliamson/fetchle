@@ -44,14 +44,14 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         },
     ];
 
-    public CallToolResult Call(string name, IDictionary<string, JsonElement>? arguments)
+    public CallToolResult Call(string name, IDictionary<string, JsonElement>? arguments, CancellationToken cancellationToken)
     {
         var args = new Args(arguments);
         switch (name)
         {
             case "find_files":
                 args.RejectUnknown("query", "limit", "budget_ms", "root", "ext");
-                return FindFiles(args);
+                return FindFiles(args, cancellationToken);
             case "index_status":
                 args.RejectUnknown();
                 return IndexStatus();
@@ -60,7 +60,7 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         }
     }
 
-    CallToolResult FindFiles(Args args)
+    CallToolResult FindFiles(Args args, CancellationToken cancellationToken)
     {
         var query = args.String("query");
         if (string.IsNullOrWhiteSpace(query)) throw InvalidParams("query is required");
@@ -79,7 +79,7 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         SearchResult result;
         try
         {
-            result = search.Search(request, CancellationToken.None);
+            result = search.Search(request, cancellationToken);
         }
         catch (InvalidRootException e)
         {

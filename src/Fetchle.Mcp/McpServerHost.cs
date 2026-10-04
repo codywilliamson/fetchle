@@ -18,7 +18,7 @@ public static class McpServerHost
                 CallToolHandler = async (ctx, ct) =>
                 {
                     var p = ctx.Params ?? throw new McpProtocolException("missing params", McpErrorCode.InvalidParams);
-                    return await Task.Run(() => tools.Call(p.Name, p.Arguments), ct);
+                    return await Task.Run(() => tools.Call(p.Name, p.Arguments, ct), ct);
                 },
             },
         };

@@ -25,7 +25,6 @@ env:
 
 jobs:
   native:
-    # nativeaot can't cross-compile across operating systems, docs/release.md#native-build-matrix
     strategy:
       fail-fast: false
       matrix:
@@ -51,7 +50,6 @@ jobs:
       - name: publish
         run: dotnet publish src/Fetchle.Cli -c Release -r ${{ matrix.rid }} -o out
 
-      # the model joins the archive once embeddings ship
       - name: archive
         id: archive
         run: |

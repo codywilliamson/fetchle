@@ -21,7 +21,6 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  # releases made with GITHUB_TOKEN don't trigger other workflows, so call them directly
   publish:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'

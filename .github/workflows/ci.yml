@@ -13,7 +13,6 @@ concurrency:
 
 jobs:
   test:
-    # same-repo branches already run on push; pull_request is for forks
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     strategy:
       fail-fast: false
@@ -33,7 +32,6 @@ jobs:
       - name: unit
         run: dotnet test --project tests/Fetchle.Tests -c Release --no-build
 
-      # publishes the native exe once, then drives it
       - name: e2e
         run: dotnet test --project tests/Fetchle.E2E -c Release --no-build
 

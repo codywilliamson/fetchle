@@ -1,6 +1,5 @@
 name: bench
 
-# shared runners are too noisy for per-pr perf gates, docs/testing.md#where-it-runs
 on:
   push:
     branches: [main]

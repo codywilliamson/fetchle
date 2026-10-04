@@ -6,7 +6,7 @@ namespace Fetchle.Core.Search;
 // the indexed search (walker -> path store -> lexical + semantic -> rrf) replaces it
 public interface IFileSearch
 {
-    // throws RootNotFoundException before searching if any root is missing
+    // throws InvalidRootException before searching if any root is missing or not a valid path
     SearchResult Search(SearchRequest request, CancellationToken cancellationToken);
 
     IndexStatus GetStatus(IReadOnlyList<string> roots);

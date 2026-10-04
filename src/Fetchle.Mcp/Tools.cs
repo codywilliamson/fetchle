@@ -71,7 +71,7 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         {
             result = search.Search(request, CancellationToken.None);
         }
-        catch (RootNotFoundException e)
+        catch (InvalidRootException e)
         {
             throw InvalidParams(e.Message);
         }

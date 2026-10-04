@@ -28,7 +28,7 @@ Returns text content (one path per line plus the footer) and `structuredContent`
 }
 ```
 
-`stopped_early` is `null`, `"budget"` or `"limit"`. Until `roots` ships, the default root is the server's working directory, and a `root` that doesn't exist is an invalid-params error. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
+`stopped_early` is `null`, `"budget"` or `"limit"`. Until `roots` ships, the default root is the server's working directory, and a `root` that doesn't exist or isn't a valid path is an invalid-params error. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
 
 ### `index_status`
 

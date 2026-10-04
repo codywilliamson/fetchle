@@ -34,7 +34,7 @@ static class SearchCommand
         {
             result = new NaiveFileSearch(PruneRules.Default).Search(request, CancellationToken.None);
         }
-        catch (RootNotFoundException e)
+        catch (InvalidRootException e)
         {
             ctx.Error.WriteLine($"fetchle: {e.Message}");
             return ValueTask.FromResult(ExitCodes.Usage);

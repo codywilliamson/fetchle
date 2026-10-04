@@ -15,8 +15,8 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
         var roots = new string[request.Roots.Count];
         for (var i = 0; i < roots.Length; i++)
         {
-            roots[i] = Path.TrimEndingDirectorySeparator(Path.GetFullPath(request.Roots[i]));
-            if (!Directory.Exists(roots[i])) throw new RootNotFoundException(request.Roots[i]);
+            roots[i] = NormalizeRoot(request.Roots[i]);
+            if (!Directory.Exists(roots[i])) throw InvalidRootException.NotFound(request.Roots[i]);
         }
 
         var deadline = Deadline.After(request.Budget, start);
@@ -56,6 +56,18 @@ public sealed class NaiveFileSearch(PruneRules prune) : IFileSearch
         var shown = hits.Count > request.Limit ? hits.GetRange(0, request.Limit) : hits;
         var stoppedEarly = completed ? null : StopReasons.Budget;
         return new SearchResult(shown, hits.Count, Stopwatch.GetElapsedTime(start), stoppedEarly);
+    }
+
+    static string NormalizeRoot(string root)
+    {
+        try
+        {
+            return Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            throw InvalidRootException.BadSyntax(root);
+        }
     }
 
     public IndexStatus GetStatus(IReadOnlyList<string> roots) =>

@@ -22,6 +22,8 @@ public sealed class NaiveWalker(PruneRules prune)
     // returns false if the deadline cut the walk short
     public bool Walk(string root, EntryVisitor visit, Deadline deadline)
     {
+        // an empty root never reaches the predicates, so check once up front
+        if (deadline.IsExpired()) return false;
         var stopped = false;
         var enumerable = new FileSystemEnumerable<byte>(root, static (ref _) => 0, Options)
         {

@@ -131,6 +131,16 @@ public class CliOutputTests
     }
 
     [Test]
+    public async Task Expired_budget_on_an_empty_root_exits_4()
+    {
+        using var tree = FixtureTree.Create();
+        var empty = Directory.CreateDirectory(tree.Full("empty")).FullName;
+        var run = await FetchleProcess.RunAsync(["settings", "--root", empty, "--budget", "0ms"]);
+
+        await Assert.That(run.ExitCode).IsEqualTo(4);
+    }
+
+    [Test]
     public async Task No_results_exits_1()
     {
         using var tree = FixtureTree.Create();

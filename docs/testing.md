@@ -8,7 +8,9 @@ Ranking and scoring, segment tokenizing, the noise filter for hashes and GUIDs, 
 
 Glue code gets no unit tests. If a class only wires two others together, the e2e suite covers it.
 
-TUnit is the candidate framework. It uses source generators and runs under NativeAOT, so the unit tests could also run against an AOT build.
+The framework is TUnit. It uses source generators and runs under NativeAOT, so the unit tests can also run against an AOT build: `dotnet publish tests/Fetchle.Tests -p:PublishAot=true`, then run the exe.
+
+The e2e project publishes the native exe once per run, before any test starts. Set `FETCHLE_EXE` to point it at an existing build instead. Fixture trees come from `tests/Fetchle.Fixtures`. A feature the OS or user can't create, such as a case collision on NTFS or an unreadable dir when running as root, is skipped with a reason rather than passed silently.
 
 ## End-to-end against fixture trees
 

@@ -2,6 +2,20 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-03: TUnit for unit and e2e tests
+
+TUnit 1.72.16 publishes under NativeAOT with zero IL/AOT warnings (warnings are errors in this repo). The AOT test exe is 28 MB and ran all 48 unit tests in 18 ms. No need for the xUnit v3 fallback.
+
+Evidence: `dotnet publish tests/Fetchle.Tests -c Release -r win-x64 -p:PublishAot=true`, exit 0, then `Fetchle.Tests.exe`: `total: 48, failed: 0`.
+
+## 2026-10-03: budgets are a per-entry deadline check, not a timer
+
+`CancellationTokenSource.CancelAfter` fires on a timer thread, so `--budget 0ms` on a small tree finished the whole walk before the cancel landed. The walker now checks a `Stopwatch` deadline on every entry, which makes cutoffs deterministic and testable. Whether that check shows up in walk throughput is unmeasured.
+
+## 2026-10-03: search and commands are two parser apps
+
+XenoAtom.CommandLine won't accept root positionals when subcommands are declared (`fetchle foo` fails with "Unknown command or option"). `FetchleApp` checks `args[0]`: a known command name goes to the commands app, anything else to the search app. A query that is exactly a command name, like `fetchle index`, runs the command.
+
 ## 2026-10-03: parallel walker on FileSystemEnumerable, missing roots are errors
 
 A 16-thread walker on non-recursive `FileSystemEnumerable` ran 2.4x faster than single-threaded on 85k entries (0.51 s vs 1.23 s) and 2.5 to 3x faster on a 7.7M entry home dir (60 s). It's ~12x faster than `gci` with ~9x less memory. ripgrep still beats it by 1.3 to 1.5x and uses 17 MB against our ~100 MB, because rg scales better across threads. Next step is per-worker LIFO deques with work stealing; that the design closes the gap is a guess.

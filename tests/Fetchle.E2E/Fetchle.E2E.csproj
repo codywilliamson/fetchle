@@ -5,4 +5,7 @@
   <ItemGroup>
     <PackageReference Include="TUnit" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Fetchle.Fixtures\Fetchle.Fixtures.csproj" />
+  </ItemGroup>
 </Project>

@@ -38,9 +38,21 @@ An agent never waits out a transport timeout with nothing to show. That rule mat
 
 The MCP server is long-lived, so it holds the index in memory and watches the indexed roots. The CLI loads the memory-mapped snapshot and runs the query. v0 has no separate daemon.
 
-Watching differs by OS, and Linux is the weak spot. `FileSystemWatcher` uses inotify there, and `fs.inotify.max_user_watches` can be low enough that a whole home directory exhausts it. fetchle watches hot roots and rescans stale roots at query time. `fetchle doctor` reports the limit. macOS uses FSEvents and Windows uses `ReadDirectoryChangesW`, and both cope.
+semble keeps its index fresh by re-walking the tree on every run, comparing modification times, and re-indexing only what was added, removed or changed. That's cheap for a code repo and ruinous for a home directory, where the walk is the expensive part. fetchle keeps semble's model, a cache on disk with incremental updates and a full rebuild only when index settings change, and replaces the per-run walk with cheaper change signals.
 
-An NTFS backend that reads the MFT and USN journal is a later, optional accelerator for Windows. It needs admin, so it can never be the only path.
+fetchle indexes names and paths, not contents, so a file's contents changing never matters. What matters is entries appearing, disappearing or being renamed, and every OS records that in the parent directory's modified time. Three sources feed changes in, cheapest first.
+
+While the MCP server runs, watcher events apply changes as they happen. Windows uses `ReadDirectoryChangesW` and macOS uses FSEvents, and both cope with a whole home directory. Linux uses inotify, and `fs.inotify.max_user_watches` can be low enough to run out, so fetchle watches hot roots there and `fetchle doctor` reports the limit. When a watcher's buffer overflows, the root is marked dirty and rescanned.
+
+After downtime, a journal replays what changed since a saved position, with no walk. NTFS has the USN journal, which needs admin or a helper process, like the NTFS turbo backend. FSEvents can replay from a saved event id. Linux has no equivalent.
+
+Everywhere else, and as the safety net, fetchle checks each indexed directory's modified time and re-lists only the directories that changed. That still touches every directory but skips reading files in unchanged ones. How much it saves depends on files per directory, which hasn't been measured. A test per OS has to confirm that a directory's modified time changes on create, delete and rename before anything relies on it.
+
+Changes never rewrite the snapshot in place. They land in an in-memory overlay of new rows and tombstones, and queries read the snapshot plus the overlay. Now and then fetchle writes a fresh snapshot with the overlay merged and swaps it in atomically, which keeps loads fast and puts each subtree back into one contiguous block of rows.
+
+The parent-pointer store makes this cheap. Renaming a directory changes one row's name and leaves its subtree alone, where string paths would change every descendant. Embeddings are cached per unique segment, so a new file costs one encode for its new name and reuses every other vector. Lexical postings for new segments go in the overlay too.
+
+The MCP server, or `fetchle index`, is the only writer, guarded by a lock file. The CLI only reads. When its snapshot is stale for the root being searched, it catches up that scope in memory within the query's budget and leaves the file alone.
 
 ## Cross-platform from the first commit
 

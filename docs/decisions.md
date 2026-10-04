@@ -28,7 +28,9 @@ Evidence: [spikes/walker.md](spikes/walker.md).
 
 The exe stays at ~5.6 MB and the 32 MB model ships in the same archive. Embedding the model gives a 39 MB exe but still needs a temp extract, because Model2Vec.Net only loads from a directory. retrieval-32M beat base-8M on descriptive queries. int8 matched f32 rankings at a quarter of the size. Cold start ~110 ms. Fallback if size wins: base-8M int8 embedded, 13.6 MB, ~65 ms.
 
-Evidence: [spikes/embeddings.md](spikes/embeddings.md).
+Both potion models are MIT on Hugging Face (checked 2026-10-04), so redistributing them is fine. The model cards ask for a citation of Model2Vec, so the release archive needs a third-party notices file crediting it and the model. potion-base-8M was distilled from `BAAI/bge-base-en-v1.5`; that teacher's license wasn't checked.
+
+Evidence: [spikes/embeddings.md](spikes/embeddings.md), [potion-retrieval-32M](https://huggingface.co/minishlab/potion-retrieval-32M), [potion-base-8M](https://huggingface.co/minishlab/potion-base-8M).
 
 ## 2026-10-03: two retrievers fused by RRF, not lexical-then-rerank
 
@@ -69,6 +71,5 @@ Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
 - Walker memory and scaling: work-stealing DFS vs the current FIFO queue, measured against rg.
 - Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.
 - Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
-- potion model license needs confirming before redistribution.
 - Which env vars each agent sets, for agent output mode detection.
 - A systems domain in the docs: one high-level overview per system plus a feature map, which AGENTS.md points at instead of docs full of detail that drifts. Waiting until the real systems land, since the foundation skeleton has little to map yet.

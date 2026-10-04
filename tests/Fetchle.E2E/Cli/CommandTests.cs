@@ -35,6 +35,7 @@ public class CommandTests
     [Arguments("--type", "x", "q")]
     [Arguments("--limit", "0", "q")]
     [Arguments("--limit", "-1", "q")]
+    [Arguments("--budget", "1000000000000d", "q")]
     public async Task Bad_args_exit_2(params string[] args) =>
         await Assert.That((await FetchleProcess.RunAsync(args)).ExitCode).IsEqualTo(2);
 }

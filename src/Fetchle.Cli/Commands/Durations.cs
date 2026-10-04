@@ -24,7 +24,8 @@ static class Durations
             "d" => value * 86_400_000,
             _ => null,
         };
-        if (ms is not { } total) return false;
+        // a huge number would overflow TimeSpan, so it's a parse failure like any other
+        if (ms is not { } total || !double.IsFinite(total) || total > TimeSpan.MaxValue.TotalMilliseconds) return false;
         duration = TimeSpan.FromMilliseconds(total);
         return true;
     }

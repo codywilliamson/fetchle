@@ -1,0 +1,12 @@
+bin/
+obj/
+out/
+artifacts/
+*.user
+.vs/
+.idea/
+TestResults/
+BenchmarkDotNet.Artifacts/
+models/
+node_modules/
+demo/video/out/

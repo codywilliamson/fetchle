@@ -48,9 +48,7 @@ Performance is a core principle of this project. See [docs/vision.md](docs/visio
 
 ## The loop
 
-Build, test, eval, bench. A change isn't done until the native exe passes e2e, not just the JIT build.
-
-Local Windows AOT publish needs the VS Build Tools C++ workload and `${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer` on PATH, or link fails with `'vswhere.exe' is not recognized`.
+`dotnet build.cs <target>` runs every step: build, test, eval, bench. A change isn't done until the native exe passes `dotnet build.cs e2e`, not just the JIT build. `dotnet build.cs ci` runs the whole pipeline once.
 
 ## Conventions
 

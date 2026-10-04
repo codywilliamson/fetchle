@@ -15,6 +15,8 @@ Pre-alpha. Every spec'd command exists, but most exit 2 with "not implemented ye
 
 When behavior and spec disagree, fix one of them in the same change. Don't let them drift.
 
+Docs referenced from this file stay high-level and current. Low-level detail lives in code and tests, where it can't go stale. Update a referenced doc in the same change that makes it wrong.
+
 ## Rules that came from spikes
 
 - Never start a XenoAtom live widget when stdout is redirected. Spinner frames leak into the output.

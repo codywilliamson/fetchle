@@ -1,32 +1,15 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Fetchle.Core.Search;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 
 namespace Fetchle.Mcp;
 
-// find_files and index_status, docs/specs/mcp.md
 public sealed class Tools(IFileSearch search, string defaultRoot)
 {
-    public const int MaxBudgetMs = 25_000;
-
-    const string FindFilesSchema = """
-        {
-          "type": "object",
-          "properties": {
-            "query": { "type": "string", "description": "Plain-words description or partial name." },
-            "limit": { "type": "integer", "minimum": 1, "default": 10, "description": "Max results." },
-            "budget_ms": { "type": "integer", "minimum": 0, "maximum": 25000, "default": 2000, "description": "Hard time cap in ms." },
-            "root": { "type": "string", "description": "Restrict to one root." },
-            "ext": { "type": "array", "items": { "type": "string" }, "description": "Extension filter." }
-          },
-          "required": ["query"],
-          "additionalProperties": false
-        }
-        """;
-
-    const string IndexStatusSchema = """{ "type": "object", "properties": {}, "additionalProperties": false }""";
+    public const int MAX_BUDGET_MS = 25_000;
 
     public static readonly List<Tool> Definitions =
     [
@@ -34,47 +17,56 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         {
             Name = "find_files",
             Description = "Ranked file and directory path search. Returns paths plus a footer with match count, time and whether the budget cut it short.",
-            InputSchema = JsonDocument.Parse(FindFilesSchema).RootElement,
+            InputSchema = ToolSchema.For(McpJson.Default.FindFilesArgs),
         },
         new()
         {
             Name = "index_status",
             Description = "Roots, file counts, last full scan, vector and watcher state. Use it to decide whether to trust a miss.",
-            InputSchema = JsonDocument.Parse(IndexStatusSchema).RootElement,
+            InputSchema = ToolSchema.For(McpJson.Default.IndexStatusArgs),
         },
     ];
 
     public CallToolResult Call(string name, IDictionary<string, JsonElement>? arguments, CancellationToken cancellationToken)
     {
-        var args = new Args(arguments);
         switch (name)
         {
             case "find_files":
-                args.RejectUnknown("query", "limit", "budget_ms", "root", "ext");
-                return FindFiles(args, cancellationToken);
+                return FindFiles(Parse(arguments, McpJson.Default.FindFilesArgs), cancellationToken);
             case "index_status":
-                args.RejectUnknown();
+                Parse(arguments, McpJson.Default.IndexStatusArgs);
                 return IndexStatus();
             default:
                 throw InvalidParams($"unknown tool '{name}'");
         }
     }
 
-    CallToolResult FindFiles(Args args, CancellationToken cancellationToken)
+    CallToolResult FindFiles(FindFilesArgs args, CancellationToken cancellationToken)
     {
-        var query = args.String("query");
-        if (string.IsNullOrWhiteSpace(query)) throw InvalidParams("query is required");
-        var limit = args.Int("limit") ?? SearchRequest.DefaultLimit;
-        if (limit < 1) throw InvalidParams("limit must be at least 1");
-        var budgetMs = args.Int("budget_ms") ?? (int)SearchRequest.DefaultBudget.TotalMilliseconds;
-        if (budgetMs < 0) throw InvalidParams("budget_ms must not be negative");
+        if (string.IsNullOrWhiteSpace(args.Query))
+        {
+            throw InvalidParams("query must not be blank");
+        }
+        if (args.Limit < 1)
+        {
+            throw InvalidParams("limit must be at least 1");
+        }
+        if (args.BudgetMs < 0)
+        {
+            throw InvalidParams("budget_ms must not be negative");
+        }
+        // element nullability isn't covered by RespectNullableAnnotations
+        if (args.Ext is { } ext && Array.IndexOf(ext, null) >= 0)
+        {
+            throw InvalidParams("ext must not contain null");
+        }
 
         var request = new SearchRequest(
-            query,
-            [args.String("root") ?? defaultRoot],
-            limit,
-            TimeSpan.FromMilliseconds(Math.Min(budgetMs, MaxBudgetMs)),
-            args.StringArray("ext"));
+            args.Query,
+            [args.Root ?? defaultRoot],
+            args.Limit,
+            TimeSpan.FromMilliseconds(Math.Min(args.BudgetMs, MAX_BUDGET_MS)),
+            args.Ext);
 
         SearchResult result;
         try
@@ -87,7 +79,10 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         }
 
         var text = new StringBuilder();
-        foreach (var hit in result.Hits) text.Append(hit.Path).Append('\n');
+        foreach (var hit in result.Hits)
+        {
+            text.Append(hit.Path).Append('\n');
+        }
         text.Append(result.Footer());
         var structured = new FindFilesResult(result.Hits, result.TotalMatches, result.Hits.Count, (long)result.Elapsed.TotalMilliseconds, result.StoppedEarly);
         return new CallToolResult
@@ -102,7 +97,9 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         var status = search.GetStatus([defaultRoot]);
         var text = new StringBuilder();
         foreach (var root in status.Roots)
+        {
             text.Append($"{root.Path}: {(root.FileCount is { } n ? $"{n} files" : "not indexed")}\n");
+        }
         text.Append($"vectors complete: {(status.VectorsComplete ? "yes" : "no")}, watcher live: {(status.WatcherLive ? "yes" : "no")}");
         return new CallToolResult
         {
@@ -111,38 +108,20 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         };
     }
 
-    static McpProtocolException InvalidParams(string message) => new(message, McpErrorCode.InvalidParams);
-
-    readonly struct Args(IDictionary<string, JsonElement>? values)
+    static T Parse<T>(IDictionary<string, JsonElement>? arguments, JsonTypeInfo<T> typeInfo)
     {
-        // a misspelled argument would otherwise silently fall back to its default
-        public void RejectUnknown(params string[] known)
+        var json = arguments is null
+            ? "{}"u8.ToArray()
+            : JsonSerializer.SerializeToUtf8Bytes(arguments, McpJson.Default.IDictionaryStringJsonElement);
+        try
         {
-            if (values is null) return;
-            foreach (var name in values.Keys)
-                if (Array.IndexOf(known, name) < 0) throw InvalidParams($"unknown argument '{name}'");
+            return JsonSerializer.Deserialize(json, typeInfo) ?? throw InvalidParams("arguments must be an object");
         }
-
-        public string? String(string name) => Get(name, JsonValueKind.String) is { } e ? e.GetString() : null;
-
-        public int? Int(string name) =>
-            Get(name, JsonValueKind.Number) is { } e ? e.TryGetInt32(out var v) ? v : throw InvalidParams($"{name} must be an integer") : null;
-
-        public string[]? StringArray(string name)
+        catch (JsonException e)
         {
-            if (Get(name, JsonValueKind.Array) is not { } e) return null;
-            var items = new string[e.GetArrayLength()];
-            var i = 0;
-            foreach (var item in e.EnumerateArray())
-                items[i++] = item.ValueKind == JsonValueKind.String ? item.GetString()! : throw InvalidParams($"{name} must be an array of strings");
-            return items;
-        }
-
-        JsonElement? Get(string name, JsonValueKind kind)
-        {
-            // absent means default; an explicit null is a type error like any other
-            if (values is null || !values.TryGetValue(name, out var e)) return null;
-            return e.ValueKind == kind ? e : throw InvalidParams($"{name} must be {kind.ToString().ToLowerInvariant()}");
+            throw InvalidParams(e.Message);
         }
     }
+
+    static McpProtocolException InvalidParams(string message) => new(message, McpErrorCode.InvalidParams);
 }

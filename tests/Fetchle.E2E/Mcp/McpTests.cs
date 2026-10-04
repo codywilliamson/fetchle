@@ -66,7 +66,10 @@ public class McpTests
     [Arguments("""{"name":"find_files","arguments":{"query":"x","limti":5}}""")]
     [Arguments("""{"name":"index_status","arguments":{"root":"x"}}""")]
     [Arguments("""{"name":"find_files","arguments":{"query":"x","limit":null}}""")]
-    [Arguments("""{"name":"find_files","arguments":{"query":"x","root":null}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":"x","budget_ms":null}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":null}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":" "}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":"x","ext":["md",null]}}""")]
     public async Task Unknown_tools_and_bad_args_are_invalid_params(string callParams)
     {
         using var tree = FixtureTree.Create();
@@ -74,6 +77,33 @@ public class McpTests
 
         var response = await mcp.RequestAsync("tools/call", JsonNode.Parse(callParams)!.AsObject());
         await Assert.That(response["error"]!["code"]!.GetValue<int>()).IsEqualTo(-32602);
+    }
+
+    [Test]
+    public async Task Null_root_and_ext_use_the_defaults()
+    {
+        using var tree = FixtureTree.Create();
+        await using var mcp = await McpSession.StartInitializedAsync(tree.Root);
+
+        var find = await mcp.CallAsync("find_files", new JsonObject { ["query"] = "settings", ["root"] = null, ["ext"] = null });
+        await Assert.That(find["result"]!["structuredContent"]!["paths"]![0]!["path"]!.GetValue<string>()).IsEqualTo(tree.Full(FixtureTree.SettingsFile));
+    }
+
+    [Test]
+    public async Task Tool_schemas_require_query_and_reject_extra_properties()
+    {
+        using var tree = FixtureTree.Create();
+        await using var mcp = await McpSession.StartInitializedAsync(tree.Root);
+
+        var list = await mcp.RequestAsync("tools/list");
+        var schemas = list["result"]!["tools"]!.AsArray().ToDictionary(t => t!["name"]!.GetValue<string>(), t => t!["inputSchema"]!);
+        foreach (var schema in schemas.Values)
+        {
+            await Assert.That(schema["type"]!.GetValue<string>()).IsEqualTo("object");
+            await Assert.That(schema["additionalProperties"]!.GetValue<bool>()).IsFalse();
+        }
+        var required = schemas["find_files"]["required"]!.AsArray().Select(n => n!.GetValue<string>());
+        await Assert.That(required).IsEquivalentTo(["query"]);
     }
 
     [Test]

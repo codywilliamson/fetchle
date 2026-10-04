@@ -1,4 +1,5 @@
 using System.Reflection;
+using Fetchle.Core;
 using XenoAtom.CommandLine;
 
 namespace Fetchle.Cli;
@@ -151,10 +152,10 @@ static class FetchleApp
         return ExitCodes.Usage;
     }
 
-    static SearchType ParseType(string? value) => value switch
+    static EntryType ParseType(string? value) => value switch
     {
-        "f" => SearchType.Files,
-        "d" => SearchType.Directories,
+        "f" => EntryType.Files,
+        "d" => EntryType.Directories,
         _ => throw new CommandOptionException($"invalid type '{value}', use f or d", "type"),
     };
 }

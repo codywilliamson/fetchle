@@ -25,7 +25,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 |---|---|---|
 | `--limit <n>` | 10 (TTY), 20 (agent) | Max results. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
-| `--root <path>` | all roots | Restrict to one root. Repeatable. |
+| `--root <path>` | all roots | Restrict to one root. Repeatable. Until `roots` ships, the default is the current directory. A root that doesn't exist fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |
 | `--since <duration>` | none | Modified within, e.g. `3d`. |
 | `--type <f\|d>` | both | Files or directories only. |

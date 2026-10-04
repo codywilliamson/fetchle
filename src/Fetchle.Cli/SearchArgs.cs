@@ -1,6 +1,6 @@
-namespace Fetchle.Cli;
+using Fetchle.Core;
 
-enum SearchType { Any, Files, Directories }
+namespace Fetchle.Cli;
 
 sealed class SearchArgs
 {
@@ -8,9 +8,9 @@ sealed class SearchArgs
     public List<string> Roots { get; } = [];
     public List<string> Extensions { get; } = [];
     public int? Limit { get; set; }
-    public TimeSpan Budget { get; set; } = TimeSpan.FromSeconds(2);
+    public TimeSpan Budget { get; set; } = SearchRequest.DefaultBudget;
     public TimeSpan? Since { get; set; }
-    public SearchType Type { get; set; }
+    public EntryType Type { get; set; }
     public bool Json { get; set; }
     public bool Plain { get; set; }
     public bool Interactive { get; set; }

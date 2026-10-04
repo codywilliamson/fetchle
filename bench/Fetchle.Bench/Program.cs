@@ -3,9 +3,13 @@ using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using Fetchle.Bench;
+using Microsoft.Extensions.Logging;
 
 // usage: Fetchle.Bench [--external] [benchmarkdotnet args, e.g. --filter *Walk*]
 // results land as json in bench/results/
+using var loggerFactory = CreateLoggerFactory();
+var logger = loggerFactory.CreateLogger("Fetchle.Bench");
+
 var repo = RepoRoot();
 var resultsDir = Path.Combine(repo, "bench", "results");
 Directory.CreateDirectory(resultsDir);
@@ -26,13 +30,32 @@ foreach (var report in Directory.EnumerateFiles(Path.Combine(artifacts, "results
 {
     var target = Path.Combine(resultsDir, Path.GetFileName(report).Replace("-report-brief", ""));
     File.Copy(report, target, overwrite: true);
-    Console.WriteLine($"wrote {target}");
+    logger.WroteResults(target);
 }
 return 0;
+
+static ILoggerFactory CreateLoggerFactory()
+{
+    return LoggerFactory.Create(builder =>
+    {
+        // benchmarkdotnet owns stdout, so log lines go to stderr
+        builder.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
+        builder.AddSimpleConsole(options =>
+        {
+            options.SingleLine = true;
+            options.TimestampFormat = "HH:mm:ss ";
+        });
+    });
+}
 
 static string RepoRoot()
 {
     for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-        if (File.Exists(Path.Combine(dir.FullName, "fetchle.slnx"))) return dir.FullName;
+    {
+        if (File.Exists(Path.Combine(dir.FullName, "fetchle.slnx")))
+        {
+            return dir.FullName;
+        }
+    }
     throw new InvalidOperationException("can't find fetchle.slnx above " + AppContext.BaseDirectory);
 }

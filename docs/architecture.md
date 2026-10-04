@@ -64,6 +64,8 @@ bench/             BenchmarkDotNet, results committed as JSON
 demo/              VHS tapes and the Remotion project
 ```
 
+Inside a project, folders group by job and namespaces match folders. In `Fetchle.Core`, `Search/` holds the `IFileSearch` seam and its request and result shapes, `Walking/` holds prune rules and path comparison, and `Naive/` holds the placeholder walker, ranker and search that the real ones replace. `Fetchle.Cli` splits into `Commands/` and `Output/`.
+
 The MCP server uses `ModelContextProtocol.Core` with hand-written handlers. The hosted variant pulled in 31 assemblies against Core's 4, and its tool discovery relies on reflection that hasn't been proven under AOT. The pattern is in [spikes/mcp.md](spikes/mcp.md).
 
 The terminal layer has two rules from its spike. Never start a live widget when stdout is redirected, because spinner frames leak into the output as text. Focus the picker's text box explicitly, or every keystroke gets dropped. Details are in [spikes/terminal.md](spikes/terminal.md).

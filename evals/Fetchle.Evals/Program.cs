@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Fetchle.Core;
+using Fetchle.Core.Naive;
+using Fetchle.Core.Search;
+using Fetchle.Core.Walking;
 using Fetchle.Fixtures;
 
 // ranking quality gate, docs/testing.md#evals-are-not-tests.

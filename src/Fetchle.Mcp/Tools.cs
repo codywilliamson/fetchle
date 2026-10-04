@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using Fetchle.Core;
+using Fetchle.Core.Search;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 

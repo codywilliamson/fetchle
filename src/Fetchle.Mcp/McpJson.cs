@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Fetchle.Core;
+using Fetchle.Core.Search;
 
 namespace Fetchle.Mcp;
 

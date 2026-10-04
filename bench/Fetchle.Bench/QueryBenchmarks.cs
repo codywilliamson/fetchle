@@ -1,5 +1,7 @@
 using BenchmarkDotNet.Attributes;
-using Fetchle.Core;
+using Fetchle.Core.Naive;
+using Fetchle.Core.Search;
+using Fetchle.Core.Walking;
 
 namespace Fetchle.Bench;
 

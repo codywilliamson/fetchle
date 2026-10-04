@@ -26,7 +26,7 @@ static class SearchCommand
             args.Limit ?? (mode == OutputMode.Agent ? AgentDefaultLimit : SearchRequest.DefaultLimit),
             args.Budget,
             args.Extensions,
-            args.Since is { } since ? DateTimeOffset.UtcNow - since : null,
+            args.Since is { } since ? SinceCutoff(since, DateTimeOffset.UtcNow) : null,
             args.Type);
 
         SearchResult result;
@@ -56,4 +56,8 @@ static class SearchCommand
             : result.StoppedEarly == StopReasons.Budget ? ExitCodes.BudgetExpired
             : ExitCodes.NoResults);
     }
+
+    // a window reaching past the earliest representable time just means "everything"
+    internal static DateTimeOffset SinceCutoff(TimeSpan since, DateTimeOffset now) =>
+        since >= now - DateTimeOffset.MinValue ? DateTimeOffset.MinValue : now - since;
 }

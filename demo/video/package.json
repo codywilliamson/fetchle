@@ -2,8 +2,9 @@
   "name": "fetchle-video",
   "private": true,
   "scripts": {
-    "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Hype out/hype.mp4"
+    "soundtrack": "node scripts/soundtrack.mjs",
+    "studio": "pnpm soundtrack && remotion studio src/index.ts",
+    "render": "pnpm soundtrack && remotion render src/index.ts Hype out/hype.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.532",

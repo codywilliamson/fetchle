@@ -1,3 +1,4 @@
+import { Audio, staticFile } from "remotion";
 import { linearTiming, TransitionPresentation, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
@@ -41,18 +42,21 @@ const presentations: TransitionPresentation<any>[] = [
 export const HYPE_FRAMES = scenes.reduce((sum, s) => sum + s.frames, 0) - T * presentations.length;
 
 export const Hype: React.FC = () => (
-  <TransitionSeries>
-    {scenes.flatMap(({ C, frames }, i) => {
-      const seq = (
-        <TransitionSeries.Sequence key={`s${i}`} durationInFrames={frames}>
-          <C />
-        </TransitionSeries.Sequence>
-      );
-      if (i === scenes.length - 1) return [seq];
-      return [
-        seq,
-        <TransitionSeries.Transition key={`t${i}`} presentation={presentations[i]} timing={linearTiming({ durationInFrames: T })} />,
-      ];
-    })}
-  </TransitionSeries>
+  <>
+    <Audio src={staticFile("soundtrack.wav")} />
+    <TransitionSeries>
+      {scenes.flatMap(({ C, frames }, i) => {
+        const seq = (
+          <TransitionSeries.Sequence key={`s${i}`} durationInFrames={frames}>
+            <C />
+          </TransitionSeries.Sequence>
+        );
+        if (i === scenes.length - 1) return [seq];
+        return [
+          seq,
+          <TransitionSeries.Transition key={`t${i}`} presentation={presentations[i]} timing={linearTiming({ durationInFrames: T })} />,
+        ];
+      })}
+    </TransitionSeries>
+  </>
 );

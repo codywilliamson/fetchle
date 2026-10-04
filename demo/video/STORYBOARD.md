@@ -25,4 +25,4 @@ pnpm --dir demo/video install
 pnpm --dir demo/video render
 ```
 
-No music is baked in. Add a licensed track in an editor or with ffmpeg.
+The soundtrack is synthesized by `scripts/soundtrack.mjs`, scored to the same frame timeline: a drone and accelerating ticks under the crawl, impacts on the timeout and "It guessed wrong.", a drop on the reveal, then a four-on-the-floor beat with UI blips on every on-screen event. No samples, so no licensing. `pnpm render` regenerates it first. If you move a scene, update `SCENE` in the script.

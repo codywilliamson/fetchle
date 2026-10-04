@@ -16,7 +16,9 @@ Directory.CreateDirectory(resultsDir);
 
 if (args is ["--external", ..])
 {
-    ExternalBench.Run(repo, resultsDir);
+    var options = ExternalBenchOptions.FromEnvironment(repo, resultsDir);
+    var runner = new ExternalBenchRunner(options, new ProcessTimer(), loggerFactory.CreateLogger<ExternalBenchRunner>());
+    runner.Run();
     return 0;
 }
 

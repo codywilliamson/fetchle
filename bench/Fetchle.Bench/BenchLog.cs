@@ -6,4 +6,16 @@ static partial class BenchLog
 {
     [LoggerMessage(Level = LogLevel.Information, Message = "wrote {Path}")]
     public static partial void WroteResults(this ILogger logger, string path);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "skipping fetchle: no exe at {Path}, run ./build.ps1 publish or set FETCHLE_EXE")]
+    public static partial void SkippingFetchle(this ILogger logger, string path);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "skipping rg: not on PATH")]
+    public static partial void SkippingRg(this ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "timing {Tool} on {Shape}")]
+    public static partial void TimingTool(this ILogger logger, string tool, string shape);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Tool} on {Shape}: median {MedianMs} ms, runs {RunsMs}")]
+    public static partial void MeasuredTool(this ILogger logger, string tool, string shape, long medianMs, long[] runsMs);
 }

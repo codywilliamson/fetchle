@@ -2,6 +2,18 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-04: one build.cs instead of build.ps1 and build.sh
+
+A .NET 10 file-based app runs every step on every OS, so the two scripts can't drift apart, and its output is structured: a header per step, the command it ran, time per step and a summary table. `dotnet build.cs ci` restores, builds and publishes once, then runs unit, e2e (against the published exe through `FETCHLE_EXE`) and evals without rebuilding. Locally it took 1m03s end to end.
+
+## 2026-10-04: NuGet lock files, except for Fetchle.Cli
+
+Lock files let CI cache restores and run `--locked-mode`. Fetchle.Cli is excluded because `PublishAot` adds the host RID's ILCompiler pack to its restore, so its lock file would differ on each OS. Listing all five release RIDs instead pulled 1.9 GB of runtime packs. Cli's third-party packages stay pinned through Fetchle.Tests' lock file, which references it. A new SDK patch changes the SDK-added ILLink package version, so lock files need a refresh when the SDK moves.
+
+## 2026-10-04: MCP tool schemas generated from C# records
+
+`FindFilesArgs` and `IndexStatusArgs` are the single source for the advertised schema (through `JsonSchemaExporter` on the source-generated type info) and for validation (unknown members disallowed, nullable annotations respected). It's AOT-clean. JSON-string schemas could drift from the handler code.
+
 ## 2026-10-03: TUnit for unit and e2e tests
 
 TUnit 1.72.16 publishes under NativeAOT with zero IL/AOT warnings (warnings are errors in this repo). The AOT test exe is 28 MB and ran all 48 unit tests in 18 ms. No need for the xUnit v3 fallback.

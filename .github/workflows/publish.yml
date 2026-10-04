@@ -39,11 +39,11 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -68,7 +68,7 @@ jobs:
           (cd dist && shasum -a 256 "$(basename "$archive")" > "$(basename "$archive").sha256")
           echo "path=$archive" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-path: ${{ steps.archive.outputs.path }}
 

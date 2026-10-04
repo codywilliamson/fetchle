@@ -2,6 +2,14 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-03: parallel walker on FileSystemEnumerable, missing roots are errors
+
+A 16-thread walker on non-recursive `FileSystemEnumerable` ran 2.4x faster than single-threaded on 85k entries (0.51 s vs 1.23 s) and 2.5 to 3x faster on a 7.7M entry home dir (60 s). It's ~12x faster than `gci` with ~9x less memory. ripgrep still beats it by 1.3 to 1.5x and uses 17 MB against our ~100 MB, because rg scales better across threads. Next step is per-worker LIFO deques with work stealing; that the design closes the gap is a guess.
+
+A missing root fails immediately and is never treated as a search pattern. That PowerShell behavior is what caused the original 120 s timeout. Reparse points are skipped by default; junctions are not followed.
+
+Evidence: [spikes/walker.md](spikes/walker.md).
+
 ## 2026-10-03: ship potion-retrieval-32M int8 beside the exe
 
 The exe stays at ~5.6 MB and the 32 MB model ships in the same archive. Embedding the model gives a 39 MB exe but still needs a temp extract, because Model2Vec.Net only loads from a directory. retrieval-32M beat base-8M on descriptive queries. int8 matched f32 rankings at a quarter of the size. Cold start ~110 ms. Fallback if size wins: base-8M int8 embedded, 13.6 MB, ~65 ms.
@@ -44,7 +52,7 @@ Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
 
 ## Open
 
-- Walker spike pending: why `gci` took 120 s on 84k entries, and which .NET walker variant wins.
+- Walker memory and scaling: work-stealing DFS vs the current FIFO queue, measured against rg.
 - Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.
 - Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
 - potion model license needs confirming before redistribution.

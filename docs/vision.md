@@ -8,7 +8,9 @@ The pitch to a friend: it's semble for finding files. Your agent stops running t
 
 The incident that started this was an agent searching `AppData\Roaming\Claude`, `AppData\Local\AnthropicClaude` and `AppData\Local\Packages` with `Get-ChildItem -Recurse -Filter claude*.exe`. It timed out at 120 seconds. Raw .NET enumeration listed all 84,274 entries in those roots in 3.0 seconds, and the filtered search took 1.2.
 
-A faster walker would have helped that one call. It would not have helped the next one, because the agent still has to guess roots, still pays for every directory it walks, and still gets nothing back when it runs out of time. The embeddings spike walked all of `AppData` and found 2.6 million files, mostly `node_modules`, Temp and caches. A 37 second walk after pruning, or six minutes without, is never something an agent should trigger inline.
+The walker spike found the real cause, and it wasn't walk speed. `AppData\Local\AnthropicClaude` doesn't exist on that machine. Given a missing path with `-Recurse`, PowerShell doesn't error. It treats the leaf as a name to search for and crawls the parent, so the agent's command walked all 2.5 million entries of `%LOCALAPPDATA%`. With the two real roots only, the same command took 3.1 seconds. Details are in [spikes/walker.md](spikes/walker.md).
+
+That makes the case stronger. The agent guessed a root, the guess was wrong, and the tool turned a typo into a whole-drive crawl with no error and no partial result. A faster walker doesn't fix that. The agent still has to guess roots, still pays for every directory it walks, and still gets nothing back when it runs out of time. The embeddings spike walked all of `AppData` and found 2.6 million files, mostly `node_modules`, Temp and caches. A 37 second walk after pruning, or six minutes without, is never something an agent should trigger inline.
 
 So fetchle answers from an index that is already built, ranks results so the first one is usually right, and always returns inside a budget. When the budget runs out it says what it skipped instead of returning nothing.
 

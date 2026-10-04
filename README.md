@@ -13,7 +13,7 @@ That output is the target, not shipped behavior. fetchle is pre-alpha: the repo 
 
 ## Why it exists
 
-An agent looking for one exe ran `Get-ChildItem -Recurse` over three AppData folders and hit a 120 second timeout with nothing to show. The same search in raw .NET found it in 1.2 seconds. Agents improvise filesystem crawls like that constantly, and they can't tell which roots are expensive. fetchle gives them one call that answers from a local index, inside a time budget, every time.
+An agent looking for one exe ran `Get-ChildItem -Recurse` over three AppData folders and hit a 120 second timeout with nothing to show. One folder didn't exist, and PowerShell quietly turned that into a crawl of all 2.5 million entries under `%LOCALAPPDATA%`. The same search in raw .NET found the exe in 1.2 seconds. Agents improvise filesystem crawls like that constantly, and they can't tell which roots are expensive. fetchle gives them one call that answers from a local index, inside a time budget, every time.
 
 [semble](https://github.com/MinishLab/semble) does this for code content. fetchle does it for file names and paths.
 

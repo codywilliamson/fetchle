@@ -140,7 +140,8 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
 
         JsonElement? Get(string name, JsonValueKind kind)
         {
-            if (values is null || !values.TryGetValue(name, out var e) || e.ValueKind == JsonValueKind.Null) return null;
+            // absent means default; an explicit null is a type error like any other
+            if (values is null || !values.TryGetValue(name, out var e)) return null;
             return e.ValueKind == kind ? e : throw InvalidParams($"{name} must be {kind.ToString().ToLowerInvariant()}");
         }
     }

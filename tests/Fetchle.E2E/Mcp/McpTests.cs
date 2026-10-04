@@ -65,6 +65,8 @@ public class McpTests
     [Arguments("""{"name":"find_files","arguments":{"query":"x","limit":0}}""")]
     [Arguments("""{"name":"find_files","arguments":{"query":"x","limti":5}}""")]
     [Arguments("""{"name":"index_status","arguments":{"root":"x"}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":"x","limit":null}}""")]
+    [Arguments("""{"name":"find_files","arguments":{"query":"x","root":null}}""")]
     public async Task Unknown_tools_and_bad_args_are_invalid_params(string callParams)
     {
         using var tree = FixtureTree.Create();

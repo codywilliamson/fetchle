@@ -71,3 +71,4 @@ Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
 - Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
 - potion model license needs confirming before redistribution.
 - Which env vars each agent sets, for agent output mode detection.
+- A systems domain in the docs: one high-level overview per system plus a feature map, which AGENTS.md points at instead of docs full of detail that drifts. Waiting until the real systems land, since the foundation skeleton has little to map yet.

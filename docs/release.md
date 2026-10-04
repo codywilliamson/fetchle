@@ -53,7 +53,7 @@ The .NET tool package ships the same native binaries as a platform-specific tool
 
 ## Dependencies
 
-Renovate, grouped weekly, automerge for patch updates that pass CI.
+Dependabot, weekly, one grouped PR for NuGet and one for GitHub Actions. Nothing automerges.
 
 Every project except `Fetchle.Cli` commits a `packages.lock.json`, and CI restores with `--locked-mode`. `setup-dotnet` caches the NuGet folder keyed on those lock files. `Fetchle.Cli` has no lock file because `PublishAot` adds the host's ILCompiler runtime package to its restore graph, so its lock file would differ on every OS. Its third-party packages are still locked through `Fetchle.Tests`, which references it. `build.cs` has no lock file for the same reason.
 

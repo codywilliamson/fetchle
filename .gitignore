@@ -11,3 +11,5 @@ models/
 node_modules/
 demo/video/out/
 demo/video/public/soundtrack.wav
+
+.claude/worktrees/

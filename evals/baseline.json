@@ -8,73 +8,73 @@
       "query": "desktop app bundled claude binary",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 584
+      "elapsed_ms": 420
     },
     {
       "query": "powershell command history",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 578
+      "elapsed_ms": 373
     },
     {
       "query": "vscode user settings",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 504
+      "elapsed_ms": 346
     },
     {
       "query": "windows terminal config",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 504
+      "elapsed_ms": 355
     },
     {
       "query": "chrome browsing history",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 429
+      "elapsed_ms": 420
     },
     {
       "query": "firefox bookmarks database",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 423
+      "elapsed_ms": 407
     },
     {
       "query": "node version manager settings",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 437
+      "elapsed_ms": 388
     },
     {
       "query": "github desktop executable",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 481
+      "elapsed_ms": 384
     },
     {
       "query": "discord app executable",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 451
+      "elapsed_ms": 367
     },
     {
       "query": "obsidian vault list",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 382
+      "elapsed_ms": 347
     },
     {
       "query": "thunderbird mail search index",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 390
+      "elapsed_ms": 366
     },
     {
       "query": "music streaming app",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 363
+      "elapsed_ms": 361
     }
   ]
 }

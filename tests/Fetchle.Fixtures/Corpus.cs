@@ -51,10 +51,13 @@ public static class Corpus
     // one file per directory: a load test for the per-directory cost
     public const int DirHeavyFilesPerDirectory = 1;
 
+    // bump when the generated layout changes, so cached corpora on disk get rebuilt
+    const int LayoutVersion = 2;
+
     // writes the corpus under root unless a matching one is already there. returns root
     public static string Ensure(string root, int fillerFiles, int filesPerDirectory = RealisticFilesPerDirectory, int seed = DefaultSeed)
     {
-        var marker = Path.Combine(root, $".corpus-{seed}-{fillerFiles}-{filesPerDirectory}");
+        var marker = Path.Combine(root, $".corpus-v{LayoutVersion}-{seed}-{fillerFiles}-{filesPerDirectory}");
         if (File.Exists(marker)) return root;
         if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
 
@@ -70,15 +73,18 @@ public static class Corpus
     static IEnumerable<string> Filler(int seed, int count, int filesPerDirectory)
     {
         var rng = new Random(seed);
-        var dirs = new string[Math.Max(1, count / filesPerDirectory)];
-        for (var i = 0; i < dirs.Length; i++)
+        // distinct leaf dirs, each getting exactly filesPerDirectory files round-robin
+        var dirCount = Math.Max(1, count / filesPerDirectory);
+        var dirs = new List<string>(dirCount);
+        var seen = new HashSet<string>();
+        while (dirs.Count < dirCount)
         {
             var dir = $"{Tops[rng.Next(Tops.Length)]}/{Vendors[rng.Next(Vendors.Length)]}/{Products[rng.Next(Products.Length)]}";
             for (var d = rng.Next(1, 5); d > 0; d--) dir += $"/{Words[rng.Next(Words.Length)]}{rng.Next(4)}";
-            dirs[i] = dir;
+            if (seen.Add(dir)) dirs.Add(dir);
         }
         for (var i = 0; i < count; i++)
-            yield return $"{dirs[rng.Next(dirs.Length)]}/{Words[rng.Next(Words.Length)]}_{i:D6}{Extensions[rng.Next(Extensions.Length)]}";
+            yield return $"{dirs[i % dirs.Count]}/{Words[rng.Next(Words.Length)]}_{i:D6}{Extensions[rng.Next(Extensions.Length)]}";
     }
 
     static void Touch(string root, string relative)

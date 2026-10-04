@@ -1,8 +1,3 @@
-using System.Reflection;
+using Fetchle.Cli;
 
-if (args is ["--version"])
-{
-    Console.WriteLine(typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
-    return 0;
-}
-return 2;
+return await FetchleApp.RunAsync(args);

@@ -6,6 +6,13 @@
     <PublishAot>true</PublishAot>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Fetchle.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="XenoAtom.CommandLine" />
+    <PackageReference Include="XenoAtom.Terminal" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Fetchle.Core\Fetchle.Core.csproj" />
     <ProjectReference Include="..\Fetchle.Mcp\Fetchle.Mcp.csproj" />
   </ItemGroup>

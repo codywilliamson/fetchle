@@ -28,7 +28,14 @@ var job = Job.Default.WithWarmupCount(1).WithIterationCount(5);
 var config = DefaultConfig.Instance.WithArtifactsPath(artifacts).AddExporter(JsonExporter.Brief).AddJob(job);
 BenchmarkSwitcher.FromAssembly(typeof(WalkBenchmarks).Assembly).Run(args.Length == 0 ? ["--filter", "*"] : args, config);
 
-foreach (var report in Directory.EnumerateFiles(Path.Combine(artifacts, "results"), "*-report-brief.json"))
+// --list and other non-running switches leave no results folder
+var reportsDir = Path.Combine(artifacts, "results");
+if (!Directory.Exists(reportsDir))
+{
+    return 0;
+}
+
+foreach (var report in Directory.EnumerateFiles(reportsDir, "*-report-brief.json"))
 {
     var target = Path.Combine(resultsDir, Path.GetFileName(report).Replace("-report-brief", ""));
     File.Copy(report, target, overwrite: true);

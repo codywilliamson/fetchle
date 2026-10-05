@@ -39,30 +39,12 @@ public sealed class FastWalker(PruneRules prune)
         }
 
         var dirs = new Stack<string>();
-
         dirs.Push(root);
+
         while (dirs.TryPop(out var dir))
         {
-            var files = new FileSystemEnumerable<byte>(dir, static (ref _) => 0, Options)
-            {
-                ShouldIncludePredicate = (ref e) =>
-                {
-                    if (e.IsDirectory)
-                    {
-                        if (_prune.ShouldPrune(e.Directory, e.FileName))
-                        {
-                            return false;
-                        }
-
-                        dirs.Push(e.ToFullPath());
-                    }
-
-                    visit(ref e);
-                    return true;
-                }
-            };
-
-            foreach (var _ in files)
+            using var lister = new DirectoryLister(dir, _prune, visit, dirs);
+            while (lister.MoveNext())
             {
                 if (deadline.IsExpired())
                 {
@@ -72,5 +54,32 @@ public sealed class FastWalker(PruneRules prune)
         }
 
         return true;
+    }
+
+    // lists one directory: visits each entry, queues unpruned subdirectories.
+    // overrides instead of delegates, so no delegate or enumerable wrapper per dir
+    sealed class DirectoryLister(
+        string dir,
+        PruneRules prune,
+        EntryVisitor visit,
+        Stack<string> dirs) : FileSystemEnumerator<byte>(dir, Options)
+    {
+        protected override bool ShouldIncludeEntry(ref FileSystemEntry entry)
+        {
+            if (entry.IsDirectory)
+            {
+                if (prune.ShouldPrune(entry.Directory, entry.FileName))
+                {
+                    return false;
+                }
+
+                dirs.Push(entry.ToFullPath());
+            }
+
+            visit(ref entry);
+            return true;
+        }
+
+        protected override byte TransformEntry(ref FileSystemEntry entry) => 0;
     }
 }

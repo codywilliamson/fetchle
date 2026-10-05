@@ -1,4 +1,3 @@
-using System.IO.Enumeration;
 using Fetchle.Core.Search;
 
 namespace Fetchle.Core.Walking;
@@ -18,7 +17,10 @@ public sealed class FastWalker(PruneRules prune)
     // the bench sweeps this; everything else gets one worker per core
     internal int WorkerCount { get; init; } = Environment.ProcessorCount;
 
-    public delegate void EntryVisitor(ref FileSystemEntry entry);
+    // tests and the bench force a lister here
+    internal ListerKind Lister { get; init; } = ListerKind.Auto;
+
+    public delegate void EntryVisitor(ref WalkEntry entry);
 
     // called once per worker, from that worker's thread, so each worker gets a private visitor
     // and nothing is shared mid-walk. the caller merges whatever its visitors collected
@@ -39,6 +41,6 @@ public sealed class FastWalker(PruneRules prune)
             return false;
         }
 
-        return new WalkState(_prune, makeVisitor, deadline, WorkerCount).Run(root);
+        return new WalkState(_prune, makeVisitor, deadline, WorkerCount, Lister).Run(root);
     }
 }

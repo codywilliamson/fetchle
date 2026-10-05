@@ -5,12 +5,14 @@ namespace Fetchle.Tests.Core;
 
 public class WorkDequeTests
 {
+    static DirTask Dir(int i) => new(i.ToString(), null);
+
     static WorkDeque Filled(int count)
     {
         var deque = new WorkDeque();
         for (var i = 0; i < count; i++)
         {
-            deque.PushEnd(i.ToString());
+            deque.PushEnd(Dir(i));
         }
 
         return deque;
@@ -33,7 +35,7 @@ public class WorkDequeTests
         await Assert.That(deque.TryTakeEnd(out var a)).IsTrue();
         await Assert.That(deque.TryTakeEnd(out var b)).IsTrue();
         await Assert.That(deque.TryTakeEnd(out var c)).IsTrue();
-        await Assert.That(new[] { a!, b!, c! }).IsEquivalentTo(new[] { "2", "1", "0" }, CollectionOrdering.Matching);
+        await Assert.That(new[] { a.Path, b.Path, c.Path }).IsEquivalentTo(new[] { "2", "1", "0" }, CollectionOrdering.Matching);
         await Assert.That(deque.TryTakeEnd(out _)).IsFalse();
     }
 
@@ -45,7 +47,7 @@ public class WorkDequeTests
         await Assert.That(deque.TryStealFront(out var a)).IsTrue();
         await Assert.That(deque.TryStealFront(out var b)).IsTrue();
         await Assert.That(deque.TryStealFront(out var c)).IsTrue();
-        await Assert.That(new[] { a!, b!, c! }).IsEquivalentTo(new[] { "0", "1", "2" }, CollectionOrdering.Matching);
+        await Assert.That(new[] { a.Path, b.Path, c.Path }).IsEquivalentTo(new[] { "0", "1", "2" }, CollectionOrdering.Matching);
         await Assert.That(deque.TryStealFront(out _)).IsFalse();
     }
 
@@ -59,7 +61,7 @@ public class WorkDequeTests
         deque.TryStealFront(out var second);
         deque.TryTakeEnd(out var third);
 
-        await Assert.That(new[] { front!, end!, second!, third! }).IsEquivalentTo(new[] { "0", "3", "1", "2" }, CollectionOrdering.Matching);
+        await Assert.That(new[] { front.Path, end.Path, second.Path, third.Path }).IsEquivalentTo(new[] { "0", "3", "1", "2" }, CollectionOrdering.Matching);
         await Assert.That(deque.TryTakeEnd(out _)).IsFalse();
     }
 
@@ -75,13 +77,13 @@ public class WorkDequeTests
         // head is now mid-buffer, these pushes wrap past the end of the array
         for (var i = 6; i < 12; i++)
         {
-            deque.PushEnd(i.ToString());
+            deque.PushEnd(Dir(i));
         }
 
         var seen = new List<string>();
         while (deque.TryStealFront(out var dir))
         {
-            seen.Add(dir);
+            seen.Add(dir.Path);
         }
 
         await Assert.That(seen).IsEquivalentTo(Enumerable.Range(4, 8).Select(i => i.ToString()), CollectionOrdering.Matching);
@@ -99,13 +101,13 @@ public class WorkDequeTests
         // wrapped and full-ish: pushing far past capacity forces several doublings mid-wrap
         for (var i = 8; i < 100; i++)
         {
-            deque.PushEnd(i.ToString());
+            deque.PushEnd(Dir(i));
         }
 
         var seen = new List<string>();
         while (deque.TryStealFront(out var dir))
         {
-            seen.Add(dir);
+            seen.Add(dir.Path);
         }
 
         await Assert.That(seen).IsEquivalentTo(Enumerable.Range(5, 95).Select(i => i.ToString()), CollectionOrdering.Matching);
@@ -117,11 +119,11 @@ public class WorkDequeTests
         var deque = new WorkDeque();
         for (var i = 0; i < 1000; i++)
         {
-            deque.PushEnd(i.ToString());
-            deque.PushEnd((i + 1000).ToString());
+            deque.PushEnd(Dir(i));
+            deque.PushEnd(Dir(i + 1000));
             deque.TryStealFront(out _);
             deque.TryTakeEnd(out var dir);
-            await Assert.That(dir).IsEqualTo((i + 1000).ToString());
+            await Assert.That(dir.Path).IsEqualTo((i + 1000).ToString());
         }
 
         await Assert.That(deque.TryTakeEnd(out _)).IsFalse();

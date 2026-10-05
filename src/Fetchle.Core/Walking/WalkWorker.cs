@@ -1,26 +1,25 @@
-using System.Diagnostics.CodeAnalysis;
-using System.IO.Enumeration;
-
 namespace Fetchle.Core.Walking;
 
 // one thread's share of a walk: drain my own deque, steal when it's empty, quit when nothing is in flight
-sealed class WalkWorker(WalkState walk, int index)
+sealed class WalkWorker(WalkState walk, int index, IDirectoryLister lister)
 {
     readonly WorkDeque _dirs = new();
     FastWalker.EntryVisitor _visit = null!;
 
     public PruneRules Prune => walk.Prune;
 
-    public void Visit(ref FileSystemEntry entry) => _visit(ref entry);
+    public bool ShouldStop() => walk.ShouldStop();
+
+    public void Visit(ref WalkEntry entry) => _visit(ref entry);
 
     // counted before it's pushed, so in-flight never reads 0 while a dir is waiting in some deque
-    public void Push(string dir)
+    public void Push(DirTask dir)
     {
         walk.AddInFlight();
         _dirs.PushEnd(dir);
     }
 
-    public bool TryStealFront([NotNullWhen(true)] out string? dir) => _dirs.TryStealFront(out dir);
+    public bool TryStealFront(out DirTask dir) => _dirs.TryStealFront(out dir);
 
     public void Run()
     {
@@ -31,7 +30,7 @@ sealed class WalkWorker(WalkState walk, int index)
         {
             if (_dirs.TryTakeEnd(out var dir) || walk.TrySteal(index, out dir))
             {
-                if (!List(dir))
+                if (!lister.List(dir, this))
                 {
                     return;
                 }
@@ -52,18 +51,14 @@ sealed class WalkWorker(WalkState walk, int index)
         }
     }
 
-    // false when the walk got stopped partway through this dir
-    bool List(string dir)
+    // after the walk: hand back every task nobody listed, then let the lister go
+    public void Close()
     {
-        using var lister = new DirectoryLister(dir, this);
-        while (lister.MoveNext())
+        while (_dirs.TryTakeEnd(out var dir))
         {
-            if (walk.ShouldStop())
-            {
-                return false;
-            }
+            lister.Discard(dir);
         }
 
-        return true;
+        lister.Dispose();
     }
 }

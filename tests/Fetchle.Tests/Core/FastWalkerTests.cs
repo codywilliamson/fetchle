@@ -14,7 +14,7 @@ public class FastWalkerTests
     static (bool Completed, List<string> Paths) FastWalkAll(string root, PruneRules? prune = null)
     {
         var buckets = new ConcurrentBag<List<string>>();
-        var completed = new FastWalker(prune ?? PruneRules.Default).Walk(root, () =>
+        var completed = new FastWalker(prune ?? PruneRules.Default) { Lister = ListerKind.DotNet }.Walk(root, () =>
         {
             var bucket = new List<string>();
             buckets.Add(bucket);

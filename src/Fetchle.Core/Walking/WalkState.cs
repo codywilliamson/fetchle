@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using Fetchle.Core.Search;
 
@@ -13,7 +12,7 @@ sealed class WalkState
     volatile bool _stopped;
     ExceptionDispatchInfo? _error;
 
-    public WalkState(PruneRules prune, FastWalker.VisitorFactory makeVisitor, Deadline deadline, int workerCount)
+    public WalkState(PruneRules prune, FastWalker.VisitorFactory makeVisitor, Deadline deadline, int workerCount, ListerKind lister)
     {
         Prune = prune;
         MakeVisitor = makeVisitor;
@@ -21,7 +20,7 @@ sealed class WalkState
         _workers = new WalkWorker[workerCount];
         for (var i = 0; i < workerCount; i++)
         {
-            _workers[i] = new WalkWorker(this, i);
+            _workers[i] = new WalkWorker(this, i, DirectoryListers.Create(lister));
         }
     }
 
@@ -46,7 +45,7 @@ sealed class WalkState
     }
 
     // victims in order from my right-hand neighbour, so thieves spread out instead of all hitting worker 0
-    public bool TrySteal(int thief, [NotNullWhen(true)] out string? dir)
+    public bool TrySteal(int thief, out DirTask dir)
     {
         for (var offset = 1; offset < _workers.Length; offset++)
         {
@@ -56,28 +55,39 @@ sealed class WalkState
             }
         }
 
-        dir = null;
+        dir = default;
         return false;
     }
 
     // returns false if the deadline cut the walk short
     public bool Run(string root)
     {
-        _workers[0].Push(root);
-
-        // worker 0 runs on the calling thread, the rest get their own
-        var threads = new Thread[_workers.Length - 1];
-        for (var i = 0; i < threads.Length; i++)
+        try
         {
-            var worker = _workers[i + 1];
-            threads[i] = new Thread(() => RunGuarded(worker)) { IsBackground = true, Name = $"fetchle-walk-{i + 1}" };
-            threads[i].Start();
+            _workers[0].Push(new DirTask(root, null));
+
+            // worker 0 runs on the calling thread, the rest get their own
+            var threads = new Thread[_workers.Length - 1];
+            for (var i = 0; i < threads.Length; i++)
+            {
+                var worker = _workers[i + 1];
+                threads[i] = new Thread(() => RunGuarded(worker)) { IsBackground = true, Name = $"fetchle-walk-{i + 1}" };
+                threads[i].Start();
+            }
+
+            RunGuarded(_workers[0]);
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
         }
-
-        RunGuarded(_workers[0]);
-        foreach (var thread in threads)
+        finally
         {
-            thread.Join();
+            // every worker is done, so whatever is left in the deques was never listed
+            foreach (var worker in _workers)
+            {
+                worker.Close();
+            }
         }
 
         _error?.Throw();

@@ -15,6 +15,9 @@ public sealed class FastWalker(PruneRules prune)
 {
     readonly PruneRules _prune = prune;
 
+    // the bench sweeps this; everything else gets one worker per core
+    internal int WorkerCount { get; init; } = Environment.ProcessorCount;
+
     public delegate void EntryVisitor(ref FileSystemEntry entry);
 
     // called once per worker, from that worker's thread, so each worker gets a private visitor
@@ -36,6 +39,6 @@ public sealed class FastWalker(PruneRules prune)
             return false;
         }
 
-        return new WalkState(_prune, makeVisitor, deadline, Environment.ProcessorCount).Run(root);
+        return new WalkState(_prune, makeVisitor, deadline, WorkerCount).Run(root);
     }
 }

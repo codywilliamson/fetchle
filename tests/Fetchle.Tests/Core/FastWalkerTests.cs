@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Fetchle.Core.Naive;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
@@ -9,16 +10,24 @@ public class FastWalkerTests
 {
     static readonly Deadline NoDeadline = Deadline.After(TimeSpan.MaxValue, 0);
 
-    static HashSet<string> FastWalk(string root, PruneRules? prune = null)
+    // every visit, duplicates kept. each worker fills its own bucket, merged after the walk
+    static (bool Completed, List<string> Paths) FastWalkAll(string root, PruneRules? prune = null)
     {
-        var seen = new HashSet<string>(PathComparison.Comparer);
-        new FastWalker(prune ?? PruneRules.Default).Walk(root, (ref entry) => seen.Add(entry.ToFullPath()), NoDeadline);
-        return seen;
+        var buckets = new ConcurrentBag<List<string>>();
+        var completed = new FastWalker(prune ?? PruneRules.Default).Walk(root, () =>
+        {
+            var bucket = new List<string>();
+            buckets.Add(bucket);
+            return (ref entry) => bucket.Add(entry.ToFullPath());
+        }, NoDeadline);
+        return (completed, buckets.SelectMany(b => b).ToList());
     }
 
+    static HashSet<string> FastWalk(string root, PruneRules? prune = null) =>
+        new(FastWalkAll(root, prune).Paths, PathComparison.Comparer);
+
     // a bad root isn't a budget cut, so the walk still reports completed
-    static bool Completes(string root) =>
-        new FastWalker(PruneRules.Default).Walk(root, (ref _) => { }, NoDeadline);
+    static bool Completes(string root) => FastWalkAll(root).Completed;
 
     static HashSet<string> NaiveWalk(string root)
     {
@@ -128,7 +137,7 @@ public class FastWalkerTests
         using var tree = FixtureTree.Create(fillerFiles: 10);
         var expired = Deadline.After(TimeSpan.Zero, 0);
 
-        var completed = new FastWalker(PruneRules.Default).Walk(tree.Root, (ref _) => { }, expired);
+        var completed = new FastWalker(PruneRules.Default).Walk(tree.Root, () => (ref _) => { }, expired);
 
         await Assert.That(completed).IsFalse();
     }
@@ -152,20 +161,10 @@ public class FastWalkerTests
 
         for (var run = 0; run < RUNS; run++)
         {
-            var visits = 0;
-            var seen = new HashSet<string>(PathComparison.Comparer);
-            new FastWalker(PruneRules.Default).Walk(tree.Root, (ref entry) =>
-            {
-                var path = entry.ToFullPath();
-                lock (seen)
-                {
-                    seen.Add(path);
-                    visits++;
-                }
-            }, NoDeadline);
+            var paths = FastWalkAll(tree.Root).Paths;
 
-            await Assert.That(seen.SetEquals(expected)).IsTrue().Because($"run {run} saw a different set");
-            await Assert.That(visits).IsEqualTo(expected.Count).Because($"run {run} visited an entry twice");
+            await Assert.That(expected.SetEquals(paths)).IsTrue().Because($"run {run} saw a different set");
+            await Assert.That(paths.Count).IsEqualTo(expected.Count).Because($"run {run} visited an entry twice");
         }
     }
 
@@ -177,7 +176,7 @@ public class FastWalkerTests
         var visits = 0;
         var deadline = Deadline.After(TimeSpan.FromMilliseconds(1), System.Diagnostics.Stopwatch.GetTimestamp());
 
-        new FastWalker(PruneRules.Default).Walk(tree.Root, (ref _) => Interlocked.Increment(ref visits), deadline);
+        new FastWalker(PruneRules.Default).Walk(tree.Root, () => (ref _) => Interlocked.Increment(ref visits), deadline);
         var atReturn = Volatile.Read(ref visits);
         await Task.Delay(200);
 

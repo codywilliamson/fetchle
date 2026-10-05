@@ -23,7 +23,11 @@ public sealed class FastWalker(PruneRules prune)
 
     public delegate void EntryVisitor(ref FileSystemEntry entry);
 
-    public bool Walk(string root, EntryVisitor visit, Deadline deadline)
+    // called once per worker, from that worker's thread, so each worker gets a private visitor
+    // and nothing is shared mid-walk. the caller merges whatever its visitors collected
+    public delegate EntryVisitor VisitorFactory();
+
+    public bool Walk(string root, VisitorFactory makeVisitor, Deadline deadline)
     {
         ArgumentNullException.ThrowIfNull(root);
 
@@ -38,6 +42,7 @@ public sealed class FastWalker(PruneRules prune)
             return false;
         }
 
+        var visit = makeVisitor();
         var dirs = new Stack<string>();
         dirs.Push(root);
 

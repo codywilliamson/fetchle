@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using Fetchle.Core.Naive;
 using Fetchle.Core.Search;
@@ -32,8 +34,21 @@ public class WalkBenchmarks
     [Benchmark]
     public int FastWalk()
     {
-        _count = 0;
-        _fastWalker.Walk(_root, (ref _) => _count++, Deadline.After(TimeSpan.MaxValue, 0));
-        return _count;
+        // a private counter per worker, summed after, so counting adds no contention
+        var counters = new ConcurrentBag<StrongBox<int>>();
+        _fastWalker.Walk(_root, () =>
+        {
+            var counter = new StrongBox<int>();
+            counters.Add(counter);
+            return (ref _) => counter.Value++;
+        }, Deadline.After(TimeSpan.MaxValue, 0));
+
+        var count = 0;
+        foreach (var counter in counters)
+        {
+            count += counter.Value;
+        }
+
+        return count;
     }
 }

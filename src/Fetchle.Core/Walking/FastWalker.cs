@@ -41,6 +41,7 @@ public sealed class FastWalker(PruneRules prune)
             return false;
         }
 
-        return new WalkState(_prune, makeVisitor, deadline, WorkerCount, Lister).Run(root);
+        // listers build child paths from the root string, so every lister gets the one spelling the .NET enumerator reports
+        return new WalkState(_prune, makeVisitor, deadline, WorkerCount, Lister).Run(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)));
     }
 }

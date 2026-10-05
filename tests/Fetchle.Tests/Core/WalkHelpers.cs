@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Fetchle.Core.Naive;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
+using Fetchle.Core.Walking.Windows;
 
 namespace Fetchle.Tests.Core;
 
@@ -9,6 +10,7 @@ namespace Fetchle.Tests.Core;
 static class WalkHelpers
 {
     public const string DOT_NET = nameof(ListerKind.DotNet);
+    public const string NATIVE = nameof(ListerKind.Native);
 
     public static readonly Deadline NoDeadline = Deadline.After(TimeSpan.MaxValue, 0);
 
@@ -16,7 +18,15 @@ static class WalkHelpers
     public static IEnumerable<string> Listers()
     {
         yield return DOT_NET;
+        if (NativeAvailable)
+        {
+            yield return NATIVE;
+        }
     }
+
+    public static bool NativeAvailable => OperatingSystem.IsWindows() && NativeSupport.IsAvailable;
+
+    public static int LiveNativeHandles => OperatingSystem.IsWindows() ? NtApi.LiveHandles : 0;
 
     public static FastWalker Walker(string lister, PruneRules? prune = null) =>
         new(prune ?? PruneRules.Default) { Lister = Enum.Parse<ListerKind>(lister) };

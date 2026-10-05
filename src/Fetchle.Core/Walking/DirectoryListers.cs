@@ -16,8 +16,9 @@ static class DirectoryListers
     {
         if (kind == ListerKind.Auto)
         {
-            // native didn't beat the .NET lister by 15% in the same bench run (see the commit that added it), so Auto stays on .NET
-            kind = ListerKind.DotNet;
+            // native ties .NET on speed but opens every child relative to its parent with links refused,
+            // so a dir swapped for a junction mid-walk can't redirect it. see docs/decisions.md
+            kind = OperatingSystem.IsWindows() ? ListerKind.Native : ListerKind.DotNet;
         }
 
         // an explicit Native on a machine that can't run it still lists, just with the .NET lister

@@ -2,6 +2,18 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-05: native relative-open lister is the Windows default, for safety not speed
+
+The walker lists Windows dirs with `NtCreateFile` relative to the parent's handle (`OBJ_DONT_REPARSE` plus `FILE_OPEN_REPARSE_POINT`, no backup intent) and `NtQueryDirectoryFileEx` into a 64 KB per-worker buffer. Other OSes keep the .NET `FileSystemEnumerator` lister behind the same seam.
+
+Speed is a tie. With both listers alternating in one process (6 rounds, medians), dir-heavy (47,821 dirs) took 8.70 s native vs 9.12 s .NET at 1 worker and 1.18 s vs 1.16 s at 16 workers; realistic (3,136 dirs) 471 vs 481 ms and 62 vs 68 ms. A syscall-level micro-benchmark found no flag, buffer size (4/16/64 KB) or info class that moves a full listing by more than ~2%; a listing costs ~170 µs per dir with Defender real-time protection on, and opens relative to the parent saved only ~15% of it single-threaded. At 16 workers the gain disappears, so something below the walker serializes (guess: kernel or filter-driver contention, unprofiled without admin ETW).
+
+It wins anyway on two measured or structural points: ~30% fewer bytes allocated per walk (17.2 MB to 12.0 MB on dir-heavy), and no full path is ever re-parsed, so a parent swapped for a junction between listing and opening can't send the walk outside the root. The .NET lister re-opens every dir by full path.
+
+Against rg 14.x `--files` on the same corpora (process wall time, output to nul): 1.49 to 1.73 s and 170 to 229 ms, vs fetchle's in-process 1.0 to 1.2 s and 52 to 62 ms. Not like for like until the published exe is timed against it.
+
+Also measured and dropped: parking idle workers on a semaphore (dir-heavy 0.110 to 0.170 of naive's time, worse), more workers than logical cores (32 and 64 slower than 16), and hoisting the include delegate (no allocation change).
+
 ## 2026-10-04: one build.cs instead of build.ps1 and build.sh
 
 A .NET 10 file-based app runs every step on every OS, so the two scripts can't drift apart, and its output is structured: a header per step, the command it ran, time per step and a summary table. `dotnet build.cs ci` restores, builds and publishes once, then runs unit, e2e (against the published exe through `FETCHLE_EXE`) and evals without rebuilding. Locally it took 1m03s end to end.
@@ -80,7 +92,6 @@ Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
 
 ## Open
 
-- Walker memory and scaling: work-stealing DFS vs the current FIFO queue, measured against rg.
 - Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.
 - Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
 - Which env vars each agent sets, for agent output mode detection.

@@ -141,4 +141,46 @@ public class FastWalkerTests
         await Assert.That(FastWalk(tree.Root).OrderBy(p => p, StringComparer.Ordinal))
             .IsEquivalentTo(NaiveWalk(tree.Root).OrderBy(p => p, StringComparer.Ordinal));
     }
+
+    // races show up randomly, so repeat the parity check until a lost or doubled entry is loud
+    [Test]
+    public async Task Matches_the_naive_walker_on_every_one_of_many_runs()
+    {
+        const int RUNS = 20;
+        using var tree = FixtureTree.Create(fillerFiles: 500);
+        var expected = NaiveWalk(tree.Root);
+
+        for (var run = 0; run < RUNS; run++)
+        {
+            var visits = 0;
+            var seen = new HashSet<string>(PathComparison.Comparer);
+            new FastWalker(PruneRules.Default).Walk(tree.Root, (ref entry) =>
+            {
+                var path = entry.ToFullPath();
+                lock (seen)
+                {
+                    seen.Add(path);
+                    visits++;
+                }
+            }, NoDeadline);
+
+            await Assert.That(seen.SetEquals(expected)).IsTrue().Because($"run {run} saw a different set");
+            await Assert.That(visits).IsEqualTo(expected.Count).Because($"run {run} visited an entry twice");
+        }
+    }
+
+    // workers must be done when Walk returns, cut short or not
+    [Test]
+    public async Task Never_visits_after_walk_returns()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 500);
+        var visits = 0;
+        var deadline = Deadline.After(TimeSpan.FromMilliseconds(1), System.Diagnostics.Stopwatch.GetTimestamp());
+
+        new FastWalker(PruneRules.Default).Walk(tree.Root, (ref _) => Interlocked.Increment(ref visits), deadline);
+        var atReturn = Volatile.Read(ref visits);
+        await Task.Delay(200);
+
+        await Assert.That(Volatile.Read(ref visits)).IsEqualTo(atReturn);
+    }
 }

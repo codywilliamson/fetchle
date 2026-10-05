@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <!-- the bench sweeps internal knobs like the walker's worker count -->
+    <!-- the bench sweeps internal knobs like the walker's worker count, tests poke internal types -->
     <InternalsVisibleTo Include="Fetchle.Bench" />
+    <InternalsVisibleTo Include="Fetchle.Tests" />
   </ItemGroup>
 </Project>

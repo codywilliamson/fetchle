@@ -6,8 +6,8 @@ using Fetchle.Core.Walking;
 
 namespace Fetchle.Bench;
 
-// how the parallel walker scales with workers. the walk waits on the os, not the cpu,
-// so the best count isn't obviously the core count
+// how the parallel walker scales with workers, per lister. a lister that's cheaper per dir
+// single-threaded can still tie in parallel if something in the kernel serializes the opens
 [MemoryDiagnoser]
 public class WalkScalingBenchmarks
 {
@@ -19,14 +19,20 @@ public class WalkScalingBenchmarks
 
     public static IEnumerable<string> Shapes => BenchCorpus.Shapes;
 
-    [Params(1, 4, 8, 16, 32, 64)]
+    [Params(1, 8, 16, 32)]
     public int Workers { get; set; }
+
+    [Params(DOTNET, NATIVE)]
+    public string Lister { get; set; } = DOTNET;
+
+    const string DOTNET = "dotnet";
+    const string NATIVE = "native";
 
     [GlobalSetup]
     public void Setup()
     {
         _root = BenchCorpus.Ensure(Shape);
-        _walker = new FastWalker(PruneRules.Default) { WorkerCount = Workers };
+        _walker = new FastWalker(PruneRules.Default) { WorkerCount = Workers, Lister = Lister == NATIVE ? ListerKind.Native : ListerKind.DotNet };
     }
 
     [Benchmark]

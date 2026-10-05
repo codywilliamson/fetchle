@@ -16,7 +16,7 @@ public sealed class FastWalker(PruneRules prune)
     static readonly EnumerationOptions Options = new()
     {
         IgnoreInaccessible = true,
-        RecurseSubdirectories = true,
+        RecurseSubdirectories = false,
         ReturnSpecialDirectories = false,
         AttributesToSkip = FileAttributes.ReparsePoint
     };
@@ -38,25 +38,36 @@ public sealed class FastWalker(PruneRules prune)
             return false;
         }
 
-        var files = new FileSystemEnumerable<byte>(root, static (ref _) => 0, Options)
+        var dirs = new Stack<string>();
+
+        dirs.Push(root);
+        while (dirs.TryPop(out var dir))
         {
-            ShouldIncludePredicate = (ref e) =>
+            var files = new FileSystemEnumerable<byte>(dir, static (ref _) => 0, Options)
             {
-                if (e.IsDirectory && _prune.ShouldPrune(e.Directory, e.FileName))
+                ShouldIncludePredicate = (ref e) =>
+                {
+                    if (e.IsDirectory)
+                    {
+                        if (_prune.ShouldPrune(e.Directory, e.FileName))
+                        {
+                            return false;
+                        }
+
+                        dirs.Push(e.ToFullPath());
+                    }
+
+                    visit(ref e);
+                    return true;
+                }
+            };
+
+            foreach (var _ in files)
+            {
+                if (deadline.IsExpired())
                 {
                     return false;
                 }
-                visit(ref e);
-                return true;
-            },
-            ShouldRecursePredicate = (ref e) => !_prune.ShouldPrune(e.Directory, e.FileName)
-        };
-
-        foreach (var _ in files)
-        {
-            if (deadline.IsExpired())
-            {
-                return false;
             }
         }
 

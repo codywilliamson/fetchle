@@ -10,6 +10,7 @@ public class WalkBenchmarks
 {
     string _root = "";
     readonly NaiveWalker _walker = new(PruneRules.Default);
+    readonly FastWalker _fastWalker = new(PruneRules.Default);
     int _count;
 
     [ParamsSource(nameof(Shapes))]
@@ -25,6 +26,14 @@ public class WalkBenchmarks
     {
         _count = 0;
         _walker.Walk(_root, (ref _) => _count++, Deadline.After(TimeSpan.MaxValue, 0));
+        return _count;
+    }
+
+    [Benchmark]
+    public int FastWalk()
+    {
+        _count = 0;
+        _fastWalker.Walk(_root, (ref _) => _count++, Deadline.After(TimeSpan.MaxValue, 0));
         return _count;
     }
 }

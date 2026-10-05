@@ -143,6 +143,9 @@
       "fetchle.core": {
         "type": "Project"
       },
+      "fetchle.fixtures": {
+        "type": "Project"
+      },
       "fetchle.mcp": {
         "type": "Project",
         "dependencies": {

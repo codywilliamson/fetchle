@@ -33,6 +33,18 @@ public sealed class TopHits(int limit)
         }
     }
 
+    // merging per-worker lists: the order is total, so the result doesn't depend on which list goes first
+    public void AddAll(TopHits other)
+    {
+        foreach (var (hit, _) in other._heap.UnorderedItems)
+        {
+            if (WouldKeep(hit.Score, hit.Path.Length))
+            {
+                Add(hit);
+            }
+        }
+    }
+
     public List<SearchHit> ToSortedList()
     {
         var hits = new List<SearchHit>(_heap.Count);

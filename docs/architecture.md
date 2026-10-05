@@ -4,7 +4,7 @@ fetchle ships as one executable with subcommands. `fetchle "query"` searches, `f
 
 ## Building the index
 
-The walker sits on `FileSystemEnumerable<T>` with a transform delegate, so entries that get filtered out never allocate a `FileInfo`. It skips reparse points and ignores inaccessible directories. Default prune rules drop `node_modules`, `.git`, Temp and cache directories before descending into them.
+The walker is `FastWalker`: a work-stealing pool with one worker per core, using a native directory lister on Windows and `FileSystemEnumerable<T>` elsewhere. It skips reparse points and ignores inaccessible directories. Default prune rules drop `node_modules`, `.git`, Temp and cache directories before descending into them.
 
 Pruning is the single biggest lever. On `AppData` it took the corpus from 2.6 million files and a six minute walk down to 568 thousand files and 37 seconds. It also fixed ranking: unpruned, Temp scratchpad copies of the same paths pushed real targets past rank 5,000.
 
@@ -76,7 +76,7 @@ bench/             BenchmarkDotNet, results committed as JSON
 demo/              VHS tapes and the Remotion project
 ```
 
-Inside a project, folders group by job and namespaces match folders. In `Fetchle.Core`, `Search/` holds the `IFileSearch` seam and its request and result shapes, `Walking/` holds prune rules and path comparison, and `Naive/` holds the placeholder walker, ranker and search that the real ones replace. `Fetchle.Cli` splits into `Commands/` and `Output/`.
+Inside a project, folders group by job and namespaces match folders. In `Fetchle.Core`, `Search/` holds the `IFileSearch` seam, its request and result shapes, and `FileSearch`, which walks with `FastWalker` and keeps one private top-k per worker, merged after the walk with a total tie-break so output never depends on thread timing. `Walking/` holds `FastWalker`, the listers, prune rules and path comparison, and `Naive/` holds the placeholder ranker and top-k plus `NaiveWalker`, the single-threaded reference the tests and benches compare against. `Fetchle.Cli` splits into `Commands/` and `Output/`.
 
 The MCP server uses `ModelContextProtocol.Core` with hand-written handlers. The hosted variant pulled in 31 assemblies against Core's 4, and its tool discovery relies on reflection that hasn't been proven under AOT. The pattern is in [spikes/mcp.md](spikes/mcp.md).
 

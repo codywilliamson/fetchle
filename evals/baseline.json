@@ -1,5 +1,5 @@
 {
-  "searcher": "NaiveFileSearch",
+  "searcher": "FileSearch",
   "corpus_filler": 20000,
   "top1": 0,
   "top3": 0,

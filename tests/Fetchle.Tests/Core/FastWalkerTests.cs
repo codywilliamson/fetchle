@@ -168,6 +168,16 @@ public class FastWalkerTests
         }
     }
 
+    // a visitor blowing up on some worker thread must reach the caller, not kill the process
+    [Test]
+    public async Task A_throwing_visitor_surfaces_on_the_caller()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 50);
+
+        await Assert.That(() => new FastWalker(PruneRules.Default).Walk(tree.Root, () => (ref _) => throw new InvalidOperationException("boom"), NoDeadline))
+            .Throws<InvalidOperationException>();
+    }
+
     // workers must be done when Walk returns, cut short or not
     [Test]
     public async Task Never_visits_after_walk_returns()

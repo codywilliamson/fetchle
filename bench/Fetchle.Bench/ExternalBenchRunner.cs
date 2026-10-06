@@ -6,10 +6,11 @@ namespace Fetchle.Bench;
 
 public sealed class ExternalBenchRunner(ExternalBenchOptions options, ProcessTimer timer, ILogger<ExternalBenchRunner> logger)
 {
-    const int TIMED_RUNS = 5;
+    // p95 needs more than a handful of runs to mean anything
+    const int TIMED_RUNS = 20;
+    const string QUERY = "settings";
     const int RG_SUCCESS = 0;
-    // the fetchle query matches nothing on purpose, so a full walk exits "no results"
-    const int FETCHLE_NO_RESULTS = 1;
+    const int FETCHLE_SUCCESS = 0;
     const string RESULTS_FILE = "external.json";
 
     public void Run()
@@ -55,15 +56,16 @@ public sealed class ExternalBenchRunner(ExternalBenchOptions options, ProcessTim
         var commands = new List<ToolCommand>();
         if (fetchleExe is not null)
         {
-            string[] fetchleArgs = ["zzz", "--root", root, "--budget", "5m", "--plain"];
-            commands.Add(new ToolCommand("fetchle naive, full walk", fetchleExe, fetchleArgs, FETCHLE_NO_RESULTS));
+            string[] fetchleArgs = [QUERY, "--root", root, "--budget", "5m", "--plain"];
+            commands.Add(new ToolCommand("fetchle query", fetchleExe, fetchleArgs, FETCHLE_SUCCESS));
         }
         if (rgExe is not null)
         {
-            string[] rgArgs = ["--files", "--hidden", "--no-ignore", root];
-            string[] rgSingleThreadArgs = ["-j1", "--files", "--hidden", "--no-ignore", root];
-            commands.Add(new ToolCommand("rg --files", rgExe, rgArgs, RG_SUCCESS));
-            commands.Add(new ToolCommand("rg -j1 --files", rgExe, rgSingleThreadArgs, RG_SUCCESS));
+            // both walk the whole tree and print only paths matching the query, case-insensitive
+            string[] rgArgs = ["--files", "--hidden", "--no-ignore", "--iglob", $"*{QUERY}*", root];
+            string[] rgSingleThreadArgs = ["-j1", .. rgArgs];
+            commands.Add(new ToolCommand("rg --files --iglob", rgExe, rgArgs, RG_SUCCESS));
+            commands.Add(new ToolCommand("rg -j1 --files --iglob", rgExe, rgSingleThreadArgs, RG_SUCCESS));
         }
         return commands;
     }
@@ -81,16 +83,17 @@ public sealed class ExternalBenchRunner(ExternalBenchOptions options, ProcessTim
             runsMs[i] = timer.TimeRunMs(command);
         }
 
-        var result = new ExternalResult(command.Tool, shape, Median(runsMs), runsMs);
-        logger.MeasuredTool(result.Tool, result.Shape, result.MedianMs, result.RunsMs);
+        var result = new ExternalResult(command.Tool, shape, Percentile(runsMs, 0.50), Percentile(runsMs, 0.95), runsMs);
+        logger.MeasuredTool(result.Tool, result.Shape, result.P50Ms, result.P95Ms, result.RunsMs);
         return result;
     }
 
-    static long Median(long[] values)
+    // nearest rank
+    static long Percentile(long[] values, double fraction)
     {
         var sorted = (long[])values.Clone();
         Array.Sort(sorted);
-        return sorted[sorted.Length / 2];
+        return sorted[(int)Math.Ceiling(fraction * sorted.Length) - 1];
     }
 
     void WriteReport(List<ExternalResult> results)

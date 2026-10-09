@@ -18,7 +18,6 @@ static unsafe partial class NtApi
     public const uint FILE_OPEN_REPARSE_POINT = 0x200000;
 
     public const uint SL_RESTART_SCAN = 0x1;
-    public const uint SL_RETURN_ON_DISK_ENTRIES_ONLY = 0x8;
     const int FILE_DIRECTORY_INFORMATION = 1;
 
     public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000D);

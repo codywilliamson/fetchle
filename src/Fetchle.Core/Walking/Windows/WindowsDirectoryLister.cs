@@ -96,17 +96,12 @@ sealed unsafe class WindowsDirectoryLister : IDirectoryLister
             _buffer = (byte*)NativeMemory.AlignedAlloc(BUFFER_SIZE, 8);
         }
 
-        var flags = NtApi.SL_RESTART_SCAN | NtApi.SL_RETURN_ON_DISK_ENTRIES_ONLY;
+        // no SL_RETURN_ON_DISK_ENTRIES_ONLY: on virtualized roots it would hide projected entries the .NET lister shows
+        var flags = NtApi.SL_RESTART_SCAN;
 
         while (true)
         {
             var status = NtApi.QueryDirectory(dir.Handle, _buffer, BUFFER_SIZE, flags, out var bytes);
-            if (status == NtApi.STATUS_INVALID_PARAMETER && (flags & NtApi.SL_RETURN_ON_DISK_ENTRIES_ONLY) != 0)
-            {
-                // the file system doesn't know the on-disk flag, ask again without it
-                flags = NtApi.SL_RESTART_SCAN;
-                continue;
-            }
 
             // STATUS_NO_MORE_FILES is the normal end. anything else ends this dir too
             if (status != 0 || bytes == 0)

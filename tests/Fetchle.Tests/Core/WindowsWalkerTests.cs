@@ -88,6 +88,7 @@ public class WindowsWalkerTests
     [MethodDataSource(typeof(WalkHelpers), nameof(Listers))]
     public async Task A_root_in_other_casing_reports_the_same_entries(string lister)
     {
+        Skip.Unless(OperatingSystem.IsWindows(), "only windows paths are case-insensitive by default");
         using var tree = FixtureTree.Create(fillerFiles: 10);
         var otherCasing = tree.Root.ToUpperInvariant() == tree.Root ? tree.Root.ToLowerInvariant() : tree.Root.ToUpperInvariant();
 

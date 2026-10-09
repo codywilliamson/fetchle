@@ -22,9 +22,6 @@ static unsafe partial class NtApi
     const int FILE_DIRECTORY_INFORMATION = 1;
 
     public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000D);
-    public const int STATUS_INSUFFICIENT_RESOURCES = unchecked((int)0xC000009A);
-    public const int STATUS_NO_MEMORY = unchecked((int)0xC0000017);
-    public const int STATUS_TOO_MANY_OPENED_FILES = unchecked((int)0xC000011F);
 
     // FILE_DIRECTORY_INFORMATION offsets
     public const int ENTRY_ATTRIBUTES = 56;

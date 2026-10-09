@@ -4,8 +4,8 @@ using System.Runtime.Versioning;
 namespace Fetchle.Core.Walking.Windows;
 
 // lists dirs with NtCreateFile relative to the parent's handle and NtQueryDirectoryFileEx into a 64 KB buffer.
-// children are never opened by full path unless the relative open runs out of resources.
-// failed opens (access denied, vanished, delete pending, sharing violation, not a dir, swapped for a link...) skip the dir silently
+// children are only ever opened relative to their parent, never by full path, so a parent swapped for a junction can't redirect the walk.
+// failed opens (access denied, vanished, delete pending, sharing violation, not a dir, swapped for a link, out of resources...) skip the dir silently
 [SupportedOSPlatform("windows")]
 sealed unsafe class WindowsDirectoryLister : IDirectoryLister
 {
@@ -84,10 +84,6 @@ sealed unsafe class WindowsDirectoryLister : IDirectoryLister
         {
             var name = path.AsSpan(path.LastIndexOf(PATH_SEPARATOR) + 1);
             status = NtApi.OpenDirectory(parent.Handle, name, NtApi.OBJ_DONT_REPARSE, CHILD_OPTIONS, out handle);
-            if (status is NtApi.STATUS_INSUFFICIENT_RESOURCES or NtApi.STATUS_NO_MEMORY or NtApi.STATUS_TOO_MANY_OPENED_FILES)
-            {
-                status = NtApi.OpenDirectory(0, ToNtPath(path), 0, CHILD_OPTIONS, out handle);
-            }
         }
 
         return status >= 0 ? new DirHandle(handle) : null;

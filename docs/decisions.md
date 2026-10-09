@@ -10,7 +10,7 @@ Speed is a tie. With both listers alternating in one process (6 rounds, medians)
 
 It wins anyway on two measured or structural points: ~30% fewer bytes allocated per walk (17.2 MB to 12.0 MB on dir-heavy), and no full path is ever re-parsed, so a parent swapped for a junction between listing and opening can't send the walk outside the root. The .NET lister re-opens every dir by full path.
 
-Against rg 14.x `--files` on the same corpora (process wall time, output to nul): 1.49 to 1.73 s and 170 to 229 ms, vs fetchle's in-process 1.0 to 1.2 s and 52 to 62 ms. Not like for like until the published exe is timed against it.
+Against rg, the published AOT exe on a quiet machine (Ryzen 5 3600, 12 threads, Defender on, 2026-10-08), same query `settings` on both, 20 runs, p50/p95: realistic 64/70 ms vs rg 65/73 ms, dir-heavy 943/1,000 ms vs rg 887/960 ms (rg `-j1`: 197 ms and 2.81 s). A tie on realistic trees and ~6% behind on directory-heavy ones; the earlier "1.9x faster" came from a run with a game loading the other machine. The index, not the walk, is where fetchle has to pull ahead.
 
 Also measured and dropped: parking idle workers on a semaphore (dir-heavy 0.110 to 0.170 of naive's time, worse), more workers than logical cores (32 and 64 slower than 16), and hoisting the include delegate (no allocation change).
 

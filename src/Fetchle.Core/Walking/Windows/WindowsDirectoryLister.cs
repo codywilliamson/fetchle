@@ -78,7 +78,8 @@ sealed unsafe class WindowsDirectoryLister : IDirectoryLister
         nint handle;
         if (parent is null)
         {
-            status = NtApi.OpenDirectory(0, ToNtPath(path), 0, ROOT_OPTIONS, out handle);
+            // a typed root may differ in case from what's on disk; CreateFileW always passes this too
+            status = NtApi.OpenDirectory(0, ToNtPath(path), NtApi.OBJ_CASE_INSENSITIVE, ROOT_OPTIONS, out handle);
         }
         else
         {

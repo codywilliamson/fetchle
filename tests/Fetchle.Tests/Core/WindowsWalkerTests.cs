@@ -83,6 +83,20 @@ public class WindowsWalkerTests
         await Assert.That(withSeparator.OrderBy(p => p, StringComparer.Ordinal)).IsEquivalentTo(FastWalk(lister, tree.Root).OrderBy(p => p, StringComparer.Ordinal));
     }
 
+    // windows paths are case-insensitive, so a root typed in other casing must still walk everything
+    [Test]
+    [MethodDataSource(typeof(WalkHelpers), nameof(Listers))]
+    public async Task A_root_in_other_casing_reports_the_same_entries(string lister)
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 10);
+        var otherCasing = tree.Root.ToUpperInvariant() == tree.Root ? tree.Root.ToLowerInvariant() : tree.Root.ToUpperInvariant();
+
+        var seen = FastWalk(lister, otherCasing);
+
+        await Assert.That(seen.Count).IsGreaterThan(0);
+        await Assert.That(seen.SetEquals(FastWalk(lister, tree.Root))).IsTrue();
+    }
+
     // the handle counter is process wide, so these can't overlap other walks
     [Test]
     [NotInParallel]

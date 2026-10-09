@@ -12,6 +12,7 @@ static unsafe partial class NtApi
     const uint SHARE_ALL = 0x7;
     const uint FILE_OPEN = 0x1;
 
+    public const uint OBJ_CASE_INSENSITIVE = 0x40;
     public const uint OBJ_DONT_REPARSE = 0x1000;
     public const uint FILE_DIRECTORY_FILE = 0x1;
     public const uint FILE_SYNCHRONOUS_IO_NONALERT = 0x20;

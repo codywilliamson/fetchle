@@ -25,7 +25,7 @@ static class NativeSupport
             return false;
         }
 
-        if (NtApi.OpenDirectory(0, WindowsDirectoryLister.ToNtPath(parentPath), 0, WindowsDirectoryLister.ROOT_OPTIONS, out var parent) < 0)
+        if (NtApi.OpenDirectory(0, WindowsDirectoryLister.ToNtPath(parentPath), NtApi.OBJ_CASE_INSENSITIVE, WindowsDirectoryLister.ROOT_OPTIONS, out var parent) < 0)
         {
             return false;
         }

@@ -7,16 +7,13 @@ sealed class DotNetDirectoryLister : IDirectoryLister
 {
     public bool List(in DirTask dir, WalkWorker owner)
     {
+        // the include check refuses every entry once the walk is stopping, so this only drains the rest of the dir
         using var enumerator = new Enumerator(dir.Path, owner);
         while (enumerator.MoveNext())
         {
-            if (owner.ShouldStop())
-            {
-                return false;
-            }
         }
 
-        return true;
+        return !owner.ShouldStop();
     }
 
     public void Discard(in DirTask dir)
@@ -40,6 +37,12 @@ sealed class DotNetDirectoryLister : IDirectoryLister
 
         protected override bool ShouldIncludeEntry(ref FileSystemEntry entry)
         {
+            // budgets are a hard cap, so nothing gets pushed or visited once the walk is stopping
+            if (owner.ShouldStop())
+            {
+                return false;
+            }
+
             var walkEntry = new WalkEntry(entry.Directory, entry.FileName, entry.IsDirectory);
             if (walkEntry.IsDirectory)
             {

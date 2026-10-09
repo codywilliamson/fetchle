@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Fetchle.Cli\Fetchle.Cli.csproj" />
+    <ProjectReference Include="..\Fetchle.Fixtures\Fetchle.Fixtures.csproj" />
   </ItemGroup>
 </Project>

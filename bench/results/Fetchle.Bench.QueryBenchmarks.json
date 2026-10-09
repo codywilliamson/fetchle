@@ -1,5 +1,5 @@
 {
-   "Title":"Fetchle.Bench.QueryBenchmarks-20261004-060603",
+   "Title":"Fetchle.Bench.QueryBenchmarks-20261005-185112",
    "HostEnvironmentInfo":{
       "BenchmarkDotNetCaption":"BenchmarkDotNet",
       "BenchmarkDotNetVersion":"0.15.8",
@@ -21,223 +21,28 @@
    },
    "Benchmarks":[
       {
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=.json, Shape=dir-heavy]",
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=.json, Shape=dir-heavy]",
          "Namespace":"Fetchle.Bench",
          "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
+         "Method":"Search",
+         "MethodTitle":"Search",
          "Parameters":"Query=.json&Shape=dir-heavy",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \".json\", Shape: \"dir-heavy\")",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \".json\", Shape: \"dir-heavy\")",
          "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
          "Statistics":{
             "OriginalValues":[
-               6957381100,7152762700,7195346900,7122068700,7091469800
-            ],
-            "N":5,
-            "Min":6957381100,
-            "LowerFence":6999530450,
-            "Q1":7091469800,
-            "Median":7122068700,
-            "Mean":7103805840,
-            "Q3":7152762700,
-            "UpperFence":7244702050,
-            "Max":7195346900,
-            "InterquartileRange":61292900,
-            "LowerOutliers":[
-               6957381100
-            ],
-            "UpperOutliers":[
-               
-            ],
-            "AllOutliers":[
-               6957381100
-            ],
-            "StandardError":40436650.596526906,
-            "Variance":8175613557328000,
-            "StandardDeviation":90419099.5162416,
-            "Skewness":-0.6089380308987977,
-            "Kurtosis":1.6031612874390044,
-            "ConfidenceInterval":{
-               "N":5,
-               "Mean":7103805840,
-               "StandardError":40436650.596526906,
-               "Level":12,
-               "Margin":348171755.8133257,
-               "Lower":6755634084.186674,
-               "Upper":7451977595.813326
-            },
-            "Percentiles":{
-               "P0":6957381100,
-               "P25":7091469800,
-               "P50":7122068700,
-               "P67":7142940620,
-               "P80":7161279540,
-               "P85":7169796380,
-               "P90":7178313220,
-               "P95":7186830060,
-               "P100":7195346900
-            }
-         },
-         "Memory":{
-            "Gen0Collections":1,
-            "Gen1Collections":0,
-            "Gen2Collections":0,
-            "TotalOperations":1,
-            "BytesAllocatedPerOperation":11485040
-         }
-      },{
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=.json, Shape=realistic]",
-         "Namespace":"Fetchle.Bench",
-         "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
-         "Parameters":"Query=.json&Shape=realistic",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \".json\", Shape: \"realistic\")",
-         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
-         "Statistics":{
-            "OriginalValues":[
-               338208900,358608600,359721100,359711800,357440100
-            ],
-            "N":5,
-            "Min":338208900,
-            "LowerFence":354032550,
-            "Q1":357440100,
-            "Median":358608600,
-            "Mean":354738100,
-            "Q3":359711800,
-            "UpperFence":363119350,
-            "Max":359721100,
-            "InterquartileRange":2271700,
-            "LowerOutliers":[
-               338208900
-            ],
-            "UpperOutliers":[
-               
-            ],
-            "AllOutliers":[
-               338208900
-            ],
-            "StandardError":4153697.193946617,
-            "Variance":86266001895000,
-            "StandardDeviation":9287949.283614764,
-            "Skewness":-1.0462706248641098,
-            "Kurtosis":2.0466049284124908,
-            "ConfidenceInterval":{
-               "N":5,
-               "Mean":354738100,
-               "StandardError":4153697.193946617,
-               "Level":12,
-               "Margin":35764585.439168185,
-               "Lower":318973514.5608318,
-               "Upper":390502685.4391682
-            },
-            "Percentiles":{
-               "P0":338208900,
-               "P25":357440100,
-               "P50":358608600,
-               "P67":359358776,
-               "P80":359713660,
-               "P85":359715520,
-               "P90":359717380,
-               "P95":359719240,
-               "P100":359721100
-            }
-         },
-         "Memory":{
-            "Gen0Collections":0,
-            "Gen1Collections":0,
-            "Gen2Collections":0,
-            "TotalOperations":1,
-            "BytesAllocatedPerOperation":750736
-         }
-      },{
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=dir-heavy]",
-         "Namespace":"Fetchle.Bench",
-         "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
-         "Parameters":"Query=settings&Shape=dir-heavy",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"settings\", Shape: \"dir-heavy\")",
-         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
-         "Statistics":{
-            "OriginalValues":[
-               6916708600,7397358800,7157442100,7002632300,6933941300
-            ],
-            "N":5,
-            "Min":6916708600,
-            "LowerFence":6598690100,
-            "Q1":6933941300,
-            "Median":7002632300,
-            "Mean":7081616620,
-            "Q3":7157442100,
-            "UpperFence":7492693300,
-            "Max":7397358800,
-            "InterquartileRange":223500800,
-            "LowerOutliers":[
-               
-            ],
-            "UpperOutliers":[
-               
-            ],
-            "AllOutliers":[
-               
-            ],
-            "StandardError":89633644.81367138,
-            "Variance":40170951412917000,
-            "StandardDeviation":200426922.8744407,
-            "Skewness":0.5891048471202681,
-            "Kurtosis":1.3913113935778343,
-            "ConfidenceInterval":{
-               "N":5,
-               "Mean":7081616620,
-               "StandardError":89633644.81367138,
-               "Level":12,
-               "Margin":771772711.9912448,
-               "Lower":6309843908.008755,
-               "Upper":7853389331.991245
-            },
-            "Percentiles":{
-               "P0":6916708600,
-               "P25":6933941300,
-               "P50":7002632300,
-               "P67":7107902964,
-               "P80":7205425440,
-               "P85":7253408780,
-               "P90":7301392120,
-               "P95":7349375460,
-               "P100":7397358800
-            }
-         },
-         "Memory":{
-            "Gen0Collections":1,
-            "Gen1Collections":0,
-            "Gen2Collections":0,
-            "TotalOperations":1,
-            "BytesAllocatedPerOperation":11476304
-         }
-      },{
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=realistic]",
-         "Namespace":"Fetchle.Bench",
-         "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
-         "Parameters":"Query=settings&Shape=realistic",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"settings\", Shape: \"realistic\")",
-         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
-         "Statistics":{
-            "OriginalValues":[
-               338245150,358555000,369613200,363696300
+               1034162900,1006441500,1034331000,1023897100
             ],
             "N":4,
-            "Min":338245150,
-            "LowerFence":335930556.25,
-            "Q1":353477537.5,
-            "Median":361125650,
-            "Mean":357527412.5,
-            "Q3":365175525,
-            "UpperFence":382722506.25,
-            "Max":369613200,
-            "InterquartileRange":11697987.5,
+            "Min":1006441500,
+            "LowerFence":997525612.5,
+            "Q1":1019533200,
+            "Median":1029030000,
+            "Mean":1024708125,
+            "Q3":1034204925,
+            "UpperFence":1056212512.5,
+            "Max":1034331000,
+            "InterquartileRange":14671725,
             "LowerOutliers":[
                
             ],
@@ -247,95 +52,30 @@
             "AllOutliers":[
                
             ],
-            "StandardError":6812873.938800687,
-            "Variance":185661005223958.34,
-            "StandardDeviation":13625747.877601374,
-            "Skewness":-0.5107267724010973,
-            "Kurtosis":1.1678565505663134,
+            "StandardError":6559470.532542368,
+            "Variance":172106614669166.66,
+            "StandardDeviation":13118941.065084737,
+            "Skewness":-0.482679762452558,
+            "Kurtosis":1.0794955915401565,
             "ConfidenceInterval":{
                "N":4,
-               "Mean":357527412.5,
-               "StandardError":6812873.938800687,
+               "Mean":1024708125,
+               "StandardError":6559470.532542368,
                "Level":12,
-               "Margin":88049437.38572273,
-               "Lower":269477975.11427724,
-               "Upper":445576849.88572276
+               "Margin":84774457.17133784,
+               "Lower":939933667.8286622,
+               "Upper":1109482582.1713378
             },
             "Percentiles":{
-               "P0":338245150,
-               "P25":353477537.5,
-               "P50":361125650,
-               "P67":363755469,
-               "P80":366063060,
-               "P85":366950595,
-               "P90":367838130,
-               "P95":368725665,
-               "P100":369613200
-            }
-         },
-         "Memory":{
-            "Gen0Collections":0,
-            "Gen1Collections":0,
-            "Gen2Collections":0,
-            "TotalOperations":2,
-            "BytesAllocatedPerOperation":739504
-         }
-      },{
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=dir-heavy]",
-         "Namespace":"Fetchle.Bench",
-         "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
-         "Parameters":"Query=zzz&Shape=dir-heavy",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"zzz\", Shape: \"dir-heavy\")",
-         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
-         "Statistics":{
-            "OriginalValues":[
-               7065921600,7127850700,6915009500,7080162300,7151351700
-            ],
-            "N":5,
-            "Min":6915009500,
-            "LowerFence":6973027950,
-            "Q1":7065921600,
-            "Median":7080162300,
-            "Mean":7068059160,
-            "Q3":7127850700,
-            "UpperFence":7220744350,
-            "Max":7151351700,
-            "InterquartileRange":61929100,
-            "LowerOutliers":[
-               6915009500
-            ],
-            "UpperOutliers":[
-               
-            ],
-            "AllOutliers":[
-               6915009500
-            ],
-            "StandardError":41284336.6556567,
-            "Variance":8521982265488000,
-            "StandardDeviation":92314583.16803472,
-            "Skewness":-0.709719137694931,
-            "Kurtosis":1.6788521739002726,
-            "ConfidenceInterval":{
-               "N":5,
-               "Mean":7068059160,
-               "StandardError":41284336.6556567,
-               "Level":12,
-               "Margin":355470588.4127559,
-               "Lower":6712588571.587244,
-               "Upper":7423529748.412756
-            },
-            "Percentiles":{
-               "P0":6915009500,
-               "P25":7065921600,
-               "P50":7080162300,
-               "P67":7112590412,
-               "P80":7132550900,
-               "P85":7137251100,
-               "P90":7141951300,
-               "P95":7146651500,
-               "P100":7151351700
+               "P0":1006441500,
+               "P25":1019533200,
+               "P50":1029030000,
+               "P67":1034164581,
+               "P80":1034230140,
+               "P85":1034255355,
+               "P90":1034280570,
+               "P95":1034305785,
+               "P100":1034331000
             }
          },
          "Memory":{
@@ -343,31 +83,31 @@
             "Gen1Collections":0,
             "Gen2Collections":0,
             "TotalOperations":1,
-            "BytesAllocatedPerOperation":11475224
+            "BytesAllocatedPerOperation":12510096
          }
       },{
-         "DisplayInfo":"QueryBenchmarks.NaiveSearch: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=realistic]",
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=.json, Shape=realistic]",
          "Namespace":"Fetchle.Bench",
          "Type":"QueryBenchmarks",
-         "Method":"NaiveSearch",
-         "MethodTitle":"NaiveSearch",
-         "Parameters":"Query=zzz&Shape=realistic",
-         "FullName":"Fetchle.Bench.QueryBenchmarks.NaiveSearch(Query: \"zzz\", Shape: \"realistic\")",
+         "Method":"Search",
+         "MethodTitle":"Search",
+         "Parameters":"Query=.json&Shape=realistic",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \".json\", Shape: \"realistic\")",
          "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
          "Statistics":{
             "OriginalValues":[
-               312129500,313306400,310712400,325703300,341835400
+               57801355.55555555,59763666.666666664,58942977.777777776,59686988.88888889
             ],
-            "N":5,
-            "Min":310712400,
-            "LowerFence":291768800,
-            "Q1":312129500,
-            "Median":313306400,
-            "Mean":320737400,
-            "Q3":325703300,
-            "UpperFence":346064000,
-            "Max":341835400,
-            "InterquartileRange":13573800,
+            "N":4,
+            "Min":57801355.55555555,
+            "LowerFence":57084693.05555555,
+            "Q1":58657572.22222222,
+            "Median":59314983.33333333,
+            "Mean":59048747.222222224,
+            "Q3":59706158.33333333,
+            "UpperFence":61279037.5,
+            "Max":59763666.666666664,
+            "InterquartileRange":1048586.111111112,
             "LowerOutliers":[
                
             ],
@@ -377,38 +117,298 @@
             "AllOutliers":[
                
             ],
-            "StandardError":5914398.089493131,
-            "Variance":174900523805000,
-            "StandardDeviation":13224996.174101526,
-            "Skewness":0.6448649518359265,
-            "Kurtosis":1.4212707429670706,
+            "StandardError":455122.2713514956,
+            "Variance":828545127520.5775,
+            "StandardDeviation":910244.5427029912,
+            "Skewness":-0.4364733431035074,
+            "Kurtosis":1.0373053723316275,
             "ConfidenceInterval":{
-               "N":5,
-               "Mean":320737400,
-               "StandardError":5914398.089493131,
+               "N":4,
+               "Mean":59048747.222222224,
+               "StandardError":455122.2713514956,
                "Level":12,
-               "Margin":50924751.111178055,
-               "Lower":269812648.88882196,
-               "Upper":371662151.11117804
+               "Margin":5881990.5217952365,
+               "Lower":53166756.70042699,
+               "Upper":64930737.74401746
             },
             "Percentiles":{
-               "P0":310712400,
-               "P25":312129500,
-               "P50":313306400,
-               "P67":321736292,
-               "P80":328929720,
-               "P85":332156140,
-               "P90":335382560,
-               "P95":338608980,
-               "P100":341835400
+               "P0":57801355.55555555,
+               "P25":58657572.22222222,
+               "P50":59314983.33333333,
+               "P67":59687755.666666664,
+               "P80":59717660,
+               "P85":59729161.666666664,
+               "P90":59740663.333333336,
+               "P95":59752165,
+               "P100":59763666.666666664
+            }
+         },
+         "Memory":{
+            "Gen0Collections":1,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":9,
+            "BytesAllocatedPerOperation":1054123
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=dir-heavy]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"Search",
+         "MethodTitle":"Search",
+         "Parameters":"Query=settings&Shape=dir-heavy",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \"settings\", Shape: \"dir-heavy\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               1026944900,943190600,1042081500,977984900,1089812000
+            ],
+            "N":5,
+            "Min":943190600,
+            "LowerFence":881840000,
+            "Q1":977984900,
+            "Median":1026944900,
+            "Mean":1016002780,
+            "Q3":1042081500,
+            "UpperFence":1138226400,
+            "Max":1089812000,
+            "InterquartileRange":64096600,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":25489805.158129394,
+            "Variance":3248650834997000,
+            "StandardDeviation":56996937.06680211,
+            "Skewness":-0.02141610379215835,
+            "Kurtosis":1.1437010936823415,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":1016002780,
+               "StandardError":25489805.158129394,
+               "Level":12,
+               "Margin":219474909.1807256,
+               "Lower":796527870.8192744,
+               "Upper":1235477689.1807256
+            },
+            "Percentiles":{
+               "P0":943190600,
+               "P25":977984900,
+               "P50":1026944900,
+               "P67":1037237788,
+               "P80":1051627600,
+               "P85":1061173700,
+               "P90":1070719800,
+               "P95":1080265900,
+               "P100":1089812000
+            }
+         },
+         "Memory":{
+            "Gen0Collections":1,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":1,
+            "BytesAllocatedPerOperation":12270160
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=settings, Shape=realistic]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"Search",
+         "MethodTitle":"Search",
+         "Parameters":"Query=settings&Shape=realistic",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \"settings\", Shape: \"realistic\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               57363266.666666664,60458144.44444445,58015600,58261266.666666664,59509633.333333336
+            ],
+            "N":5,
+            "Min":57363266.666666664,
+            "LowerFence":55774550,
+            "Q1":58015600,
+            "Median":58261266.666666664,
+            "Mean":58721582.222222224,
+            "Q3":59509633.333333336,
+            "UpperFence":61750683.33333334,
+            "Max":60458144.44444445,
+            "InterquartileRange":1494033.3333333358,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":556416.9013706049,
+            "Variance":1547998840654.3271,
+            "StandardDeviation":1244186.0152944685,
+            "Skewness":0.28771917189653884,
+            "Kurtosis":1.0997970393223147,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":58721582.222222224,
+               "StandardError":556416.9013706049,
+               "Level":12,
+               "Margin":4790917.315269749,
+               "Lower":53930664.90695248,
+               "Upper":63512499.53749197
+            },
+            "Percentiles":{
+               "P0":57363266.666666664,
+               "P25":58015600,
+               "P50":58261266.666666664,
+               "P67":59110156,
+               "P80":59699335.55555556,
+               "P85":59889037.777777776,
+               "P90":60078740,
+               "P95":60268442.222222224,
+               "P100":60458144.44444445
             }
          },
          "Memory":{
             "Gen0Collections":0,
             "Gen1Collections":0,
             "Gen2Collections":0,
+            "TotalOperations":9,
+            "BytesAllocatedPerOperation":817479
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=dir-heavy]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"Search",
+         "MethodTitle":"Search",
+         "Parameters":"Query=zzz&Shape=dir-heavy",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \"zzz\", Shape: \"dir-heavy\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               1082051600,986767900,1015712400,1109954100,1150701200
+            ],
+            "N":5,
+            "Min":986767900,
+            "LowerFence":874349850,
+            "Q1":1015712400,
+            "Median":1082051600,
+            "Mean":1069037440,
+            "Q3":1109954100,
+            "UpperFence":1251316650,
+            "Max":1150701200,
+            "InterquartileRange":94241700,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":30103445.17344485,
+            "Variance":4531087056553000,
+            "StandardDeviation":67313349.76476063,
+            "Skewness":-0.061072977914386754,
+            "Kurtosis":0.9858588469708475,
+            "ConfidenceInterval":{
+               "N":5,
+               "Mean":1069037440,
+               "StandardError":30103445.17344485,
+               "Level":12,
+               "Margin":259199741.0133841,
+               "Lower":809837698.9866159,
+               "Upper":1328237181.013384
+            },
+            "Percentiles":{
+               "P0":986767900,
+               "P25":1015712400,
+               "P50":1082051600,
+               "P67":1101025300,
+               "P80":1118103520,
+               "P85":1126252940,
+               "P90":1134402360,
+               "P95":1142551780,
+               "P100":1150701200
+            }
+         },
+         "Memory":{
+            "Gen0Collections":1,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
             "TotalOperations":1,
-            "BytesAllocatedPerOperation":738424
+            "BytesAllocatedPerOperation":12269200
+         }
+      },{
+         "DisplayInfo":"QueryBenchmarks.Search: Job-MEHJPP(IterationCount=5, WarmupCount=1) [Query=zzz, Shape=realistic]",
+         "Namespace":"Fetchle.Bench",
+         "Type":"QueryBenchmarks",
+         "Method":"Search",
+         "MethodTitle":"Search",
+         "Parameters":"Query=zzz&Shape=realistic",
+         "FullName":"Fetchle.Bench.QueryBenchmarks.Search(Query: \"zzz\", Shape: \"realistic\")",
+         "HardwareIntrinsics":"AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               58090266.666666664,57207966.666666664,57793566.666666664,56204733.333333336
+            ],
+            "N":4,
+            "Min":56204733.333333336,
+            "LowerFence":55591283.33333334,
+            "Q1":56957158.333333336,
+            "Median":57500766.666666664,
+            "Mean":57324133.333333336,
+            "Q3":57867741.666666664,
+            "UpperFence":59233616.66666666,
+            "Max":58090266.666666664,
+            "InterquartileRange":910583.3333333284,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":415720.1576113955,
+            "Variance":691292997777.774,
+            "StandardDeviation":831440.315222791,
+            "Skewness":-0.3701927890599913,
+            "Kurtosis":1.0271364879364788,
+            "ConfidenceInterval":{
+               "N":4,
+               "Mean":57324133.333333336,
+               "StandardError":415720.1576113955,
+               "Level":12,
+               "Margin":5372758.444732206,
+               "Lower":51951374.88860113,
+               "Upper":62696891.77806554
+            },
+            "Percentiles":{
+               "P0":56204733.333333336,
+               "P25":56957158.333333336,
+               "P50":57500766.666666664,
+               "P67":57796533.666666664,
+               "P80":57912246.666666664,
+               "P85":57956751.666666664,
+               "P90":58001256.66666666,
+               "P95":58045761.666666664,
+               "P100":58090266.666666664
+            }
+         },
+         "Memory":{
+            "Gen0Collections":0,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":9,
+            "BytesAllocatedPerOperation":815685
          }
       }
    ]

@@ -1,4 +1,3 @@
-using Fetchle.Core.Naive;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
 using Fetchle.Evals;
@@ -23,9 +22,9 @@ var store = new ReportStore(
     Path.Combine(repo, "artifacts", "evals", "results.json"),
     Path.Combine(repo, "evals", "baseline.json"));
 
-IFileSearch search = new NaiveFileSearch(PruneRules.Default);
+IFileSearch search = new FileSearch(PruneRules.Default);
 var results = new EvalRunner(search, corpus, Console.Out).Run(queries);
-var report = EvalReport.From(nameof(NaiveFileSearch), CORPUS_FILLER, results);
+var report = EvalReport.From(nameof(FileSearch), CORPUS_FILLER, results);
 Console.WriteLine($"top-1 {report.Top1:P0}  top-3 {report.Top3:P0}  ({results.Count} queries)");
 
 store.WriteResults(report);

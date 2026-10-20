@@ -8,8 +8,8 @@ using ModelContextProtocol.Protocol;
 
 namespace Fetchle.Mcp;
 
-// defaultRoots: the configured roots, or the working directory when there are none
-public sealed class Tools(IFileSearch search, IReadOnlyList<string> defaultRoots)
+// defaultRoots: read per call, so a long-lived server sees `roots add`. the configured roots that exist, or the working directory
+public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaultRoots)
 {
     public const int MAX_BUDGET_MS = 25_000;
 
@@ -65,7 +65,7 @@ public sealed class Tools(IFileSearch search, IReadOnlyList<string> defaultRoots
 
         var request = new SearchRequest(
             args.Query,
-            args.Root is { } root ? [root] : defaultRoots,
+            args.Root is { } root ? [root] : defaultRoots(),
             args.Limit,
             TimeSpan.FromMilliseconds(Math.Min(args.BudgetMs, MAX_BUDGET_MS)),
             args.Ext);
@@ -103,7 +103,7 @@ public sealed class Tools(IFileSearch search, IReadOnlyList<string> defaultRoots
         IndexStatus status;
         try
         {
-            status = search.GetStatus(defaultRoots);
+            status = search.GetStatus(defaultRoots());
         }
         catch (IndexUnreadableException e)
         {

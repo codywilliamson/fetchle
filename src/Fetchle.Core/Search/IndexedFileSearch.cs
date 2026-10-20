@@ -15,16 +15,7 @@ public sealed class IndexedFileSearch(PruneRules prune, IndexStore store) : IFil
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
     {
         var start = Stopwatch.GetTimestamp();
-        var roots = new List<string>(request.Roots.Count);
-        foreach (var requested in request.Roots)
-        {
-            var root = FileSearch.NormalizeRoot(requested);
-            if (!Directory.Exists(root))
-            {
-                throw InvalidRootException.NotFound(requested);
-            }
-            roots.Add(root);
-        }
+        var roots = SearchRoots.Resolve(request.Roots);
 
         using var snapshot = store.Open();
         var scopes = new List<IndexScope>();
@@ -36,10 +27,8 @@ public sealed class IndexedFileSearch(PruneRules prune, IndexStore store) : IFil
             {
                 walked.Add(root);
             }
-            else if (!scopes.Exists(s => RootsConfig.Covers(s.Path, root)))
+            else
             {
-                // a root under one already searched would only repeat its entries
-                scopes.RemoveAll(s => RootsConfig.Covers(root, s.Path));
                 scopes.Add(new IndexScope(entry, root));
             }
         }

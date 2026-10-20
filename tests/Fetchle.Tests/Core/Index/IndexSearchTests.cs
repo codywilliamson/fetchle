@@ -68,6 +68,38 @@ public class IndexSearchTests
     }
 
     [Test]
+    public async Task Several_scopes_inside_one_indexed_root_match_a_walk()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 500);
+        using var index = TempIndex.Built(tree.Root);
+        await AssertSame(index, Request("e", [tree.Full("src"), tree.Full("filler"), tree.Full("docs")], 80));
+        await AssertSame(index, Request("filler", [tree.Full("filler"), tree.Full("src")], 80));
+    }
+
+    [Test]
+    public async Task Duplicate_and_nested_roots_count_once_either_way()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 300);
+        using var index = TempIndex.Built(tree.Root);
+        await AssertSame(index, Request("e", [tree.Root, tree.Root], 40));
+        await AssertSame(index, Request("e", [tree.Full("src"), tree.Root], 40));
+        await AssertSame(index, Request("e", [tree.Root, tree.Full("filler")], 40));
+    }
+
+    [Test]
+    public async Task A_root_spelled_in_another_case_is_found_where_paths_ignore_case()
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            Skip.Test("linux paths are case-sensitive");
+        }
+
+        using var tree = FixtureTree.Create(fillerFiles: 100);
+        using var index = TempIndex.Built(tree.Root);
+        await AssertSame(index, Request("settings", [tree.Full("SRC")], 10));
+    }
+
+    [Test]
     public async Task Search_reads_the_snapshot_not_the_disk()
     {
         using var tree = FixtureTree.Create(fillerFiles: 50);

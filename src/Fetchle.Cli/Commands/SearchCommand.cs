@@ -29,7 +29,23 @@ sealed class SearchCommand(IFileSearch search, CliEnvironment env)
             return ExitCode.Usage;
         }
 
-        var request = args.ToRequest(mode, env, configured);
+        // an unplugged drive or a deleted root shouldn't take every other root's search down with it
+        var present = configured.FindAll(Directory.Exists);
+        if (args.Roots.Count == 0 && configured.Count > 0 && present.Count == 0)
+        {
+            ctx.Error.WriteLine($"fetchle: every configured root is missing: {string.Join(", ", configured)}");
+            return ExitCode.Usage;
+        }
+
+        if (args.Roots.Count == 0)
+        {
+            foreach (var missing in configured.Except(present))
+            {
+                ctx.Error.WriteLine($"fetchle: skipping missing root {missing}, `fetchle roots remove` it if it's gone for good");
+            }
+        }
+
+        var request = args.ToRequest(mode, env, present);
 
         SearchResult result;
         try

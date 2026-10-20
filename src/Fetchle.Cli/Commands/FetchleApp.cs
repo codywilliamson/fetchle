@@ -110,8 +110,11 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         async (_, _) =>
         {
             await _tracker.Done(ExitCode.Success);
-            var configured = RootsConfig.Load(env.Dirs.Config);
-            var tools = new Tools(search, configured.Count > 0 ? configured : [env.CurrentDirectory]);
+            var tools = new Tools(search, () =>
+            {
+                var present = RootsConfig.Load(env.Dirs.Config).FindAll(Directory.Exists);
+                return present.Count > 0 ? present : [env.CurrentDirectory];
+            });
             await new FetchleMcpServer(tools, env.Version).RunAsync(CancellationToken.None);
             return (int)ExitCode.Success;
         },

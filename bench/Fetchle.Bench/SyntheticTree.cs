@@ -12,7 +12,10 @@ static class SyntheticTree
     static readonly string[] Words = ["alpha", "build", "cache", "delta", "event", "frame", "graph", "index", "layer", "model", "parse", "query", "route", "store", "token", "video", "Shared", "Config", "Profiles", "Extensions"];
     static readonly string[] Extensions = [".json", ".log", ".dll", ".png", ".js", ".css", ".txt", ".xml", ".dat", ".db", ".cs", ".md", ".jpg", ""];
 
-    public static PathTree Build(int entries)
+    public static PathTree Build(int entries) => TreeAssembler.Assemble([Collect(entries)]);
+
+    // what a walk of the tree would hand the assembler
+    public static RootWalk Collect(int entries)
     {
         var rng = new Random(SEED);
         var collector = new TreeCollector();
@@ -38,7 +41,7 @@ static class SyntheticTree
             }
         }
 
-        return TreeAssembler.Assemble([new RootWalk(ROOT, [collector], TimeSpan.Zero)]);
+        return new RootWalk(ROOT, [collector], TimeSpan.Zero);
     }
 
     public static string Root => ROOT;

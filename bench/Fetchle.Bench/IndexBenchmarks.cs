@@ -6,7 +6,7 @@ using Fetchle.Core.Search;
 
 namespace Fetchle.Bench;
 
-// the snapshot side of a query: open (map + validate), the per-query pass, and building a snapshot from walked entries
+// the snapshot side of a query: open (map + validate) and the per-query pass
 [MemoryDiagnoser]
 public class IndexBenchmarks
 {
@@ -51,7 +51,4 @@ public class IndexBenchmarks
         IndexQuery.Run(_snapshot, _request, _scopes, new TopHits(SearchRequest.DEFAULT_LIMIT), ref total, Deadline.After(TimeSpan.FromMinutes(5), Stopwatch.GetTimestamp()));
         return total;
     }
-
-    [Benchmark]
-    public int WriteImage() => SnapshotWriter.ToBytes(_tree, DateTimeOffset.UnixEpoch).Length;
 }

@@ -26,6 +26,11 @@ public sealed class ExternalBenchRunner(ExternalBenchOptions options, ToolMeasur
 
         var corpora = new List<CorpusCounts>();
         var results = new List<ExternalResult>();
+        foreach (var plan in ToolPlans.Baselines(tools))
+        {
+            results.Add(measurer.Measure(plan, BenchCorpus.NONE, ""));
+        }
+
         foreach (var shape in options.Shapes)
         {
             var started = Stopwatch.GetTimestamp();

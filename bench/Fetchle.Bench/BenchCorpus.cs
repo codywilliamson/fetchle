@@ -10,6 +10,9 @@ public static class BenchCorpus
     public const string DIR_HEAVY = "dir-heavy";
     public const string HOME_1M = "home-1m";
 
+    // the shape label for results that don't touch a corpus, like the process startup baselines
+    public const string NONE = "none";
+
     // BenchmarkDotNet params. home-1m is too slow to sweep there, it's external-only
     public static readonly string[] Shapes = [REALISTIC, DIR_HEAVY];
 

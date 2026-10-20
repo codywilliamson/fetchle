@@ -109,6 +109,6 @@ public sealed class ToolMeasurer(ProcessTimer timer, ILogger<ToolMeasurer> logge
     public static string Display(ToolCommand command, string root)
     {
         var exe = Path.GetFileName(command.Executable);
-        return $"{exe} {string.Join(' ', command.Arguments)}".Replace(root, "{corpus}");
+        return $"{exe} {string.Join(' ', command.Arguments)}".Replace(root.Length == 0 ? "\0" : root, "{corpus}");
     }
 }

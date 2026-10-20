@@ -13,6 +13,14 @@ public class ToolPlansTests
     static ToolPlan Plan(LocatedTools tools, string tool) => ToolPlans.For(tools, ROOT, Dirs).Single(p => p.Timed.Tool == tool);
 
     [Test]
+    public async Task Baselines_time_version_flags_of_fetchle_and_rg()
+    {
+        var plans = ToolPlans.Baselines(Everything);
+        await Assert.That(plans.Select(p => p.Timed.Tool)).IsEquivalentTo(["fetchle --version", "rg --version"]);
+        await Assert.That(plans.All(p => p.Timed.Arguments.SequenceEqual(["--version"]))).IsTrue();
+    }
+
+    [Test]
     public async Task Missing_tools_get_no_plan()
     {
         var tools = new LocatedTools(null, null, null, null, null, null);

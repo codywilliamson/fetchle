@@ -16,6 +16,21 @@ public static class ToolPlans
     const int SUCCESS = 0;
     const int NO_MATCH = 1;
 
+    // process startup floors, so every other number can be read against what merely spawning the tool costs
+    public static List<ToolPlan> Baselines(LocatedTools tools)
+    {
+        var plans = new List<ToolPlan>();
+        if (tools.Fetchle is { } fetchle)
+        {
+            plans.Add(Plain(new ToolCommand("fetchle --version", fetchle, ["--version"], SUCCESS)));
+        }
+        if (tools.Rg is { } rg)
+        {
+            plans.Add(Plain(new ToolCommand("rg --version", rg, ["--version"], SUCCESS)));
+        }
+        return plans;
+    }
+
     public static List<ToolPlan> For(LocatedTools tools, string root, IndexDirs indexDirs)
     {
         var plans = new List<ToolPlan>();

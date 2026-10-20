@@ -8,7 +8,7 @@ using ModelContextProtocol.Protocol;
 
 namespace Fetchle.Mcp;
 
-// defaultRoots: read per call, so a long-lived server sees `roots add`. the configured roots that exist, or the working directory
+// defaultRoots: read per call, so a long-lived server sees `roots add`. the configured roots, or the working directory when none are configured
 public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaultRoots)
 {
     public const int MAX_BUDGET_MS = 25_000;
@@ -63,9 +63,27 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
             throw InvalidParams("ext must not contain null");
         }
 
+        // configured roots that went missing are skipped and named, never silently dropped
+        IReadOnlyList<string> roots;
+        var missing = new List<string>();
+        if (args.Root is { } root)
+        {
+            roots = [root];
+        }
+        else
+        {
+            var configured = defaultRoots();
+            roots = configured.Where(Directory.Exists).ToList();
+            missing = configured.Where(r => !Directory.Exists(r)).ToList();
+            if (roots.Count == 0)
+            {
+                return Failed($"every configured root is missing: {string.Join(", ", missing)}. run `fetchle roots remove <path>` for any that are gone for good");
+            }
+        }
+
         var request = new SearchRequest(
             args.Query,
-            args.Root is { } root ? [root] : defaultRoots(),
+            roots,
             args.Limit,
             TimeSpan.FromMilliseconds(Math.Min(args.BudgetMs, MAX_BUDGET_MS)),
             args.Ext);
@@ -90,6 +108,10 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
             text.Append(hit.Path).Append('\n');
         }
         text.Append(result.Footer());
+        if (missing.Count > 0)
+        {
+            text.Append($"\nskipped missing roots: {string.Join(", ", missing)}");
+        }
         var structured = new FindFilesResult(result.Hits, result.TotalMatches, result.Hits.Count, (long)result.Elapsed.TotalMilliseconds, result.StoppedEarly);
         return new CallToolResult
         {
@@ -113,7 +135,8 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
         var text = new StringBuilder();
         foreach (var root in status.Roots)
         {
-            text.Append($"{root.Path}: {(root.FileCount is { } n ? $"{n} files" : "not indexed")}\n");
+            var state = !Directory.Exists(root.Path) ? "missing on disk" : root.FileCount is { } n ? $"{n} files" : "not indexed";
+            text.Append($"{root.Path}: {state}\n");
         }
         text.Append($"vectors complete: {(status.VectorsComplete ? "yes" : "no")}, watcher live: {(status.WatcherLive ? "yes" : "no")}");
         return new CallToolResult

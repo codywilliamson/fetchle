@@ -171,6 +171,34 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: bench-dotnet
+          name: bench-dotnet-windows
+          path: bench/results/Fetchle.Bench.*.json
+          if-no-files-found: error
+
+  bench-dotnet-linux:
+    needs: [bench-dotnet]
+    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && inputs.dotnet != false }}
+    runs-on: [self-hosted, Linux, homelab, fetchle]
+    timeout-minutes: 120
+    concurrency:
+      group: homelab-bench
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
+      - uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
+        with:
+          global-json-file: global.json
+
+      - name: benchmarkdotnet
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter '${{ inputs.filter || '*' }}'
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: bench-dotnet-linux
           path: bench/results/Fetchle.Bench.*.json
           if-no-files-found: error

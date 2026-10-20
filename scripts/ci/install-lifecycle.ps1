@@ -134,8 +134,8 @@ New-Item -ItemType Directory -Force -Path $Tree, $Tree2, $LocalAppData | Out-Nul
 Set-Content (Join-Path $Tree 'settings.json') '{}'
 Set-Content (Join-Path $Tree2 'notes.txt') 'x'
 New-Item -ItemType Directory -Force -Path (Join-Path $Tree 'sub'), (Join-Path $Tree2 'sub') | Out-Null
-Set-Content (Join-Path $Tree 'sub.txt') 'x'
-Set-Content (Join-Path $Tree2 'sub.txt') 'x'
+Set-Content (Join-Path $Tree 'sub/a.txt') 'x'
+Set-Content (Join-Path $Tree2 'sub/b.txt') 'x'
 
 $script:UserPathAtStart = Get-UserPathRaw
 $archivePath = (Resolve-Path $Archive).Path

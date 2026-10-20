@@ -55,15 +55,21 @@ static class IndexCommand
         ctx.Out.WriteLine($"size      {Output.Humanize.Size(info.Bytes)} ({info.BytesPerEntry:0.0} bytes per entry)");
         foreach (var root in info.Roots)
         {
-            var state = configured.Exists(r => r.Equals(root.Path, PathComparison.Default)) ? "" : "  (no longer configured)";
+            // still in use while a configured root is it or sits under it, which search answers from this snapshot too
+            var state = configured.Exists(r => RootsConfig.Covers(root.Path, r)) ? "" : "  (no longer configured)";
             ctx.Out.WriteLine($"root      {root.Path}  {root.Files:N0} files, {root.Entries - root.Files:N0} dirs, walked in {root.WalkTime.TotalMilliseconds:0} ms{state}");
         }
 
         foreach (var root in configured)
         {
-            if (!info.Roots.Any(r => r.Path.Equals(root, PathComparison.Default)))
+            var covering = info.Roots.FirstOrDefault(r => RootsConfig.Covers(r.Path, root));
+            if (covering is null)
             {
                 ctx.Out.WriteLine($"root      {root}  not indexed yet, searched live until `fetchle index rebuild`");
+            }
+            else if (!covering.Path.Equals(root, PathComparison.Default))
+            {
+                ctx.Out.WriteLine($"root      {root}  answered from {covering.Path}'s snapshot");
             }
         }
         return ExitCode.Success;

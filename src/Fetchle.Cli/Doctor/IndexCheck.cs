@@ -1,3 +1,4 @@
+using Fetchle.Core.Storage;
 using Fetchle.Cli.Output;
 using Fetchle.Core.Index;
 using Fetchle.Core.Walking;
@@ -54,7 +55,8 @@ internal static class IndexCheck
                 problems.Add($"{root} does not exist");
                 fix ??= $"fetchle roots remove {root}";
             }
-            else if (!info.Roots.Any(r => r.Path.Equals(root, PathComparison.Default)))
+            // a root under an indexed one is answered from that snapshot, same as search does
+            else if (!info.Roots.Any(r => RootsConfig.Covers(r.Path, root)))
             {
                 problems.Add($"{root} is not in the index");
                 fix ??= FixCommands.INDEX_REBUILD;

@@ -59,8 +59,20 @@ function Install-FetchleExe($Source, $InstallDir) {
     if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue }
     if (Test-Path -LiteralPath $target) { Move-Item -LiteralPath $target -Destination $old -Force }
     Copy-Item -LiteralPath $Source -Destination $target -Force
-    if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue }
+    # the previous exe stays as .old until setup has worked, so a failed setup can put it back
     return $target
+}
+
+# setup failed: no receipt records this exe, so leave the machine as it was
+function Undo-FetchleExe($Target) {
+    $old = "$Target.old"
+    Remove-Item -LiteralPath $Target -Force -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $old) {
+        Move-Item -LiteralPath $old -Destination $Target -Force
+    } else {
+        $dir = Split-Path -Parent $Target
+        if (-not (Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $dir -Force -ErrorAction SilentlyContinue }
+    }
 }
 
 function Install-Fetchle {
@@ -90,7 +102,12 @@ function Install-Fetchle {
     }
 
     & $exe setup --yes
-    if ($LASTEXITCODE -ne 0) { throw "fetchle install: 'fetchle setup --yes' exited $LASTEXITCODE" }
+    if ($LASTEXITCODE -ne 0) {
+        $code = $LASTEXITCODE
+        Undo-FetchleExe $exe
+        throw "fetchle install: 'fetchle setup --yes' exited $code, put back what was there before"
+    }
+    Remove-Item -LiteralPath "$exe.old" -Force -ErrorAction SilentlyContinue
     Write-Host "fetchle install: done, $exe"
 }
 

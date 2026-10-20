@@ -88,14 +88,30 @@ verify_checksum() {
   fi
 }
 
-# a running exe can be replaced by renaming over it, never by writing into it
+# a running exe can be replaced by renaming over it, never by writing into it. the previous one is kept as
+# fetchle.old until setup has worked, so a failed setup can put it back
 install_exe() {
   src="$1"
   dir="$2"
   mkdir -p "$dir"
   cp "$src" "$dir/fetchle.new"
   chmod 755 "$dir/fetchle.new"
+  rm -f "$dir/fetchle.old"
+  if [ -f "$dir/fetchle" ]; then
+    cp -p "$dir/fetchle" "$dir/fetchle.old"
+  fi
   mv -f "$dir/fetchle.new" "$dir/fetchle"
+}
+
+# setup failed: no receipt records this exe, so leave the machine as it was
+roll_back_exe() {
+  dir="$1"
+  if [ -f "$dir/fetchle.old" ]; then
+    mv -f "$dir/fetchle.old" "$dir/fetchle"
+  else
+    rm -f "$dir/fetchle"
+    rmdir "$dir" 2> /dev/null || true
+  fi
 }
 
 main() {
@@ -128,7 +144,11 @@ main() {
   [ -f "$work/unpacked/$name/fetchle" ] || fail "$name.tar.gz doesn't contain $name/fetchle"
   install_exe "$work/unpacked/$name/fetchle" "$install_dir"
 
-  "$install_dir/fetchle" setup --yes || fail "'fetchle setup --yes' failed"
+  if ! "$install_dir/fetchle" setup --yes; then
+    roll_back_exe "$install_dir"
+    fail "'fetchle setup --yes' failed, put back what was there before"
+  fi
+  rm -f "$install_dir/fetchle.old"
   echo "fetchle install: done, $install_dir/fetchle"
 }
 

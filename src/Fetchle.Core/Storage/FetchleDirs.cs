@@ -15,14 +15,13 @@ public sealed record FetchleDirs(string Data, string Bin)
 
     public static FetchleDirs Resolve(Func<string, string?> getEnv)
     {
-        var home = NonEmpty(getEnv("HOME")) ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var home = UserDirs.Home(getEnv);
         string data;
         string bin;
         if (OperatingSystem.IsWindows())
         {
             // the env var, not the known-folder api, so a test can redirect it like the install script does
-            var local = NonEmpty(getEnv("LOCALAPPDATA")) ?? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            data = Path.Combine(local, "fetchle");
+            data = Path.Combine(UserDirs.LocalAppData(getEnv), "fetchle");
             bin = Path.Combine(data, "bin");
         }
         else if (OperatingSystem.IsMacOS())

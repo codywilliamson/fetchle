@@ -66,13 +66,13 @@ static class SnapshotWriter
 
     public static ulong Checksum(ReadOnlySpan<byte> image) => XxHash3.HashToUInt64(image[SnapshotFormat.CHECKSUMMED_FROM..]);
 
-    static (uint[] Offsets, byte[] Blob, List<uint> NonAscii) EncodeSegments(List<string> segments)
+    static (uint[] Offsets, byte[] Blob, List<uint> NonAscii) EncodeSegments(SegmentTable segments)
     {
         var offsets = new uint[segments.Count + 1];
         long size = 0;
-        foreach (var segment in segments)
+        for (var i = 0; i < segments.Count; i++)
         {
-            size += Encoding.UTF8.GetByteCount(segment) + 1;
+            size += Encoding.UTF8.GetByteCount(segments[i]) + 1;
         }
 
         if (size > uint.MaxValue)

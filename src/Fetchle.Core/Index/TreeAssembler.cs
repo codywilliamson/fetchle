@@ -12,6 +12,7 @@ static class TreeAssembler
     public static PathTree Assemble(IReadOnlyList<RootWalk> walks)
     {
         var groups = new Dictionary<string, GroupRef>(StringComparer.Ordinal);
+        var groupsBySpan = groups.GetAlternateLookup<ReadOnlySpan<char>>();
         var total = walks.Count;
         foreach (var walk in walks)
         {
@@ -28,11 +29,11 @@ static class TreeAssembler
         var parents = new uint[total];
         var names = new uint[total];
         var flags = new byte[total];
-        var segments = new List<string>();
-        var segmentIds = new Dictionary<string, int>(StringComparer.Ordinal);
-        var lookup = segmentIds.GetAlternateLookup<ReadOnlySpan<char>>();
+        var segments = new SegmentTable();
         // one queue for every root: dequeuing in id order is what keeps the parent column from ever decreasing
-        var queue = new Queue<(uint Id, string Path, int Root)>();
+        // a queued dir carries its group, found once when its parent placed it, so nothing re-hashes its path
+        var queue = new Queue<(uint Id, GroupRef Group, int Root)>();
+        var childPath = new char[1024];
         var perRoot = new int[walks.Count];
         var filesPerRoot = new int[walks.Count];
         var next = (uint)walks.Count;
@@ -43,33 +44,32 @@ static class TreeAssembler
             parents[r] = SnapshotFormat.NO_PARENT;
             names[r] = (uint)r;
             flags[r] = SnapshotFormat.FLAG_DIRECTORY | SnapshotFormat.FLAG_ROOT;
-            queue.Enqueue(((uint)r, walks[r].Path, r));
+            if (groups.TryGetValue(walks[r].Path, out var rootGroup))
+            {
+                queue.Enqueue(((uint)r, rootGroup, r));
+            }
         }
 
         while (queue.TryDequeue(out var dir))
         {
-            if (!groups.TryGetValue(dir.Path, out var groupRef))
-            {
-                continue;
-            }
-
             attached++;
-            var collector = groupRef.Collector;
-            var group = collector.Groups[groupRef.Group];
+            var collector = dir.Group.Collector;
+            var group = collector.Groups[dir.Group.Group];
             for (var e = group.First; e < group.First + group.Count; e++)
             {
                 var name = collector.Name(e);
                 var id = next++;
                 parents[id] = dir.Id;
-                names[id] = (uint)Intern(name, segments, ref lookup);
+                names[id] = (uint)segments.Intern(name);
                 perRoot[dir.Root]++;
                 var isDirectory = collector.IsDirectory(e);
                 filesPerRoot[dir.Root] += isDirectory ? 0 : 1;
                 flags[id] = isDirectory ? SnapshotFormat.FLAG_DIRECTORY : (byte)0;
-                if (isDirectory)
+                // the walker spells a child dir as Path.Join(parent, name), so the same spelling finds its group.
+                // a dir with no group was empty or unreadable and has no children to place
+                if (isDirectory && groupsBySpan.TryGetValue(Join(ref childPath, group.Directory, name), out var childGroup))
                 {
-                    // the walker spells a child dir as Path.Join(parent, name), so the same spelling finds its group
-                    queue.Enqueue((id, Path.Join(dir.Path, name), dir.Root));
+                    queue.Enqueue((id, childGroup, dir.Root));
                 }
             }
         }
@@ -91,18 +91,22 @@ static class TreeAssembler
         return new PathTree(parents, names, flags, segments, roots, groups.Count - attached);
     }
 
-    // a string is only made the first time a name is seen
-    static int Intern(ReadOnlySpan<char> name, List<string> segments, ref Dictionary<string, int>.AlternateLookup<ReadOnlySpan<char>> lookup)
+    // Path.Join(directory, name) into a reused buffer
+    static ReadOnlySpan<char> Join(ref char[] buffer, string directory, ReadOnlySpan<char> name)
     {
-        if (lookup.TryGetValue(name, out var id))
+        var separator = Path.EndsInDirectorySeparator(directory) ? 0 : 1;
+        var length = directory.Length + separator + name.Length;
+        if (buffer.Length < length)
         {
-            return id;
+            buffer = new char[length * 2];
         }
 
-        id = segments.Count;
-        var segment = name.ToString();
-        segments.Add(segment);
-        lookup.Dictionary.Add(segment, id);
-        return id;
+        directory.CopyTo(buffer);
+        if (separator == 1)
+        {
+            buffer[directory.Length] = Path.DirectorySeparatorChar;
+        }
+        name.CopyTo(buffer.AsSpan(directory.Length + separator));
+        return buffer.AsSpan(0, length);
     }
 }

@@ -3,7 +3,7 @@ namespace Fetchle.Core.Index;
 public sealed record TreeRoot(string Path, int Entries, int Files, TimeSpan WalkTime);
 
 // the in-memory store a snapshot is written from: struct-of-arrays in snapshot order (roots, then breadth-first)
-sealed class PathTree(uint[] parents, uint[] names, byte[] flags, List<string> segments, List<TreeRoot> roots, int unattachedDirs)
+sealed class PathTree(uint[] parents, uint[] names, byte[] flags, SegmentTable segments, List<TreeRoot> roots, int unattachedDirs)
 {
     public uint[] Parents { get; } = parents;
 
@@ -11,7 +11,7 @@ sealed class PathTree(uint[] parents, uint[] names, byte[] flags, List<string> s
 
     public byte[] Flags { get; } = flags;
 
-    public List<string> Segments { get; } = segments;
+    public SegmentTable Segments { get; } = segments;
 
     public List<TreeRoot> Roots { get; } = roots;
 

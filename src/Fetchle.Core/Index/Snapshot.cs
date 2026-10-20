@@ -162,6 +162,18 @@ sealed unsafe class Snapshot : IDisposable
         return FromValidatedBytes(image, layout, source);
     }
 
+    // the writer's own fresh image: structure only, the checksum was just computed from these bytes
+    internal static Snapshot FromWrittenImage(byte[] image, string source)
+    {
+        var reason = SnapshotChecks.ValidateStructure(image, out var layout);
+        if (reason is not null)
+        {
+            throw new IndexUnreadableException(source, reason);
+        }
+
+        return FromValidatedBytes(image, layout, source);
+    }
+
     // a fuzz test skips the checksum to reach the structural checks with arbitrary bytes behind them
     internal static Snapshot? FromBytesSkippingChecksum(byte[] image)
     {

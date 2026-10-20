@@ -58,8 +58,9 @@ public sealed class IndexStore(string directory)
         var built = Stopwatch.GetTimestamp();
         var tree = TreeAssembler.Assemble(walks);
         var image = SnapshotWriter.ToBytes(tree, DateTimeOffset.UtcNow);
-        // checked before anything touches disk, so a writer bug can never replace a good snapshot with a bad one
-        using var written = Snapshot.FromBytes(image, SnapshotPath);
+        // structure checked before anything touches disk, so a writer bug can never replace a good snapshot with a
+        // bad one. the checksum was computed a moment ago from these same bytes, so it isn't hashed twice
+        using var written = Snapshot.FromWrittenImage(image, SnapshotPath);
         cancellationToken.ThrowIfCancellationRequested();
 
         var buildTime = Stopwatch.GetElapsedTime(built);

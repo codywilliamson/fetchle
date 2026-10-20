@@ -4,6 +4,8 @@
     <AssemblyName>fetchle</AssemblyName>
     <RootNamespace>Fetchle.Cli</RootNamespace>
     <PublishAot>true</PublishAot>
+    <!-- LibraryImport generates unsafe marshalling for the WM_SETTINGCHANGE broadcast -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Fetchle.Tests" />

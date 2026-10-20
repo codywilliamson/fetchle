@@ -7,4 +7,5 @@ public enum ExitCode
     Usage = 2,
     IndexMissing = 3,
     BudgetExpired = 4,
+    InstallProblem = 5,
 }

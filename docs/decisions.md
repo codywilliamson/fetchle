@@ -2,6 +2,24 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-20: v0.1 index targets, and the snapshot swap protocol
+
+Targets, proposed before building and kept unless a measurement says no. All exe numbers are process wall time including startup, 20+ runs, p50/p95, on the quiet self-hosted runners, never on a loaded dev box.
+
+| target | number | why |
+|---|---|---|
+| warm query, built index, dir-heavy (47,821 dirs) | p95 <= 25 ms | rg walks it in 887 ms, so this is the 10x+ the index exists for |
+| warm query, built index, 1M-entry home corpus | p95 <= 50 ms | proposed here: the per-entry pass is linear, so 15x the entries can't stay at 25 ms |
+| snapshot open, 1M entries | <= 5 ms | memory-mapped, checksum and invariants verified, nothing deserialized |
+| on-disk size | <= 40 bytes per entry | parent id + segment id + flags is 9 bytes, the rest is unique segment text |
+| cold `fetchle index rebuild` | <= 1.2x a bare walk of the same roots | building and writing must not cost more than a fifth of the walk |
+
+Swap protocol. The writer writes `snapshot.fidx.tmp`, flushes it to disk, then renames it over `snapshot.fidx`. On Windows a plain `File.Move(..., overwrite: true)` fails with access denied while any reader has the old file mapped (spike, Windows 11 26200, NTFS). `SetFileInformationByHandle(FileRenameInfoEx)` with `FILE_RENAME_FLAG_REPLACE_IF_EXISTS | FILE_RENAME_FLAG_POSIX_SEMANTICS` replaced it three times in a row while the old view stayed readable and kept its old bytes. Readers open with `FileShare.Read | FileShare.Delete`. On Unix `rename(2)` already has these semantics. One writer at a time holds `index/write.lock` open with `FileShare.None`; the OS drops it if the writer dies.
+
+Reads trust nothing. Open checks magic, version, endianness, the file length, an XxHash3 over the whole file and every structural invariant (section bounds, parent before child, ids in range) before answering. Any failure is exit 3, never a crash or a partial answer.
+
+A configured root that isn't in the snapshot is walked live rather than failing, so `roots add` never breaks search. A snapshot that exists but can't be read is exit 3. The snapshot can be stale until the next rebuild; freshness is v0.4.
+
 ## 2026-10-05: native relative-open lister is the Windows default, for safety not speed
 
 The walker lists Windows dirs with `NtCreateFile` relative to the parent's handle (`OBJ_DONT_REPARSE` plus `FILE_OPEN_REPARSE_POINT`, no backup intent) and `NtQueryDirectoryFileEx` into a 64 KB per-worker buffer. Other OSes keep the .NET `FileSystemEnumerator` lister behind the same seam.

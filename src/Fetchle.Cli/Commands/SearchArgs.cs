@@ -23,9 +23,10 @@ sealed class SearchArgs
     public OutputMode OutputMode(CliEnvironment env) =>
         OutputModes.Detect(Json, Plain, env.StdoutRedirected, env.GetVariable);
 
-    public SearchRequest ToRequest(OutputMode mode, CliEnvironment env) => new(
+    // no --root means every configured root, or the current directory when there are none
+    public SearchRequest ToRequest(OutputMode mode, CliEnvironment env, IReadOnlyList<string> configuredRoots) => new(
         Query,
-        Roots.Count > 0 ? Roots : [env.CurrentDirectory],
+        Roots.Count > 0 ? Roots : configuredRoots.Count > 0 ? configuredRoots : [env.CurrentDirectory],
         Limit ?? (mode == Output.OutputMode.Agent ? AGENT_DEFAULT_LIMIT : SearchRequest.DEFAULT_LIMIT),
         Budget,
         Extensions,

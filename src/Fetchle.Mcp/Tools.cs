@@ -1,13 +1,15 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Fetchle.Core.Index;
 using Fetchle.Core.Search;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 
 namespace Fetchle.Mcp;
 
-public sealed class Tools(IFileSearch search, string defaultRoot)
+// defaultRoots: the configured roots, or the working directory when there are none
+public sealed class Tools(IFileSearch search, IReadOnlyList<string> defaultRoots)
 {
     public const int MAX_BUDGET_MS = 25_000;
 
@@ -63,7 +65,7 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
 
         var request = new SearchRequest(
             args.Query,
-            [args.Root ?? defaultRoot],
+            args.Root is { } root ? [root] : defaultRoots,
             args.Limit,
             TimeSpan.FromMilliseconds(Math.Min(args.BudgetMs, MAX_BUDGET_MS)),
             args.Ext);
@@ -76,6 +78,10 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         catch (InvalidRootException e)
         {
             throw InvalidParams(e.Message);
+        }
+        catch (IndexUnreadableException e)
+        {
+            return Failed($"{e.Message}. run `fetchle index rebuild`");
         }
 
         var text = new StringBuilder();
@@ -94,7 +100,16 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
 
     CallToolResult IndexStatus()
     {
-        var status = search.GetStatus([defaultRoot]);
+        IndexStatus status;
+        try
+        {
+            status = search.GetStatus(defaultRoots);
+        }
+        catch (IndexUnreadableException e)
+        {
+            return Failed($"{e.Message}. run `fetchle index rebuild`");
+        }
+
         var text = new StringBuilder();
         foreach (var root in status.Roots)
         {
@@ -122,6 +137,13 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
             throw InvalidParams(e.Message);
         }
     }
+
+    // a tool-level failure the agent can read and act on, not a protocol error
+    static CallToolResult Failed(string message) => new()
+    {
+        IsError = true,
+        Content = [new TextContentBlock { Text = message }],
+    };
 
     static McpProtocolException InvalidParams(string message) => new(message, McpErrorCode.InvalidParams);
 }

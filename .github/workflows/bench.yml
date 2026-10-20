@@ -6,6 +6,19 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      external:
+        description: run the external tool comparison
+        type: boolean
+        default: true
+      dotnet:
+        description: run BenchmarkDotNet on the quiet windows runner
+        type: boolean
+        default: true
+      filter:
+        description: BenchmarkDotNet filter, e.g. *IndexBenchmarks*
+        type: string
+        default: '*'
 
 permissions:
   contents: read
@@ -45,7 +58,7 @@ jobs:
   # AOT-publishes: the runners have no MSVC linker or clang
   bench-windows:
     needs: publish
-    if: github.repository == 'codywilliamson/fetchle'
+    if: github.repository == 'codywilliamson/fetchle' && inputs.external != false
     runs-on: [self-hosted, Windows, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -85,7 +98,7 @@ jobs:
   bench-linux:
     needs: [publish, bench-windows]
     # run even when the windows job failed, but never at the same time as it
-    if: ${{ !cancelled() && needs.publish.result == 'success' && github.repository == 'codywilliamson/fetchle' }}
+    if: ${{ !cancelled() && needs.publish.result == 'success' && github.repository == 'codywilliamson/fetchle' && inputs.external != false }}
     runs-on: [self-hosted, Linux, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -121,4 +134,34 @@ jobs:
         with:
           name: bench-external-linux
           path: bench/results/external-linux.json
+          if-no-files-found: error
+
+  # JIT BenchmarkDotNet on the quiet windows box, after the external jobs so nothing overlaps.
+  # hot-path commits quote these numbers before and after
+  bench-dotnet:
+    needs: [bench-windows, bench-linux]
+    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && inputs.dotnet != false }}
+    runs-on: [self-hosted, Windows, homelab, fetchle]
+    timeout-minutes: 120
+    concurrency:
+      group: homelab-bench
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: benchmarkdotnet
+        shell: pwsh
+        env:
+          FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter '${{ inputs.filter || '*' }}'
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: bench-dotnet
+          path: bench/results/Fetchle.Bench.*.json
           if-no-files-found: error

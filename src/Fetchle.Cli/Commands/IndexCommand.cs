@@ -106,7 +106,7 @@ static class IndexCommand
         }
 
         var info = report.Snapshot;
-        ctx.Out.WriteLine($"indexed {info.Entries:N0} entries in {report.TotalTime.TotalMilliseconds:0} ms (walk {report.WalkTime.TotalMilliseconds:0} ms)");
+        ctx.Out.WriteLine($"indexed {info.Entries:N0} entries in {report.TotalTime.TotalMilliseconds:0} ms (walk {report.WalkTime.TotalMilliseconds:0}, build {report.BuildTime.TotalMilliseconds:0}, write {report.WriteTime.TotalMilliseconds:0})");
         ctx.Out.WriteLine($"{info.File}: {Output.Humanize.Size(info.Bytes)}, {info.BytesPerEntry:0.0} bytes per entry");
         return ExitCode.Success;
     }

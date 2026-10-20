@@ -51,12 +51,23 @@ public sealed class IndexStore(string directory)
             walks.Add(walk);
         }
 
+        var built = Stopwatch.GetTimestamp();
         var tree = TreeAssembler.Assemble(walks);
         var image = SnapshotWriter.ToBytes(tree, DateTimeOffset.UtcNow);
         // checked before anything touches disk, so a writer bug can never replace a good snapshot with a bad one
         using var written = Snapshot.FromBytes(image, SnapshotPath);
         cancellationToken.ThrowIfCancellationRequested();
 
+        var buildTime = Stopwatch.GetElapsedTime(built);
+        var writing = Stopwatch.GetTimestamp();
+        WriteAndSwap(image);
+        Step(RebuildStep.Done);
+        return new RebuildReport(written.Info(), walkTime, buildTime, Stopwatch.GetElapsedTime(writing), Stopwatch.GetElapsedTime(start));
+    }
+
+    // temp file, flushed, then renamed over the snapshot. returns bytes written
+    internal long WriteAndSwap(byte[] image)
+    {
         Step(RebuildStep.WriteTemp);
         using (var temp = new FileStream(TempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
         {
@@ -67,8 +78,7 @@ public sealed class IndexStore(string directory)
 
         Step(RebuildStep.Rename);
         AtomicReplace.Move(TempPath, SnapshotPath);
-        Step(RebuildStep.Done);
-        return new RebuildReport(written.Info(), walkTime, Stopwatch.GetElapsedTime(start));
+        return image.Length;
     }
 
     internal static RootWalk WalkRoot(string root, PruneRules prune)

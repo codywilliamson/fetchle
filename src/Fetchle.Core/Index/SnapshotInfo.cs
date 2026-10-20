@@ -7,4 +7,5 @@ public sealed record SnapshotInfo(string File, DateTimeOffset BuiltAt, int Entri
     public double BytesPerEntry => Entries == 0 ? 0 : (double)Bytes / Entries;
 }
 
-public sealed record RebuildReport(SnapshotInfo Snapshot, TimeSpan WalkTime, TimeSpan TotalTime);
+// walk: listing the roots. build: rows, interning, the image and its checks. write: temp file, flush, rename
+public sealed record RebuildReport(SnapshotInfo Snapshot, TimeSpan WalkTime, TimeSpan BuildTime, TimeSpan WriteTime, TimeSpan TotalTime);

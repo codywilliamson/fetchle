@@ -31,7 +31,7 @@ The suites, all in `tests/Fetchle.E2E`:
 
 **Freshness.** Create, rename and delete files under a watched root, then assert a query sees each change within a bounded time.
 
-**Install lifecycle.** Point `HOME` and `USERPROFILE` at a temp dir. Run the install twice and assert there's one PATH entry and one marker block per agent. Run uninstall and assert the temp home matches its starting state. GitHub runners are fresh VMs, so they're the clean machines this needs.
+**Install lifecycle.** Two layers. `tests/Fetchle.E2E` drives setup, uninstall and doctor against a temp `HOME` with `FETCHLE_DATA_DIR` and `FETCHLE_INSTALL_DIR` set. On Windows the user PATH is in the registry, which `HOME` can't redirect, so the cases that edit it run only on GitHub runners (or with `FETCHLE_E2E_ALLOW_REGISTRY=1` on a machine you've backed up) and are skipped with a reason elsewhere. `install.yml` is the full check on fresh VMs: it runs the real install script from a locally built archive, queries through PATH in a new shell, breaks PATH and the index and checks `doctor --fix`, uninstalls, asserts the temp home matches its starting state, then does it all again. Marker block insert, replace and remove, PATH string edits and the receipt are plain unit tests.
 
 ## Evals are not tests
 

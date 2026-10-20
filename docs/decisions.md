@@ -112,6 +112,12 @@ Evidence: [spikes/naming.md](spikes/naming.md).
 
 Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
 
+## 2026-10-20: uninstall hands the running exe's dir to a detached cmd
+
+Windows can't delete a running exe, so uninstall deletes everything else, then spawns `cmd` that retries `rmdir` for about a minute. Moving the exe to `.old` doesn't help, the file is still in the dir being deleted. Two traps found on the way: `cmd` dies when its redirected stdout pipe breaks (a `for` loop echoes into it) so the script starts with `@echo off`, and a second `for` after a first nests inside it unless each is parenthesized. The child's stdio is redirected and closed so a test harness waiting on our stdout doesn't wait on it too. `doctor` judges PATH from the registry value or rc file, not the process env, so a fix passes immediately instead of after a new shell.
+
+Evidence: `scripts/ci/install-lifecycle.ps1` run locally on Windows, two cycles; the E2E case `Uninstall_removes_the_dir_that_holds_its_own_exe`.
+
 ## Open
 
 - Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.

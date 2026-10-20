@@ -1,0 +1,64 @@
+name: install
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: install-${{ github.ref }}
+  cancel-in-progress: true
+
+# the v0.1 exit check: the real install script installs, runs a query and uninstalls twice in a row on a clean runner,
+# with doctor --fix round trips in between. it installs from a locally built archive made by the same script publish.yml uses
+jobs:
+  lifecycle:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+          - { os: macos-latest, rid: osx-arm64 }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CI_VERSION: 0.0.0-ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: publish
+        run: dotnet build.cs publish --rid ${{ matrix.rid }}
+
+      - name: archive
+        id: archive
+        run: |
+          archive="$(bash scripts/archive.sh "$CI_VERSION" "${{ matrix.rid }}" artifacts/publish dist | tail -n 1)"
+          ls -l dist
+          echo "path=$archive" >> "$GITHUB_OUTPUT"
+
+      - name: install, query, doctor and uninstall twice (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: scripts/ci/install-lifecycle.ps1 -Archive "${{ steps.archive.outputs.path }}" -Version "$env:CI_VERSION"
+
+      - name: install, query, doctor and uninstall twice (unix)
+        if: runner.os != 'Windows'
+        run: bash scripts/ci/install-lifecycle.sh "${{ steps.archive.outputs.path }}" "$CI_VERSION"
+
+      - name: install scripts are syntax clean
+        if: runner.os == 'Linux'
+        run: |
+          sh -n scripts/install.sh
+          bash -n scripts/archive.sh scripts/ci/install-lifecycle.sh
+          shellcheck -s sh scripts/install.sh
+          shellcheck -s bash scripts/archive.sh scripts/ci/install-lifecycle.sh

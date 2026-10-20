@@ -1,0 +1,60 @@
+using Fetchle.Cli.Commands;
+
+namespace Fetchle.Cli.Install;
+
+// v0.1 setup: put the install dir on PATH and write the receipt. agent registration arrives in v0.3, so agents stay empty
+internal static class SetupAction
+{
+    public static Receipt Run(CliEnvironment env, TextWriter output)
+    {
+        var dirs = env.Dirs;
+        var entry = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dirs.Bin));
+        var previous = LoadPrevious(dirs.Receipt);
+
+        var persistence = PathPersistence.ForSetup(env);
+        var edit = persistence.Add(entry);
+        RemoveStaleEdit(previous?.PathEdit, edit);
+
+        var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), edit, []);
+        ReceiptStore.Save(dirs.Receipt, receipt);
+
+        output.WriteLine(edit.File is null ? $"on your user PATH: {entry}" : $"on PATH via {edit.File}: {entry}");
+        output.WriteLine($"receipt: {dirs.Receipt}");
+        output.WriteLine("open a new shell for PATH to take effect. agent registration arrives in v0.3");
+        WarnWhenExeIsElsewhere(entry, output);
+        return receipt;
+    }
+
+    // a corrupt receipt gets overwritten, it only ever records what this run does
+    static Receipt? LoadPrevious(string path)
+    {
+        try
+        {
+            return ReceiptStore.Load(path);
+        }
+        catch (InvalidDataException)
+        {
+            return null;
+        }
+    }
+
+    // the shell or OS flavor changed since last time, so the old edit would be orphaned
+    static void RemoveStaleEdit(PathEdit? old, PathEdit current)
+    {
+        if (old is null || (old.Kind == current.Kind && old.File == current.File))
+        {
+            return;
+        }
+
+        PathPersistence.FromReceipt(old)?.Remove(old.Entry);
+    }
+
+    static void WarnWhenExeIsElsewhere(string entry, TextWriter output)
+    {
+        var exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+        if (exeDir is not null && !PathRules.Current.Key(exeDir).Equals(PathRules.Current.Key(entry)))
+        {
+            output.WriteLine($"note: this fetchle runs from {exeDir}, not the install dir, so the PATH entry may not contain it");
+        }
+    }
+}

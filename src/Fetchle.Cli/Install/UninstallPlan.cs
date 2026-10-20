@@ -31,7 +31,16 @@ internal sealed record UninstallPlan(Receipt Receipt, List<string> Steps, string
                 return $"'{dir}' is not an absolute path";
             }
 
-            var full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dir));
+            string full;
+            try
+            {
+                full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dir));
+            }
+            catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
+            {
+                return $"'{dir}' is not a valid path";
+            }
+
             var root = Path.TrimEndingDirectorySeparator(Path.GetPathRoot(full) ?? "");
             if (full.Equals(root, PathComparison.Default) || RootsConfig.Covers(full, fullHome))
             {

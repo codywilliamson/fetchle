@@ -62,7 +62,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
             { "i", "Live picker, re-ranks as you type", _ => args.Interactive = true },
             { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => args.Limit = ParseLimit(v) },
             { "budget=", "Stop after {DURATION} and report what was skipped (default 2s)", v => args.Budget = Durations.Parse(v, "budget") },
-            { "root=", "Restrict to {PATH}, repeatable (default: current directory)", args.Roots },
+            { "root=", "Restrict to {PATH}, repeatable (default: configured roots, else the current directory)", args.Roots },
             { "ext=", "Only this {EXT}ension, repeatable", args.Extensions },
             { "since=", "Modified within {DURATION}, e.g. 3d", v => args.Since = Durations.Parse(v, "since") },
             { "type=", "{f|d}: files or directories only", v => args.Type = ParseType(v) },

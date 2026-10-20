@@ -30,7 +30,7 @@ Returns text content (one path per line plus the footer) and `structuredContent`
 }
 ```
 
-`stopped_early` is `null`, `"budget"` or `"limit"`. Until `roots` ships, the default root is the server's working directory, and a `root` that doesn't exist or isn't a valid path is an invalid-params error. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
+`stopped_early` is `null`, `"budget"` or `"limit"`. With no `root`, `find_files` searches the configured roots, read on every call, and falls back to the server's working directory only when none are configured. A configured root that's missing on disk is skipped and named in the footer, and when all of them are missing the call fails with a tool error saying so. An explicit `root` that doesn't exist or isn't a valid path is an invalid-params error. A snapshot that fails validation is a tool error telling the agent to run `fetchle index rebuild`. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
 
 ### `index_status`
 

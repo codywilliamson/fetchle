@@ -2,6 +2,26 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-20: v0.1 measured against its targets; two held only on one os
+
+Quiet self-hosted runners (Randy-PC1, Ryzen 5 3600: Windows 11 26300, and Ubuntu 24.04), run 39456621264 at fec3a98, process wall time over 20 runs after a warmup, nearest-rank percentiles. Raw data: `bench/results/external-*.json`, `bench/results/{windows,linux}/`.
+
+| target | windows | linux | held? |
+|---|---|---|---|
+| warm query, dir-heavy, p95 <= 25 ms | 16.6 ms (rg 962 ms) | 7.7 ms (rg 572 ms) | yes |
+| warm query, 1M home corpus, p95 <= 50 ms | 26.6 ms (rg 1,895 ms) | 13.4 ms (rg 710 ms) | yes |
+| snapshot open, 1M entries, <= 5 ms (BenchmarkDotNet mean) | 10.3 ms | 3.6 ms | linux only |
+| on disk <= 40 B per entry | 15.2-27.0 | 15.2-27.0 | yes |
+| cold rebuild <= 1.2x a bare walk (p50) | 1.04x dir-heavy, 1.07x 1M, 1.23x realistic | 1.57x, 1.65x, 1.99x | windows, barely |
+
+For scale, the process floor on that box: `fetchle --version` 13.7 ms p50 on windows and 9.7 ms on linux, `rg --version` 6.2 and 1.0 ms.
+
+Open on windows: mapping and checksumming 33 MB of synthetic snapshot costs twice what it does on linux on the same cpu. Guess, not profiled: page-fault cost of first touch through the mapping. Real snapshots are smaller (11 MB for the 653k-entry home corpus), and the whole 1M query still lands at 26.6 ms p95 including process start, so the miss doesn't move the headline target. Next lever to measure: `PrefetchVirtualMemory` before the checksum pass.
+
+Rebuild on linux: the walk there is fast (152 ms for 653k entries), so the fixed costs show. BenchmarkDotNet at 1M entries puts them at assemble 98 ms, image 33 ms, check 3.6 ms and write plus fsync plus rename 68 ms. Assemble already dropped from 258 ms (interning into one arena). Getting to 1.2x would need building rows inside the walk workers instead of after them, which is a walker change and a v0.2 job. The fsync stays: the snapshot is derived data, but dropping the flush before the rename would trade a crash-consistent swap for a benchmark ratio, and a storage engine doesn't make that trade.
+
+Also learned: Smart App Control (`VerifiedAndReputableDesktop`) on the windows runner blocked the downloaded exe and even locally built dlls with "An Application Control policy has blocked this file" (0x800711C7) until it was turned off; nothing in the repo can work around that.
+
 ## 2026-10-20: pin the sdk to an exact version
 
 `global.json` pins 10.0.401 with `rollForward: disable`. With `10.0.400` plus `latestFeature`, setup-dotnet installed 10.0.402 the day it shipped, the SDK-added ILLink package moved from 10.0.12 to 10.0.13, and locked restore failed on all three CI runners while the dev box still had 10.0.401. An exact pin makes the SDK move only in a commit that also refreshes the lock files.

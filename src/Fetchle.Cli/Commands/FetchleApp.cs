@@ -1,4 +1,5 @@
 using Fetchle.Core.Search;
+using Fetchle.Core.Storage;
 using Fetchle.Mcp;
 using XenoAtom.CommandLine;
 
@@ -92,7 +93,8 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         async (_, _) =>
         {
             await _tracker.Done(ExitCode.Success);
-            var tools = new Tools(search, env.CurrentDirectory);
+            var configured = RootsConfig.Load(env.Dirs.Config);
+            var tools = new Tools(search, configured.Count > 0 ? configured : [env.CurrentDirectory]);
             await new FetchleMcpServer(tools, env.Version).RunAsync(CancellationToken.None);
             return (int)ExitCode.Success;
         },

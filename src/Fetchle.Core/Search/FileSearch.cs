@@ -58,7 +58,7 @@ public sealed class FileSearch(PruneRules prune) : IFileSearch
         return new SearchResult(merged.ToSortedList(), total, Stopwatch.GetElapsedTime(start), stoppedEarly);
     }
 
-    static string NormalizeRoot(string root)
+    internal static string NormalizeRoot(string root)
     {
         try
         {

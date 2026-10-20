@@ -1,6 +1,8 @@
 using System.Text;
 using Fetchle.Cli.Output;
+using Fetchle.Core.Index;
 using Fetchle.Core.Search;
+using Fetchle.Core.Storage;
 using XenoAtom.CommandLine;
 
 namespace Fetchle.Cli.Commands;
@@ -16,7 +18,18 @@ sealed class SearchCommand(IFileSearch search, CliEnvironment env)
         }
 
         var mode = args.OutputMode(env);
-        var request = args.ToRequest(mode, env);
+        List<string> configured;
+        try
+        {
+            configured = RootsConfig.Load(env.Dirs.Config);
+        }
+        catch (InvalidDataException e)
+        {
+            ctx.Error.WriteLine($"fetchle: {e.Message}");
+            return ExitCode.Usage;
+        }
+
+        var request = args.ToRequest(mode, env, configured);
 
         SearchResult result;
         try
@@ -27,6 +40,12 @@ sealed class SearchCommand(IFileSearch search, CliEnvironment env)
         {
             ctx.Error.WriteLine($"fetchle: {e.Message}");
             return ExitCode.Usage;
+        }
+        catch (IndexUnreadableException e)
+        {
+            ctx.Error.WriteLine($"fetchle: {e.Message}");
+            ctx.Error.WriteLine("run `fetchle index rebuild`");
+            return ExitCode.IndexMissing;
         }
 
         // redirected console output on windows otherwise uses the oem code page

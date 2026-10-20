@@ -6,7 +6,7 @@ public class UninstallPlanTests
 {
     static readonly string Home = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "fake-home"));
 
-    static Receipt WithDirs(string install, string data) => new("0.1.0", Channels.SCRIPT, install, data, null, []);
+    static Receipt WithDirs(string install, string data) => new("0.1.0", Channels.SCRIPT, install, data, []);
 
     [Test]
     public async Task Ordinary_dirs_under_home_are_fine()

@@ -15,7 +15,7 @@ internal static class SetupAction
         var edit = persistence.Add(entry);
         RemoveStaleEdit(previous?.PathEdit, edit);
 
-        var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), edit, []);
+        var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), [], edit);
         ReceiptStore.Save(dirs.Receipt, receipt);
 
         output.WriteLine(edit.File is null ? $"on your user PATH: {entry}" : $"on PATH via {edit.File}: {entry}");

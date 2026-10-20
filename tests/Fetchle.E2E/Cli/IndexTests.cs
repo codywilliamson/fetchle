@@ -97,6 +97,22 @@ public class IndexTests
     }
 
     [Test]
+    [Arguments("{\"roots\": [null]}")]
+    [Arguments("{\"roots\": [\"\"]}")]
+    [Arguments("{}")]
+    public async Task A_config_with_a_null_or_missing_root_list_is_a_clean_usage_error(string json)
+    {
+        using var data = new TempDir();
+        Directory.CreateDirectory(data.Path);
+        File.WriteAllText(Path.Combine(data.Path, "config.json"), json);
+
+        var run = await FetchleProcess.RunAsync(["index", "status"], dataDir: data.Path);
+
+        await Assert.That(run.ExitCode).IsEqualTo(2).Because(run.Stderr);
+        await Assert.That(run.Stderr).DoesNotContain("   at ");
+    }
+
+    [Test]
     public async Task A_damaged_snapshot_is_exit_3_at_every_sampled_offset()
     {
         using var tree = FixtureTree.Create(fillerFiles: 20);

@@ -24,7 +24,16 @@ public static class RootsConfig
 
         try
         {
-            return JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots ?? [];
+            var roots = JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots ?? [];
+            // nullable annotations don't reach list elements, and every caller compares roots as paths
+            foreach (var root in roots)
+            {
+                if (string.IsNullOrWhiteSpace(root))
+                {
+                    throw new InvalidDataException($"can't read {path}: a root is null or blank");
+                }
+            }
+            return roots;
         }
         catch (JsonException e)
         {

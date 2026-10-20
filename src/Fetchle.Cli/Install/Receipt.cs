@@ -4,7 +4,8 @@ using System.Text.Json.Serialization;
 namespace Fetchle.Cli.Install;
 
 // what setup did to the machine, so uninstall can undo exactly that
-internal sealed record Receipt(string Version, string Channel, string InstallDir, string DataDir, PathEdit? PathEdit, List<AgentRegistration> Agents);
+// PathEdit is last and defaulted because it's the one field a receipt may leave out
+internal sealed record Receipt(string Version, string Channel, string InstallDir, string DataDir, List<AgentRegistration> Agents, PathEdit? PathEdit = null);
 
 internal sealed record PathEdit(string Kind, string Entry, string? File = null);
 
@@ -39,8 +40,10 @@ internal static class ReceiptStore
 
         try
         {
-            return JsonSerializer.Deserialize(File.ReadAllText(path), ReceiptJson.Default.Receipt)
+            var receipt = JsonSerializer.Deserialize(File.ReadAllText(path), ReceiptJson.Default.Receipt)
                 ?? throw new InvalidDataException($"can't read {path}: empty receipt");
+            // nullable annotations don't reach list elements
+            return receipt.Agents.Contains(null!) ? throw new InvalidDataException($"can't read {path}: a null agent entry") : receipt;
         }
         catch (JsonException e)
         {

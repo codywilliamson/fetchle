@@ -97,7 +97,7 @@ public class DoctorCheckTests
     [Test]
     public async Task Receipt_checks()
     {
-        var receipt = new Receipt("0.1.0", Channels.SCRIPT, "/b", "/d", null, []);
+        var receipt = new Receipt("0.1.0", Channels.SCRIPT, "/b", "/d", []);
         await Assert.That(ReceiptChecks.Receipt(receipt, null, "/r").Status).IsEqualTo(CheckStatus.Pass);
         await Assert.That(ReceiptChecks.Receipt(null, null, "/r").Status).IsEqualTo(CheckStatus.Warn);
         await Assert.That(ReceiptChecks.Receipt(null, "corrupt", "/r").Status).IsEqualTo(CheckStatus.Fail);
@@ -106,7 +106,7 @@ public class DoctorCheckTests
     [Test]
     public async Task Agent_checks()
     {
-        var empty = new Receipt("0.1.0", Channels.SCRIPT, "/b", "/d", null, []);
+        var empty = new Receipt("0.1.0", Channels.SCRIPT, "/b", "/d", []);
         var withAgent = empty with { Agents = [new AgentRegistration("claude-code", "mcp", "/c.json")] };
         await Assert.That(ReceiptChecks.Agents(empty, _ => true).Status).IsEqualTo(CheckStatus.Skip);
         await Assert.That(ReceiptChecks.Agents(withAgent, _ => true).Status).IsEqualTo(CheckStatus.Pass);

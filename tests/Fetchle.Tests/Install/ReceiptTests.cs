@@ -11,8 +11,8 @@ public class ReceiptTests
         Channels.SCRIPT,
         @"C:\Users\me\AppData\Local\fetchle\bin",
         @"C:\Users\me\AppData\Local\fetchle",
-        new PathEdit(PathEditKinds.WINDOWS_USER_PATH, @"C:\Users\me\AppData\Local\fetchle\bin"),
-        []);
+        [],
+        new PathEdit(PathEditKinds.WINDOWS_USER_PATH, @"C:\Users\me\AppData\Local\fetchle\bin"));
 
     // records compare lists by reference, so check the parts
     static async Task AssertSame(Receipt? actual, Receipt expected)
@@ -74,6 +74,22 @@ public class ReceiptTests
     }
 
     [Test]
+    public async Task A_receipt_without_a_path_edit_loads()
+    {
+        var path = TempFile();
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, """{ "version": "0", "channel": "script", "install_dir": "/b", "data_dir": "/d", "agents": [] }""");
+        try
+        {
+            await Assert.That(ReceiptStore.Load(path)!.PathEdit).IsNull();
+        }
+        finally
+        {
+            Directory.Delete(Path.GetDirectoryName(path)!, recursive: true);
+        }
+    }
+
+    [Test]
     public async Task Missing_file_loads_as_null() =>
         await Assert.That(ReceiptStore.Load(TempFile())).IsNull();
 
@@ -82,6 +98,7 @@ public class ReceiptTests
     [Arguments("{}")]
     [Arguments("""{ "version": "0", "channel": "script", "install_dir": null, "data_dir": "x", "agents": [] }""")]
     [Arguments("""{ "version": "0", "channel": "script", "install_dir": "x", "data_dir": "x" }""")]
+    [Arguments("""{ "version": "0", "channel": "script", "install_dir": "x", "data_dir": "x", "agents": [null] }""")]
     public async Task Corrupt_or_incomplete_file_throws_invalid_data(string json)
     {
         var path = TempFile();

@@ -32,6 +32,11 @@ public static class RootsConfig
                 {
                     throw new InvalidDataException($"can't read {path}: a root is null or blank");
                 }
+
+                if (!IsValidRoot(root))
+                {
+                    throw new InvalidDataException($"can't read {path}: '{root}' isn't a full path");
+                }
             }
             return roots;
         }
@@ -47,6 +52,19 @@ public static class RootsConfig
         var temp = path + ".tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(new RootsFile([.. roots]), StorageJson.Default.RootsFile) + "\n");
         File.Move(temp, path, overwrite: true);
+    }
+
+    // what roots add writes: fully qualified and parseable. a hand edit can break either
+    static bool IsValidRoot(string root)
+    {
+        try
+        {
+            return Path.IsPathFullyQualified(root) && Path.GetFullPath(root).Length > 0;
+        }
+        catch (Exception e) when (e is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
     }
 
     public static string Normalize(string root) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));

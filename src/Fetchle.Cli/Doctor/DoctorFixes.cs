@@ -25,7 +25,7 @@ internal static class DoctorFixes
                     return false;
             }
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or IndexBusyException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or IndexBusyException or IndexUnreadableException)
         {
             output.WriteLine($"  failed: {e.Message}");
             return false;

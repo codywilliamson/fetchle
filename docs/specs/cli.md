@@ -11,7 +11,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 | `fetchle roots [add\|remove\|list] [path]` | Manage indexed roots. |
 | `fetchle index [status\|rebuild]` | Show index health or rebuild it. |
 | `fetchle mcp` | Run the stdio MCP server. See [mcp.md](mcp.md). |
-| `fetchle setup` | Detect agents and register fetchle with them. |
+| `fetchle setup [--yes]` | Put fetchle on PATH and write the receipt. Agent registration arrives in v0.3. See [install.md](install.md). |
 | `fetchle doctor [--fix]` | Check the install and print a fix for each failure. |
 | `fetchle update` | Self-update from GitHub releases. |
 | `fetchle cleanup [--yes]` | Prune stale index data and leftover files. |
@@ -51,15 +51,21 @@ Pretty mode uses synchronized output (DEC 2026) for live regions, emits OSC 9;4 
 
 ## `doctor` checks
 
-Each check prints pass, warn or fail with the exact command that fixes it. `--fix` runs the fixes.
+Each check prints one line, `pass`, `warn`, `fail` or `skip`, with the exact command that fixes it on the next line. `--fix` runs the fixes it can, then prints every check again. It runs only `fetchle setup --yes` (PATH missing or duplicated, receipt missing) and `fetchle index rebuild` (index missing, unreadable, or lacking a configured root), each once. Other fixes, such as a root that no longer exists or an outdated version, are printed for you to run.
+
+Exit code: 0 when nothing failed (warnings and skips are fine), 5 when any check failed. With `--fix` the code reflects the checks after the fixes.
+
+PATH is judged by what a new shell will get (the user registry value on Windows, the rc file block on Unix), so it passes right after a fix. This shell lagging behind is only a warning. The release lookup has a 3 s timeout, and `FETCHLE_RELEASE_API` points it elsewhere for tests.
 
 - binary on PATH, and only once
-- version vs latest release
-- index age, size and root health
-- watcher running (MCP server) and the inotify limit on Linux
-- model file present and checksum matches
-- each agent registration from the receipt still in place
-- NTFS turbo availability on Windows
+- version vs latest release (warns when GitHub is unreachable)
+- receipt present and readable
+- index age, size and bytes per entry, and root health: every configured root exists and is in the snapshot
+- watcher running (MCP server): skip until v0.4
+- inotify `max_user_watches` on Linux, warns below 65,536
+- model file present and checksum matches: skip until embeddings ship
+- each agent registration from the receipt still in place (skip while the list is empty)
+- NTFS turbo availability on Windows: skip until v0.5
 - terminal capabilities detected
 
 ## `savings`
@@ -77,6 +83,7 @@ The store holds counts and totals only, never query text. Output shows totals an
 | 2 | Usage error. |
 | 3 | Index missing or unreadable. Run `fetchle index rebuild`. |
 | 4 | Budget expired before any result. |
+| 5 | Install problem: `doctor` found a failed check, or `uninstall` refused or couldn't finish. |
 
 ## Help text
 

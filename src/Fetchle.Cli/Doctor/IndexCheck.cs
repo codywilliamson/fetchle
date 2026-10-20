@@ -29,7 +29,7 @@ internal static class IndexCheck
             return NoIndex(roots);
         }
 
-        var detail = $"built {Humanize.Age(now - info.BuiltAt)} ago, {info.Entries:N0} entries, {Humanize.Size(info.Bytes)}, {info.BytesPerEntry:0.0} bytes per entry";
+        var detail = $"built {Humanize.Age(now - info.BuiltAt)}, {info.Entries:N0} entries, {Humanize.Size(info.Bytes)}, {info.BytesPerEntry:0.0} bytes per entry";
         return [new CheckResult(INDEX_NAME, CheckStatus.Pass, detail), RootHealth(info, roots)];
     }
 

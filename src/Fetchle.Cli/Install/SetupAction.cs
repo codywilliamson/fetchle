@@ -38,10 +38,12 @@ internal static class SetupAction
         }
     }
 
-    // the shell or OS flavor changed since last time, so the old edit would be orphaned
+    // the shell, OS flavor or install dir changed since last time, so the old edit would be orphaned. an rc block
+    // in the same file was already replaced in place by Add, so removing it again would undo the new one
     static void RemoveStaleEdit(PathEdit? old, PathEdit current)
     {
-        if (old is null || (old.Kind == current.Kind && old.File == current.File))
+        if (old is null || (old.Kind == current.Kind && old.File == current.File
+            && (old.Kind == PathEditKinds.SHELL_RC_BLOCK || PathRules.Current.Key(old.Entry).Equals(PathRules.Current.Key(current.Entry)))))
         {
             return;
         }

@@ -23,5 +23,5 @@ docs/roadmap.md's v0.1 exit check passes in CI: e2e green on windows, linux and 
 - Snapshot open at 1M on windows is 10.3 ms against a 5 ms target; try `PrefetchVirtualMemory` before the checksum.
 - Cold rebuild on linux is 1.6-2.0x a bare walk against 1.2x; building rows inside the walk workers is the lever.
 - Case-sensitive macos volumes: root management (`RootsConfig.Covers`) still folds case.
-- Codex rounds past the cap raised: a top-level `null` config.json reads as no roots; install.ps1 doesn't restore `.old` if the copy itself fails; setup doesn't restore a same-file shell block after a failed receipt save; segment matching doesn't check the deadline mid-scan.
+- Codex rounds past the cap raised: a top-level `null` config.json reads as no roots; install.ps1 doesn't restore `.old` if the copy itself fails; setup doesn't restore a same-file shell block after a failed receipt save; segment matching doesn't check the deadline mid-scan; the windows cleanup script hands paths to cmd without escaping `%`; the mcp footer doesn't say when a rebuild holds the lock.
 - fetchle.dev redirects to the release's install scripts aren't set up (Cloudflare).

@@ -17,9 +17,9 @@ Directory.CreateDirectory(resultsDir);
 if (args is ["--external", ..])
 {
     var options = ExternalBenchOptions.FromEnvironment(repo, resultsDir);
-    var runner = new ExternalBenchRunner(options, new ProcessTimer(), loggerFactory.CreateLogger<ExternalBenchRunner>());
-    runner.Run();
-    return 0;
+    var measurer = new ToolMeasurer(new ProcessTimer(), loggerFactory.CreateLogger<ToolMeasurer>());
+    var runner = new ExternalBenchRunner(options, measurer, loggerFactory.CreateLogger<ExternalBenchRunner>());
+    return runner.Run();
 }
 
 var artifacts = Path.Combine(repo, "artifacts", "bench");

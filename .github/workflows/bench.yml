@@ -1,17 +1,26 @@
 name: bench
 
+# push to main and manual runs only, never pull requests: the external jobs run on the self-hosted
+# homelab runners, and a PR must not be able to run code there
 on:
   push:
     branches: [main]
-  workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  bench:
-    runs-on: ubuntu-latest
+  # AOT publish needs a linker toolchain, which only the hosted runners have
+  publish:
+    if: github.repository == 'codywilliamson/fetchle'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64, exe: fetchle.exe }
+          - { os: ubuntu-latest, rid: linux-x64, exe: fetchle }
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,13 +30,95 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
-      - name: install ripgrep
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
-
-      - name: bench
-        run: dotnet build.cs bench
+      - name: publish
+        shell: bash
+        run: dotnet build.cs publish --rid ${{ matrix.rid }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: bench-results
-          path: bench/results/
+          name: fetchle-${{ matrix.rid }}
+          path: artifacts/publish/${{ matrix.exe }}
+          if-no-files-found: error
+
+  # both self-hosted runners are the same physical machine, so these two jobs are chained and share
+  # a concurrency group (a second push waits its turn instead of racing the first). nothing here
+  # AOT-publishes: the runners have no MSVC linker or clang
+  bench-windows:
+    needs: publish
+    if: github.repository == 'codywilliamson/fetchle'
+    runs-on: [self-hosted, Windows, homelab, fetchle]
+    timeout-minutes: 120
+    concurrency:
+      group: homelab-bench
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: fetchle-win-x64
+          path: ${{ runner.temp }}/fetchle-exe
+
+      - uses: ./.github/actions/bench-tools
+        with:
+          dir: ${{ runner.temp }}/bench-tools
+
+      - name: bench external
+        shell: pwsh
+        env:
+          FETCHLE_EXE: ${{ runner.temp }}/fetchle-exe/fetchle.exe
+          FETCHLE_BENCH_TOOLS: ${{ runner.temp }}/bench-tools
+          FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
+        run: dotnet build.cs bench-external
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: bench-external-windows
+          path: bench/results/external-windows.json
+          if-no-files-found: error
+
+  bench-linux:
+    needs: [publish, bench-windows]
+    # run even when the windows job failed, but never at the same time as it
+    if: ${{ !cancelled() && needs.publish.result == 'success' && github.repository == 'codywilliamson/fetchle' }}
+    runs-on: [self-hosted, Linux, homelab, fetchle]
+    timeout-minutes: 120
+    concurrency:
+      group: homelab-bench
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: fetchle-linux-x64
+          path: ${{ runner.temp }}/fetchle-exe
+
+      - run: chmod +x "$RUNNER_TEMP/fetchle-exe/fetchle"
+
+      - uses: ./.github/actions/bench-tools
+        with:
+          dir: ${{ runner.temp }}/bench-tools
+
+      - name: bench external
+        env:
+          FETCHLE_EXE: ${{ runner.temp }}/fetchle-exe/fetchle
+          FETCHLE_BENCH_TOOLS: ${{ runner.temp }}/bench-tools
+          FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
+        run: dotnet build.cs bench-external
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: bench-external-linux
+          path: bench/results/external-linux.json
+          if-no-files-found: error

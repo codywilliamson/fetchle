@@ -43,10 +43,29 @@ A failing eval means ranking got worse. A failing test means something broke. Ke
 
 ## Benchmarks
 
-`bench/` uses BenchmarkDotNet for the hot paths: walk throughput, query latency, segment encode. Results are committed as JSON, the README chart renders from that JSON, and CI fails on a regression past a set threshold.
+`bench/` has two halves. BenchmarkDotNet covers the hot paths in-process (walk throughput, query latency, segment encode) on the `realistic` and `dir-heavy` shapes, and its JSON is committed in `bench/results/`.
+
+The external runner (`dotnet build.cs bench-external`) times the published exe as a process against everything it competes with, on `realistic`, `dir-heavy` and `home-1m`. `home-1m` is a 1,000,000-entry home-directory-shaped corpus from `tests/Fetchle.Fixtures/HomeCorpus.cs`: heavy-tailed files per dir, depth mostly 3 to 10 with a deeper tail, about a third of the entries under `node_modules`, `.git` and `.cache`, and the usual landmarks so `settings` hits a handful of real files. It is deterministic from a seed, cached on disk with a version marker next to the root, and used by the external runner only (too slow for BenchmarkDotNet params). Every tool runs the same query, `settings`, with one warmup and 20 timed runs; the result is process wall time, p50 and p95 by nearest rank.
+
+| tool | what it measures |
+|---|---|
+| `fetchle live walk` | `fetchle settings --root <corpus>`, the parallel walker |
+| `fetchle indexed query` | `fetchle settings` with `FETCHLE_DATA_DIR` isolated, after `roots add` and `index rebuild`: reads the snapshot |
+| `fetchle bare walk` and `fetchle cold rebuild` | a walk that matches nothing (exit 1) next to `index rebuild` with the snapshot deleted before each run, so the 1.2x rebuild target reads straight off the two rows |
+| `rg --files --iglob`, `rg -j1 ...` | `--hidden --no-ignore`, case-insensitive glob |
+| `fd -H -I -i` | hidden, no ignore files, case-insensitive; the pattern is a regex on the file name |
+| `Get-ChildItem -Recurse`, `cmd dir /s /b` | Windows only (pwsh, else powershell.exe) |
+| `find -iname` | Linux and macOS |
+| `fetchle --version`, `rg --version` | process startup floors, shape `none`, so a 25 ms target can be read against what spawning costs |
+
+The tools are not strictly like for like. fetchle skips pruned dirs (`node_modules`, `.git`, `.cache`) and also matches on parent directory names; rg, fd, gci, dir and find walk everything and match the file name only. Put `rg` and `fd` binaries in `FETCHLE_BENCH_TOOLS` and they win over PATH. A tool that isn't installed is skipped with a warning and listed under `skipped_tools` in the JSON. A wrong exit code marks that tool `failed` in the JSON and makes the runner exit 1. A single run over 60 s stops that tool on that shape and the JSON records what ran (`skipped` or `partial`), so the job stays bounded.
+
+Results go to `bench/results/external-windows.json` or `external-linux.json`: machine, OS, CPU count, per-shape entry counts (on disk, and what the walker sees with the default prune rules), and per tool and shape p50, p95 and every run. `FETCHLE_BENCH_SHAPES=realistic,dir-heavy` narrows a local run, `FETCHLE_BENCH_CORPUS_DIR` moves the `home-1m` corpus off the temp dir.
+
+Numbers from a loaded dev box are never quoted: not in docs, commits or decisions. Only the files produced by the self-hosted runners count. The runner's parts that don't need a quiet machine (command construction, percentile math, the JSON shape, the home corpus) are unit tested in `tests/Fetchle.Bench.Tests`.
 
 Agents can talk their way past a code review. They can't fake a p50.
 
 ## Where it runs
 
-Every PR runs unit tests, e2e and evals on Windows, Linux and macOS through `dotnet build.cs ci`. It restores, builds and publishes the native exe once, then runs the suites with `--no-build` and points the e2e suite at that exe with `FETCHLE_EXE`. Run the same pipeline locally with `dotnet build.cs ci`, or one piece with `dotnet build.cs <restore|build|test|e2e|eval|publish|bench>`. Benchmarks run on main and on release tags, because shared CI runners are too noisy for per-PR perf gates.
+Every PR runs unit tests, e2e and evals on Windows, Linux and macOS through `dotnet build.cs ci`. It restores, builds and publishes the native exe once, then runs the suites with `--no-build` and points the e2e suite at that exe with `FETCHLE_EXE`. Run the same pipeline locally with `dotnet build.cs ci`, or one piece with `dotnet build.cs <restore|build|test|e2e|eval|publish|bench>`. The external benchmarks run on push to main and on manual dispatch, on the self-hosted runners, never on PRs; shared CI runners are too noisy for perf numbers.

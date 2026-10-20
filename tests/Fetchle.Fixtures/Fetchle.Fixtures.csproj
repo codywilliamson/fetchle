@@ -1,2 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <!-- the home corpus tests check the plan's shape, which is internal -->
+    <InternalsVisibleTo Include="Fetchle.Bench.Tests" />
+  </ItemGroup>
 </Project>

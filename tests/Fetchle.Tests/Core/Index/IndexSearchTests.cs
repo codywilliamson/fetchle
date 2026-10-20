@@ -134,6 +134,23 @@ public class IndexSearchTests
     }
 
     [Test]
+    public async Task An_exact_root_spelling_wins_over_a_case_folded_root()
+    {
+        var parent = Path.Combine(Path.GetTempPath(), "fetchle-case-roots");
+        var upperRoot = Path.Join(parent, "Foo");
+        var lowerRoot = Path.Join(parent, "foo");
+        var upper = new TreeCollector();
+        upper.Add(upperRoot, "upper.txt", isDirectory: false);
+        var lower = new TreeCollector();
+        lower.Add(lowerRoot, "lower.txt", isDirectory: false);
+        var tree = TreeAssembler.Assemble([new RootWalk(upperRoot, [upper], TimeSpan.Zero), new RootWalk(lowerRoot, [lower], TimeSpan.Zero)]);
+        using var snapshot = Snapshot.FromBytes(SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch));
+
+        await Assert.That(SnapshotPaths.FindDirectory(snapshot, upperRoot)).IsEqualTo(0);
+        await Assert.That(SnapshotPaths.FindDirectory(snapshot, lowerRoot)).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Search_reads_the_snapshot_not_the_disk()
     {
         using var tree = FixtureTree.Create(fillerFiles: 50);

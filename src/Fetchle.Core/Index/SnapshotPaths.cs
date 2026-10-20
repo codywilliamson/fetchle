@@ -14,33 +14,57 @@ static class SnapshotPaths
     // the entry for a directory path at or under one of the snapshot's roots, or -1
     public static int FindDirectory(Snapshot snapshot, string path)
     {
+        // a root spelled exactly wins over one that only matches with case folded, so on a case-sensitive
+        // volume a request for /v/foo never lands in a snapshot of its sibling /v/Foo
+        var exact = ExactRoot(snapshot, path);
+        if (exact >= 0)
+        {
+            return FindUnder(snapshot, exact, path);
+        }
+
+        for (var r = 0; r < snapshot.RootCount; r++)
+        {
+            if (RootsConfig.Covers(snapshot.RootPath(r), path))
+            {
+                return FindUnder(snapshot, r, path);
+            }
+        }
+        return -1;
+    }
+
+    static int ExactRoot(Snapshot snapshot, string path)
+    {
         for (var r = 0; r < snapshot.RootCount; r++)
         {
             var root = snapshot.RootPath(r);
-            if (!RootsConfig.Covers(root, path))
+            if (path.StartsWith(root, StringComparison.Ordinal)
+                && (path.Length == root.Length || Path.EndsInDirectorySeparator(root) || path[root.Length] == Path.DirectorySeparatorChar || path[root.Length] == Path.AltDirectorySeparatorChar))
+            {
+                return r;
+            }
+        }
+        return -1;
+    }
+
+    static int FindUnder(Snapshot snapshot, int r, string path)
+    {
+        var entry = r;
+        var rest = path.AsSpan(snapshot.RootPath(r).Length);
+        foreach (var range in rest.SplitAny(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+        {
+            var component = rest[range];
+            if (component.IsEmpty)
             {
                 continue;
             }
 
-            var entry = r;
-            var rest = path.AsSpan(root.Length);
-            foreach (var range in rest.SplitAny(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+            entry = FindChild(snapshot, entry, component);
+            if (entry < 0 || !snapshot.IsDirectory(entry))
             {
-                var component = rest[range];
-                if (component.IsEmpty)
-                {
-                    continue;
-                }
-
-                entry = FindChild(snapshot, entry, component);
-                if (entry < 0 || !snapshot.IsDirectory(entry))
-                {
-                    return -1;
-                }
+                return -1;
             }
-            return entry;
         }
-        return -1;
+        return entry;
     }
 
     // files anywhere under a dir. one forward pass: an entry is inside when its parent is the dir or inside

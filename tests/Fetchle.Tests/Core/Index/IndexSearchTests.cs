@@ -121,6 +121,19 @@ public class IndexSearchTests
     }
 
     [Test]
+    public async Task Status_counts_files_under_the_requested_subdir_only()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 200);
+        using var index = TempIndex.Built(tree.Root);
+        var status = new IndexedFileSearch(PruneRules.Default, index.Store).GetStatus([tree.Root, tree.Full("src"), tree.Full("nope")]);
+        var src = WalkHelpers.NaiveWalk(tree.Full("src")).Count(File.Exists);
+
+        await Assert.That(status.Roots[0].FileCount).IsEqualTo(index.Store.ReadInfo()!.Roots[0].Files);
+        await Assert.That(status.Roots[1].FileCount).IsEqualTo(src);
+        await Assert.That(status.Roots[2].FileCount).IsNull();
+    }
+
+    [Test]
     public async Task Search_reads_the_snapshot_not_the_disk()
     {
         using var tree = FixtureTree.Create(fillerFiles: 50);

@@ -59,13 +59,15 @@ public sealed class IndexedFileSearch(PruneRules prune, IndexStore store) : IFil
 
     public IndexStatus GetStatus(IReadOnlyList<string> roots)
     {
-        var info = store.ReadInfo();
+        using var snapshot = store.Open();
+        var builtAt = snapshot?.Info().BuiltAt;
         var status = new List<RootStatus>(roots.Count);
         foreach (var root in roots)
         {
-            var full = Path.GetFullPath(root);
-            var indexed = info?.Roots.FirstOrDefault(r => RootsConfig.Covers(r.Path, full));
-            status.Add(new RootStatus(full, indexed?.Files, indexed is null ? null : info!.BuiltAt));
+            var full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+            // a subdir of an indexed root counts only its own subtree, not the whole root's files
+            var entry = snapshot is null ? -1 : SnapshotPaths.FindDirectory(snapshot, full);
+            status.Add(entry < 0 ? new RootStatus(full, null, null) : new RootStatus(full, SnapshotPaths.CountFiles(snapshot!, entry), builtAt));
         }
         return new IndexStatus(status, VectorsComplete: false, WatcherLive: false);
     }

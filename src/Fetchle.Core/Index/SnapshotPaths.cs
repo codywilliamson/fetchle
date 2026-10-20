@@ -43,6 +43,24 @@ static class SnapshotPaths
         return -1;
     }
 
+    // files anywhere under a dir. one forward pass: an entry is inside when its parent is the dir or inside
+    public static int CountFiles(Snapshot snapshot, int dir)
+    {
+        var parents = snapshot.Parents;
+        var inside = new bool[parents.Length];
+        inside[dir] = true;
+        var files = 0;
+        for (var i = Math.Max(dir + 1, snapshot.RootCount); i < parents.Length; i++)
+        {
+            if (inside[parents[i]])
+            {
+                inside[i] = true;
+                files += snapshot.IsDirectory(i) ? 0 : 1;
+            }
+        }
+        return files;
+    }
+
     // children of a dir are one contiguous run because parents never decrease, so two binary searches find them
     public static (int Start, int End) Children(Snapshot snapshot, int parent)
     {

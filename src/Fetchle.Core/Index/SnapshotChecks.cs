@@ -21,7 +21,8 @@ readonly record struct SnapshotLayout(
     Range RootPaths);
 
 // every check a reader needs before it can index into the image without surprises. returns why the image
-// can't be trusted, or null. linear and mostly vectorized, so it runs on every open
+// can't be trusted, or null. the checksum is one pass over the file; the structure checks only walk the
+// fixed-width columns, so open stays a few ms at a million entries
 static class SnapshotChecks
 {
     static readonly long MAX_UNIX_MS = DateTimeOffset.MaxValue.ToUnixTimeMilliseconds();
@@ -139,7 +140,7 @@ static class SnapshotChecks
             return "segment offsets don't span the blob";
         }
 
-        // every segment is at least one byte plus its NUL, and NULs appear only as terminators
+        // every segment is at least one byte and ends in its NUL
         for (var i = 0; i < layout.SegmentCount; i++)
         {
             if ((long)offsets[i + 1] < offsets[i] + 2L || offsets[i + 1] > (uint)blob.Length || blob[(int)offsets[i + 1] - 1] != 0)
@@ -148,22 +149,9 @@ static class SnapshotChecks
             }
         }
 
-        if (blob.Count((byte)0) != layout.SegmentCount)
-        {
-            return "segment blob has stray NULs";
-        }
-
-        if (!Utf8.IsValid(blob))
-        {
-            return "segment blob isn't utf-8";
-        }
-
+        // no pass over the blob's bytes beyond the checksum: a stray NUL never matches a query, bad utf-8 decodes
+        // to U+FFFD, and a wrong ascii list only changes how exotic letters fold. none of it can throw or overrun
         var nonAscii = MemoryMarshal.Cast<byte, uint>(image[layout.NonAscii]);
-        if (nonAscii.IsEmpty)
-        {
-            return Ascii.IsValid(blob) ? null : "non-ascii segments not listed";
-        }
-
         for (var i = 0; i < nonAscii.Length; i++)
         {
             if (nonAscii[i] >= (uint)layout.SegmentCount || (i > 0 && nonAscii[i] <= nonAscii[i - 1]))

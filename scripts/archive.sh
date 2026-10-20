@@ -3,7 +3,7 @@
 # publish.yml and the install CI job both call this, so the archive layout can't drift from what install.sh and install.ps1 unpack.
 #
 # usage: scripts/archive.sh <version> <rid> [publish-dir] [out-dir]
-# prints the archive path on its last line of stdout
+# prints the archive path (under out-dir as given) on its last line of stdout
 set -euo pipefail
 
 version="${1:?usage: archive.sh <version> <rid> [publish-dir] [out-dir]}"
@@ -67,4 +67,4 @@ fi
 # two spaces, like sha256sum writes it
 printf '%s  %s\n' "$hash" "$(basename "$archive")" > "$archive.sha256"
 
-echo "$archive"
+echo "$out_dir/$(basename "$archive")"

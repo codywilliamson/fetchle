@@ -82,7 +82,8 @@ function Install-Fetchle {
         Get-FetchleFile $base "$name.zip.sha256" $checksum
         Confirm-FetchleChecksum $archive $checksum
 
-        Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'unpacked') -Force
+        # fully qualified because modules like Pscx ship their own Expand-Archive
+        Microsoft.PowerShell.Archive\Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'unpacked') -Force
         $exe = Install-FetchleExe (Join-Path $work "unpacked\$name\fetchle.exe") $installDir
     } finally {
         Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue

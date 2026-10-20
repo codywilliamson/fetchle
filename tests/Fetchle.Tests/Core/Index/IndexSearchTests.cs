@@ -100,6 +100,27 @@ public class IndexSearchTests
     }
 
     [Test]
+    public async Task An_exact_spelling_wins_over_a_case_folded_sibling()
+    {
+        // two siblings differing only by case can exist on linux and on case-sensitive macos volumes
+        var collector = new TreeCollector();
+        var root = Path.Combine(Path.GetTempPath(), "fetchle-case-siblings");
+        collector.Add(root, "foo", isDirectory: true);
+        collector.Add(root, "Foo", isDirectory: true);
+        collector.Add(Path.Join(root, "foo"), "lower.txt", isDirectory: false);
+        collector.Add(Path.Join(root, "Foo"), "upper.txt", isDirectory: false);
+        var tree = TreeAssembler.Assemble([new RootWalk(root, [collector], TimeSpan.Zero)]);
+        using var snapshot = Snapshot.FromBytes(SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch));
+
+        var upper = SnapshotPaths.FindDirectory(snapshot, Path.Join(root, "Foo"));
+        var lower = SnapshotPaths.FindDirectory(snapshot, Path.Join(root, "foo"));
+
+        await Assert.That(upper).IsNotEqualTo(lower);
+        var (start, _) = SnapshotPaths.Children(snapshot, upper);
+        await Assert.That(System.Text.Encoding.UTF8.GetString(snapshot.Segment(snapshot.Names[start]))).IsEqualTo("upper.txt");
+    }
+
+    [Test]
     public async Task Search_reads_the_snapshot_not_the_disk()
     {
         using var tree = FixtureTree.Create(fillerFiles: 50);

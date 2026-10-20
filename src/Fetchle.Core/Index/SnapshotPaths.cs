@@ -57,6 +57,7 @@ static class SnapshotPaths
         var (start, end) = Children(snapshot, parent);
         var names = snapshot.Names;
         Span<char> buffer = stackalloc char[512];
+        var folded = -1;
         for (var i = start; i < end; i++)
         {
             var bytes = snapshot.Segment(names[i]);
@@ -66,12 +67,19 @@ static class SnapshotPaths
             }
 
             var chars = buffer[..Encoding.UTF8.GetChars(bytes, buffer)];
-            if (chars.Equals(name, PathComparison.Default))
+            if (chars.SequenceEqual(name))
             {
                 return i;
             }
+
+            if (folded < 0 && chars.Equals(name, PathComparison.Default))
+            {
+                folded = i;
+            }
         }
-        return -1;
+
+        // an exact spelling wins, so on a case-sensitive volume (possible on macos) Foo never resolves to its sibling foo
+        return folded;
     }
 
     static int LowerBound(ReadOnlySpan<uint> parents, int from, uint value)

@@ -43,7 +43,7 @@ A failing eval means ranking got worse. A failing test means something broke. Ke
 
 ## Benchmarks
 
-`bench/` has two halves. BenchmarkDotNet covers the hot paths in-process (walk throughput, query latency, segment encode) on the `realistic` and `dir-heavy` shapes, and its JSON is committed in `bench/results/`.
+`bench/` has two halves. BenchmarkDotNet covers the hot paths in-process: walk throughput and query latency on the `realistic` and `dir-heavy` shapes, and snapshot open, the indexed query pass and each rebuild phase on synthetic 50k and 1M-entry trees. Quiet-runner JSON for the index benches lands in `bench/results/windows/` and `bench/results/linux/`. The older `Fetchle.Bench.*.json` at the top of `bench/results/` came from a dev box before the runners existed.
 
 The external runner (`dotnet build.cs bench-external`) times the published exe as a process against everything it competes with, on `realistic`, `dir-heavy` and `home-1m`. `home-1m` is a 1,000,000-entry home-directory-shaped corpus from `tests/Fetchle.Fixtures/HomeCorpus.cs`: heavy-tailed files per dir, depth mostly 3 to 10 with a deeper tail, about a third of the entries under `node_modules`, `.git` and `.cache`, and the usual landmarks so `settings` hits a handful of real files. It is deterministic from a seed, cached on disk with a version marker next to the root, and used by the external runner only (too slow for BenchmarkDotNet params). Every tool runs the same query, `settings`, with one warmup and 20 timed runs; the result is process wall time, p50 and p95 by nearest rank.
 

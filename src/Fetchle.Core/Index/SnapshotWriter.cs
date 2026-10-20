@@ -111,8 +111,9 @@ static class SnapshotWriter
             BinaryPrimitives.WriteUInt32LittleEndian(record, (uint)r);
             BinaryPrimitives.WriteUInt32LittleEndian(record[4..], (uint)paths.Count);
             BinaryPrimitives.WriteUInt32LittleEndian(record[8..], (uint)path.Length);
-            BinaryPrimitives.WriteUInt32LittleEndian(record[12..], (uint)roots[r].Entries);
-            BinaryPrimitives.WriteInt64LittleEndian(record[16..], roots[r].WalkTime.Ticks);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[SnapshotFormat.ROOT_ENTRIES_OFFSET..], (uint)roots[r].Entries);
+            BinaryPrimitives.WriteUInt32LittleEndian(record[SnapshotFormat.ROOT_FILES_OFFSET..], (uint)roots[r].Files);
+            BinaryPrimitives.WriteInt64LittleEndian(record[SnapshotFormat.ROOT_WALK_TICKS_OFFSET..], roots[r].WalkTime.Ticks);
             paths.AddRange(path);
         }
 

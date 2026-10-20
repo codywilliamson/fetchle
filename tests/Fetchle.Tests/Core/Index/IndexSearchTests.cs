@@ -133,6 +133,7 @@ public class IndexSearchTests
         await Assert.That(tree2.UnattachedDirs).IsEqualTo(0);
         await Assert.That(tree2.EntryCount).IsEqualTo(walked + 1);
         await Assert.That(tree2.Roots[0].Entries).IsEqualTo(walked);
+        await Assert.That(tree2.Roots[0].Files).IsEqualTo(WalkHelpers.NaiveWalk(tree.Root).Count(File.Exists));
     }
 
     static IEnumerable<SearchRequest> Requests(string query, string root)

@@ -48,14 +48,17 @@ static class SnapshotFormat
     public const int SEGMENT_BLOB = 4;
     // ascending ids of segments with non-ascii bytes, the only ones that need decoding to match
     public const int NON_ASCII = 5;
-    // per root: u32 entry id, u32 path offset, u32 path length, u32 entries, i64 walk time ticks
+    // per root: u32 entry id, u32 path offset, u32 path length, u32 entries, u32 files, u32 reserved, i64 walk time ticks
     public const int ROOTS = 6;
     public const int ROOT_PATHS = 7;
     public const int SECTION_COUNT = 8;
 
     public const int HEADER_SIZE = SECTION_TABLE_OFFSET + SECTION_COUNT * SECTION_ENTRY_SIZE;
 
-    public const int ROOT_RECORD_SIZE = 24;
+    public const int ROOT_RECORD_SIZE = 32;
+    public const int ROOT_ENTRIES_OFFSET = 12;
+    public const int ROOT_FILES_OFFSET = 16;
+    public const int ROOT_WALK_TICKS_OFFSET = 24;
 
     public const uint NO_PARENT = uint.MaxValue;
 

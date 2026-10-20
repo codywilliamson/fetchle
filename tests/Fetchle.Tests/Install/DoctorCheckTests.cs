@@ -10,7 +10,7 @@ public class DoctorCheckTests
     static readonly string Root = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar);
 
     static SnapshotInfo Snapshot(params string[] roots) =>
-        new("snapshot.fidx", Now.AddHours(-2), 1000, 500, 40_000, roots.Select(r => new SnapshotRoot(r, 1000, TimeSpan.FromMilliseconds(5))).ToList());
+        new("snapshot.fidx", Now.AddHours(-2), 1000, 500, 40_000, roots.Select(r => new SnapshotRoot(r, 1000, 1000, TimeSpan.FromMilliseconds(5))).ToList());
 
     [Test]
     [Arguments(0, 0, "Fail")]

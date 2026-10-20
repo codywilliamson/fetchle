@@ -1,6 +1,7 @@
 namespace Fetchle.Core.Index;
 
-public sealed record SnapshotRoot(string Path, int Entries, TimeSpan WalkTime);
+// Entries counts files and dirs below the root, Files only the files
+public sealed record SnapshotRoot(string Path, int Entries, int Files, TimeSpan WalkTime);
 
 public sealed record SnapshotInfo(string File, DateTimeOffset BuiltAt, int Entries, int Segments, long Bytes, IReadOnlyList<SnapshotRoot> Roots)
 {

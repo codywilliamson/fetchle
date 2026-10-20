@@ -34,6 +34,7 @@ static class TreeAssembler
         // one queue for every root: dequeuing in id order is what keeps the parent column from ever decreasing
         var queue = new Queue<(uint Id, string Path, int Root)>();
         var perRoot = new int[walks.Count];
+        var filesPerRoot = new int[walks.Count];
         var next = (uint)walks.Count;
         var attached = 0;
 
@@ -63,6 +64,7 @@ static class TreeAssembler
                 names[id] = (uint)Intern(name, segments, ref lookup);
                 perRoot[dir.Root]++;
                 var isDirectory = collector.IsDirectory(e);
+                filesPerRoot[dir.Root] += isDirectory ? 0 : 1;
                 flags[id] = isDirectory ? SnapshotFormat.FLAG_DIRECTORY : (byte)0;
                 if (isDirectory)
                 {
@@ -75,7 +77,7 @@ static class TreeAssembler
         var roots = new List<TreeRoot>(walks.Count);
         for (var r = 0; r < walks.Count; r++)
         {
-            roots.Add(new TreeRoot(walks[r].Path, perRoot[r], walks[r].WalkTime));
+            roots.Add(new TreeRoot(walks[r].Path, perRoot[r], filesPerRoot[r], walks[r].WalkTime));
         }
 
         // entries in groups that never attached are dropped, so trim to what was placed

@@ -56,7 +56,7 @@ static class IndexCommand
         foreach (var root in info.Roots)
         {
             var state = configured.Exists(r => r.Equals(root.Path, PathComparison.Default)) ? "" : "  (no longer configured)";
-            ctx.Out.WriteLine($"root      {root.Path}  {root.Entries:N0} entries, walked in {root.WalkTime.TotalMilliseconds:0} ms{state}");
+            ctx.Out.WriteLine($"root      {root.Path}  {root.Files:N0} files, {root.Entries - root.Files:N0} dirs, walked in {root.WalkTime.TotalMilliseconds:0} ms{state}");
         }
 
         foreach (var root in configured)

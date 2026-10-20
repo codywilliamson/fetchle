@@ -65,7 +65,7 @@ public sealed class IndexedFileSearch(PruneRules prune, IndexStore store) : IFil
         {
             var full = Path.GetFullPath(root);
             var indexed = info?.Roots.FirstOrDefault(r => RootsConfig.Covers(r.Path, full));
-            status.Add(new RootStatus(full, indexed?.Entries, indexed is null ? null : info!.BuiltAt));
+            status.Add(new RootStatus(full, indexed?.Files, indexed is null ? null : info!.BuiltAt));
         }
         return new IndexStatus(status, VectorsComplete: false, WatcherLive: false);
     }

@@ -217,12 +217,13 @@ static class SnapshotChecks
             if (BinaryPrimitives.ReadUInt32LittleEndian(record) != (uint)r || length == 0
                 || start > (uint)paths.Length || length > (uint)paths.Length - start
                 || !Utf8.IsValid(paths.Slice((int)start, (int)length))
-                || BinaryPrimitives.ReadInt64LittleEndian(record[16..]) < 0)
+                || BinaryPrimitives.ReadUInt32LittleEndian(record[SnapshotFormat.ROOT_FILES_OFFSET..]) > BinaryPrimitives.ReadUInt32LittleEndian(record[SnapshotFormat.ROOT_ENTRIES_OFFSET..])
+                || BinaryPrimitives.ReadInt64LittleEndian(record[SnapshotFormat.ROOT_WALK_TICKS_OFFSET..]) < 0)
             {
                 return "bad root record";
             }
 
-            entries += BinaryPrimitives.ReadUInt32LittleEndian(record[12..]);
+            entries += BinaryPrimitives.ReadUInt32LittleEndian(record[SnapshotFormat.ROOT_ENTRIES_OFFSET..]);
         }
 
         return entries == layout.EntryCount ? null : "root entry counts don't add up";

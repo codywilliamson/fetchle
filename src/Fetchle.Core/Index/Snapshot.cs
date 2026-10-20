@@ -76,8 +76,10 @@ sealed unsafe class Snapshot : IDisposable
         for (var r = 0; r < roots.Length; r++)
         {
             var record = records[(r * SnapshotFormat.ROOT_RECORD_SIZE)..];
-            roots[r] = new SnapshotRoot(_rootPaths[r], (int)BinaryPrimitives.ReadUInt32LittleEndian(record[12..]),
-                TimeSpan.FromTicks(BinaryPrimitives.ReadInt64LittleEndian(record[16..])));
+            roots[r] = new SnapshotRoot(_rootPaths[r],
+                (int)BinaryPrimitives.ReadUInt32LittleEndian(record[SnapshotFormat.ROOT_ENTRIES_OFFSET..]),
+                (int)BinaryPrimitives.ReadUInt32LittleEndian(record[SnapshotFormat.ROOT_FILES_OFFSET..]),
+                TimeSpan.FromTicks(BinaryPrimitives.ReadInt64LittleEndian(record[SnapshotFormat.ROOT_WALK_TICKS_OFFSET..])));
         }
 
         return new SnapshotInfo(Source, DateTimeOffset.FromUnixTimeMilliseconds(_layout.BuiltAtUnixMs), EntryCount, SegmentCount, _length, roots);

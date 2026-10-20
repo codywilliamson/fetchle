@@ -1,95 +1,103 @@
 using System.Diagnostics;
+using Fetchle.Core.Index;
+using Fetchle.Core.Walking;
 
 namespace Fetchle.Cli.Install;
 
-internal sealed record RemovalResult(List<string> Remaining, bool CleanupSpawned);
+// Locked: our files still there. Kept: our dirs left because they hold something we didn't make
+internal sealed record RemovalResult(List<string> Locked, bool CleanupSpawned, List<string> Kept);
 
-// deletes directory trees, including the one holding the running exe. windows can't delete a running exe,
-// so whatever is still there afterwards is handed to a detached cmd that retries until this process has exited
+// deletes the files fetchle itself puts in its install and data dirs, then each dir only if that left it empty.
+// nothing is deleted recursively, so a receipt pointing at a dir someone else uses costs them nothing.
+// windows can't delete a running exe, so whatever is still there afterwards is handed to a detached cmd
+// that retries until this process has exited
 internal static class TreeRemoval
 {
     const string EMPTY_PARENT_NAME = "fetchle";
 
-    public static RemovalResult Remove(IReadOnlyList<string> dirs)
+    // every name the install scripts, setup, roots and the index write
+    static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new"];
+    static readonly string[] DataFiles = ["receipt.json", "receipt.json.tmp", "config.json", "config.json.tmp"];
+    static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE];
+    const string INDEX_DIR = "index";
+
+    public static RemovalResult Remove(string installDir, string dataDir)
     {
-        foreach (var dir in dirs)
+        var owned = OwnedPaths(installDir, dataDir);
+        foreach (var file in owned.Files)
         {
-            DeleteBestEffort(dir);
+            TryDeleteFile(file);
         }
 
-        var remaining = dirs.Where(Directory.Exists).ToList();
-        var parents = EmptyParents(dirs);
-        if (remaining.Count == 0)
+        foreach (var dir in owned.Dirs)
         {
-            foreach (var parent in parents)
-            {
-                TryDeleteEmpty(parent);
-            }
+            TryDeleteEmpty(dir);
+        }
 
-            return new RemovalResult([], false);
+        var locked = owned.Files.Where(File.Exists).ToList();
+        if (locked.Count == 0)
+        {
+            return new RemovalResult([], false, owned.Dirs.Where(Directory.Exists).ToList());
         }
 
         if (!OperatingSystem.IsWindows())
         {
-            return new RemovalResult(remaining, false);
+            return new RemovalResult(locked, false, []);
         }
 
-        SpawnCleanup(CleanupScript.Build(remaining, parents));
-        return new RemovalResult(remaining, true);
+        SpawnCleanup(CleanupScript.Build(locked, owned.Dirs));
+        return new RemovalResult(locked, true, []);
     }
 
-    // a parent called fetchle only exists because we made it, so it goes when it's empty
-    static List<string> EmptyParents(IReadOnlyList<string> dirs) => dirs
-        .Select(Path.GetDirectoryName)
-        .OfType<string>()
-        .Where(parent => Path.GetFileName(parent).Equals(EMPTY_PARENT_NAME, StringComparison.OrdinalIgnoreCase))
-        .Distinct()
-        .ToList();
-
-    static void DeleteBestEffort(string dir)
+    // files first, then dirs innermost first, then empty parents named fetchle (only there because we made them)
+    internal static (List<string> Files, List<string> Dirs) OwnedPaths(string installDir, string dataDir)
     {
-        if (!Directory.Exists(dir))
+        var index = Path.Combine(dataDir, INDEX_DIR);
+        var files = InstallFiles.Select(f => Path.Combine(installDir, f))
+            .Concat(DataFiles.Select(f => Path.Combine(dataDir, f)))
+            .Concat(IndexFiles.Select(f => Path.Combine(index, f)))
+            .ToList();
+        var dirs = new List<string> { index, installDir, dataDir };
+        foreach (var parent in new[] { installDir, dataDir }.Select(Path.GetDirectoryName).OfType<string>())
         {
-            return;
+            if (Path.GetFileName(parent).Equals(EMPTY_PARENT_NAME, StringComparison.OrdinalIgnoreCase)
+                && !dirs.Exists(d => d.Equals(parent, PathComparison.Default)))
+            {
+                dirs.Add(parent);
+            }
         }
+        return (files, dirs);
+    }
 
-        // a link is removed without following it
-        if (new DirectoryInfo(dir).Attributes.HasFlag(FileAttributes.ReparsePoint))
+    static void TryDeleteFile(string file)
+    {
+        try
         {
-            TryDeleteEmpty(dir);
-            return;
-        }
-
-        foreach (var file in Directory.EnumerateFiles(dir))
-        {
-            try
+            if (File.Exists(file))
             {
                 File.SetAttributes(file, FileAttributes.Normal);
                 File.Delete(file);
             }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-            {
-                // locked, the cleanup pass takes it
-            }
         }
-
-        foreach (var child in Directory.EnumerateDirectories(dir))
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            DeleteBestEffort(child);
+            // locked, the cleanup pass takes it
         }
-
-        TryDeleteEmpty(dir);
     }
 
+    // never recursive: a dir that still holds something we didn't make stays
     static void TryDeleteEmpty(string dir)
     {
         try
         {
-            Directory.Delete(dir);
+            if (Directory.Exists(dir) && !Directory.EnumerateFileSystemEntries(dir).Any())
+            {
+                Directory.Delete(dir);
+            }
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            // not empty or locked
+            // raced or locked
         }
     }
 
@@ -115,11 +123,13 @@ internal static class CleanupScript
     const int RETRIES = 60;
     const string SLEEP_ONE_SECOND = "ping -n 2 127.0.0.1 >nul";
 
-    // each dir: retry rmdir for about a minute, which outlasts this process exiting. each loop is parenthesized or the next one nests inside it. echo is off because for loops echo into our stdout pipe, and cmd dies when that breaks. emptied parents go last
-    public static string Build(IReadOnlyList<string> dirs, IReadOnlyList<string> emptyParents)
+    // each locked file: retry del for about a minute, which outlasts this process exiting. then each dir with a
+    // plain rmdir, which only removes it if empty. loops are parenthesized or the next one nests inside it. echo
+    // is off because for loops echo into our stdout pipe, and cmd dies when that breaks
+    public static string Build(IReadOnlyList<string> files, IReadOnlyList<string> dirs)
     {
-        var steps = dirs.Select(dir => $"(for /l %n in (1,1,{RETRIES}) do if exist \"{dir}\" ({SLEEP_ONE_SECOND} & rmdir /s /q \"{dir}\" 2>nul))").ToList();
-        steps.AddRange(emptyParents.Select(parent => $"rmdir \"{parent}\" 2>nul"));
+        var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist \"{file}\" ({SLEEP_ONE_SECOND} & del /f /q \"{file}\" 2>nul))").ToList();
+        steps.AddRange(dirs.Select(dir => $"rmdir \"{dir}\" 2>nul"));
         return "@echo off & " + string.Join(" & ", steps);
     }
 }

@@ -36,12 +36,49 @@ public class UninstallPlanTests
     }
 
     [Test]
-    public async Task Cleanup_script_retries_each_dir_then_drops_empty_parents()
+    public async Task Cleanup_script_retries_each_file_then_removes_only_empty_dirs()
     {
-        var script = CleanupScript.Build([@"C:\f\bin", @"C:\f"], [@"C:\f"]);
+        var script = CleanupScript.Build([@"C:inetchle.exe"], [@"C:in", @"C:"]);
         await Assert.That(script).StartsWith("@echo off");
-        await Assert.That(script).Contains("if exist \"C:\\f\\bin\"");
-        await Assert.That(script).Contains("rmdir /s /q \"C:\\f\\bin\"");
-        await Assert.That(script).EndsWith("rmdir \"C:\\f\" 2>nul");
+        await Assert.That(script).Contains("if exist \"C:\f\bin\fetchle.exe\"");
+        await Assert.That(script).Contains("del /f /q \"C:\f\bin\fetchle.exe\"");
+        await Assert.That(script).DoesNotContain("/s");
+        await Assert.That(script).EndsWith("rmdir \"C:\f\" 2>nul");
+    }
+
+    [Test]
+    public async Task Removal_keeps_files_fetchle_did_not_create()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"fetchle-removal-{Guid.NewGuid():N}");
+        var install = Path.Combine(root, "tools");
+        var data = Path.Combine(root, "work");
+        Directory.CreateDirectory(Path.Combine(data, "index"));
+        Directory.CreateDirectory(install);
+        File.WriteAllText(Path.Combine(install, OperatingSystem.IsWindows() ? "fetchle.exe" : "fetchle"), "");
+        File.WriteAllText(Path.Combine(install, "other-tool"), "");
+        File.WriteAllText(Path.Combine(data, "receipt.json"), "");
+        File.WriteAllText(Path.Combine(data, "index", "snapshot.fidx"), "");
+        File.WriteAllText(Path.Combine(data, "notes.txt"), "mine");
+
+        var result = TreeRemoval.Remove(install, data);
+
+        await Assert.That(result.Locked).IsEmpty();
+        await Assert.That(File.Exists(Path.Combine(install, "other-tool"))).IsTrue();
+        await Assert.That(File.ReadAllText(Path.Combine(data, "notes.txt"))).IsEqualTo("mine");
+        await Assert.That(File.Exists(Path.Combine(data, "receipt.json"))).IsFalse();
+        await Assert.That(Directory.Exists(Path.Combine(data, "index"))).IsFalse();
+        await Assert.That(result.Kept).IsEquivalentTo([install, data]);
+        Directory.Delete(root, recursive: true);
+    }
+
+    [Test]
+    public async Task A_dir_above_home_is_refused()
+    {
+        var parent = Path.GetDirectoryName(Home)!;
+        await Assert.That(UninstallPlan.From(WithDirs(Path.Combine(Home, "f", "bin"), parent), Home).Problem).IsNotNull();
+        if (!OperatingSystem.IsLinux())
+        {
+            await Assert.That(UninstallPlan.From(WithDirs(Path.Combine(Home, "f", "bin"), Home.ToUpperInvariant()), Home).Problem).IsNotNull();
+        }
     }
 }

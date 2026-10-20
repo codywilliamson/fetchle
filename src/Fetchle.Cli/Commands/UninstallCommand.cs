@@ -43,7 +43,7 @@ static class UninstallCommand
             return ExitCode.Success;
         }
 
-        var plan = UninstallPlan.From(receipt, PathPersistence.Home(env));
+        var plan = UninstallPlan.From(receipt, Core.Storage.UserDirs.Home(env.GetVariable));
         if (plan.Problem is not null)
         {
             ctx.Error.WriteLine($"fetchle uninstall: refusing, {plan.Problem}");
@@ -93,8 +93,13 @@ static class UninstallCommand
             }
         }
 
-        var result = TreeRemoval.Remove([receipt.InstallDir, receipt.DataDir]);
-        if (result.Remaining.Count == 0)
+        var result = TreeRemoval.Remove(receipt.InstallDir, receipt.DataDir);
+        foreach (var kept in result.Kept)
+        {
+            ctx.Out.WriteLine($"left {kept}: it holds files fetchle didn't create");
+        }
+
+        if (result.Locked.Count == 0)
         {
             ctx.Out.WriteLine("removed fetchle");
             return ExitCode.Success;
@@ -102,11 +107,11 @@ static class UninstallCommand
 
         if (result.CleanupSpawned)
         {
-            ctx.Out.WriteLine($"removed fetchle, except {string.Join(", ", result.Remaining)}, which hold the running exe. a background cleanup deletes them within seconds of this process exiting");
+            ctx.Out.WriteLine($"removed fetchle, except {string.Join(", ", result.Locked)}, still in use by this process. a background cleanup deletes them within seconds of it exiting");
             return ExitCode.Success;
         }
 
-        ctx.Error.WriteLine($"fetchle uninstall: couldn't delete {string.Join(", ", result.Remaining)}");
+        ctx.Error.WriteLine($"fetchle uninstall: couldn't delete {string.Join(", ", result.Locked)}");
         return ExitCode.InstallProblem;
     }
 

@@ -1,3 +1,6 @@
+using Fetchle.Core.Storage;
+using Fetchle.Core.Walking;
+
 namespace Fetchle.Cli.Install;
 
 // what uninstall would do, decided from the receipt alone
@@ -11,14 +14,16 @@ internal sealed record UninstallPlan(Receipt Receipt, List<string> Steps, string
             steps.Add(edit.File is null ? $"remove {edit.Entry} from the user PATH" : $"remove the fetchle block from {edit.File}");
         }
 
-        steps.Add($"delete {receipt.InstallDir}");
-        steps.Add($"delete {receipt.DataDir}");
+        steps.Add($"delete fetchle's files in {receipt.InstallDir}, then the dir if that empties it");
+        steps.Add($"delete fetchle's files in {receipt.DataDir}, then the dir if that empties it");
         return new UninstallPlan(receipt, steps, FindUnsafe([receipt.InstallDir, receipt.DataDir], home));
     }
 
-    // a corrupt receipt must not turn uninstall into rm -rf of something big
+    // removal is file by file and never recursive, so this is a second fence: a corrupt receipt naming a root,
+    // home or anything above home is refused outright
     static string? FindUnsafe(IEnumerable<string> dirs, string home)
     {
+        var fullHome = Path.TrimEndingDirectorySeparator(Path.GetFullPath(home));
         foreach (var dir in dirs)
         {
             if (string.IsNullOrWhiteSpace(dir) || !Path.IsPathFullyQualified(dir))
@@ -28,9 +33,9 @@ internal sealed record UninstallPlan(Receipt Receipt, List<string> Steps, string
 
             var full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dir));
             var root = Path.TrimEndingDirectorySeparator(Path.GetPathRoot(full) ?? "");
-            if (full == root || full == Path.TrimEndingDirectorySeparator(Path.GetFullPath(home)))
+            if (full.Equals(root, PathComparison.Default) || RootsConfig.Covers(full, fullHome))
             {
-                return $"'{dir}' is a root or the home directory";
+                return $"'{dir}' is a root, the home directory or above it";
             }
         }
 

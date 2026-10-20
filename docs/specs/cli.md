@@ -25,7 +25,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 |---|---|---|
 | `--limit <n>` | 10 (TTY), 20 (agent) | Max results. At least 1, or exit 2. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
-| `--root <path>` | all roots | Restrict to one root. Repeatable. Until `roots` ships, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
+| `--root <path>` | all roots | Restrict to one root. Repeatable. With no roots configured, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |
 | `--since <duration>` | none | Modified within, e.g. `3d`. |
 | `--type <f\|d>` | both | Files or directories only. |
@@ -48,6 +48,16 @@ When several apply, the first match wins: `--json`, `--plain`, agent env var, re
 Which env vars each agent actually sets must be confirmed before the agent mode ships. Until then only `CLAUDECODE` is checked.
 
 Pretty mode uses synchronized output (DEC 2026) for live regions, emits OSC 9;4 taskbar progress while indexing (rate-limited), and respects `NO_COLOR`. `NO_COLOR` drops color but keeps bold, dim and links, per no-color.org.
+
+## Roots and the index
+
+`fetchle roots add <path>` records a directory in `<data dir>/config.json`. A root nested inside another root, or containing one, is refused with exit 2, so the snapshot never holds an entry twice. `roots remove <path>` drops it, `roots list` (or bare `roots`) prints one per line.
+
+`fetchle index rebuild` walks every configured root and swaps in a new snapshot at `<data dir>/index/snapshot.fidx`. With no roots it exits 2. When another rebuild holds `index/write.lock`, it exits 3. `fetchle index status` (or bare `index`) prints the snapshot's age, entry and unique-name counts, size, bytes per entry and per-root entry counts and walk times; with no snapshot, or one that fails validation, it exits 3.
+
+Search answers every root the snapshot covers, including any directory under an indexed root, from the snapshot, and walks the rest live. Results are the same paths, scores and order a live walk of the same tree would give. The snapshot is as fresh as the last rebuild: files made since don't show up, deleted ones still do until the next rebuild. A snapshot that exists but fails validation (truncated, corrupt, another version or endianness) is exit 3 with a hint to rebuild, never a partial answer.
+
+`FETCHLE_DATA_DIR` overrides the data dir, for tests and benches.
 
 ## `doctor` checks
 

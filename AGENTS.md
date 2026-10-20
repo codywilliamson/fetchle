@@ -4,7 +4,7 @@ fetchle is a ranked file finder for agents and humans: one NativeAOT .NET 10 bin
 
 ## Status
 
-Pre-alpha. Every spec'd command exists, but most exit 2 with "not implemented yet". Search runs end to end on the parallel `FastWalker` and a placeholder substring ranker. The path store, rankers, embeddings and watcher are the next work; [docs/roadmap.md](docs/roadmap.md) orders them.
+Pre-alpha, finishing v0.1. Search reads a memory-mapped snapshot of the configured roots (`src/Fetchle.Core/Index/`) and walks anything it doesn't cover with the parallel `FastWalker`, ranked by a placeholder substring ranker. `roots` and `index` work; commands not built yet exit 2 with "not implemented yet". Rankers, embeddings and the watcher are next; [docs/roadmap.md](docs/roadmap.md) orders them.
 
 ## Where things are specified
 

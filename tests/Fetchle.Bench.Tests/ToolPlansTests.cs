@@ -7,7 +7,7 @@ public class ToolPlansTests
     const string FETCHLE = "fetchle";
     // absolute, because the plans expand the root to a full path
     static readonly string ROOT = Path.GetFullPath("corpus-root");
-    static readonly IndexDirs Dirs = new("data-query", "data-rebuild");
+    static readonly IndexDirs Dirs = new("data-query", "data-rebuild", "data-live");
 
     static readonly LocatedTools Everything = new(FETCHLE, "rg", "fd", "pwsh", "cmd", "find");
 
@@ -74,7 +74,7 @@ public class ToolPlansTests
     public async Task Cold_rebuild_deletes_its_own_snapshot_before_each_run()
     {
         using var scratch = new TempDir();
-        var dirs = new IndexDirs("unused", scratch.Path);
+        var dirs = new IndexDirs("unused", scratch.Path, "unused-live");
         var plan = ToolPlans.For(Everything, ROOT, dirs).Single(p => p.Timed.Tool == "fetchle cold rebuild");
         var snapshot = Path.Combine(scratch.Path, "index", "snapshot.fidx");
         Directory.CreateDirectory(Path.GetDirectoryName(snapshot)!);
@@ -92,6 +92,17 @@ public class ToolPlansTests
     {
         var plan = Plan(Everything, "fetchle cold rebuild");
         await Assert.That(() => plan.Timed.BeforeEachRun!()).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task Live_walks_get_an_empty_data_dir_of_their_own()
+    {
+        var plans = ToolPlans.For(Everything, ROOT, Dirs);
+        foreach (var tool in (string[])["fetchle live walk", "fetchle bare walk"])
+        {
+            var command = plans.Single(p => p.Timed.Tool == tool).Timed;
+            await Assert.That(command.Environment![Fetchle.Core.Storage.FetchleDirs.DATA_DIR_VARIABLE]).IsEqualTo("data-live");
+        }
     }
 
     [Test]

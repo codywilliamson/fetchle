@@ -4,7 +4,8 @@ using Fetchle.Core.Storage;
 namespace Fetchle.Bench;
 
 // isolated fetchle data dirs for the indexed commands, so the bench never touches the real install
-public sealed record IndexDirs(string Query, string Rebuild);
+// Live stays empty, so a live walk never opens a snapshot that could answer it
+public sealed record IndexDirs(string Query, string Rebuild, string Live);
 
 // every command the external bench times, built from nothing but the located tools and the corpus root
 public static class ToolPlans
@@ -75,16 +76,17 @@ public static class ToolPlans
     static List<ToolPlan> FetchlePlans(string fetchle, string root, IndexDirs indexDirs)
     {
         string[] liveWalk = ["--root", root, "--budget", BUDGET, "--plain"];
+        var liveEnv = DataDirEnvironment(indexDirs.Live);
         var queryEnv = DataDirEnvironment(indexDirs.Query);
         var rebuildEnv = DataDirEnvironment(indexDirs.Rebuild);
         var rebuildSnapshot = new IndexStore(new FetchleDirs(indexDirs.Rebuild, indexDirs.Rebuild).Index).SnapshotPath;
 
         return
         [
-            Plain(new ToolCommand("fetchle live walk", fetchle, [QUERY, .. liveWalk], SUCCESS)),
+            Plain(new ToolCommand("fetchle live walk", fetchle, [QUERY, .. liveWalk], SUCCESS, liveEnv)),
 
             // the walk the rebuild is compared to: same roots, same prune rules, nothing matches so nothing is ranked or printed
-            Plain(new ToolCommand("fetchle bare walk", fetchle, [NO_MATCH_QUERY, .. liveWalk], NO_MATCH)),
+            Plain(new ToolCommand("fetchle bare walk", fetchle, [NO_MATCH_QUERY, .. liveWalk], NO_MATCH, liveEnv)),
 
             // no --root, so it reads the configured roots through the snapshot
             new ToolPlan(

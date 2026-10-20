@@ -14,6 +14,26 @@ public static class FetchleProcess
 
     // every run gets a data dir of its own unless the test passes one, so nothing touches the real install.
     // environment overrides win over everything else; exe runs a copy instead of the shared build
+    const int ETXTBSY = 26;
+    const int START_RETRIES = 20;
+
+    // a test that just copied an exe can race another test's fork: the child briefly inherits the copy's
+    // still-open write fd, and exec of the copy fails with ETXTBSY until that child execs. retry that one error
+    static async Task<Process> StartAsync(ProcessStartInfo psi)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return Process.Start(psi)!;
+            }
+            catch (System.ComponentModel.Win32Exception e) when (e.NativeErrorCode == ETXTBSY && !OperatingSystem.IsWindows() && attempt < START_RETRIES)
+            {
+                await Task.Delay(50);
+            }
+        }
+    }
+
     public static async Task<CliRun> RunAsync(string[] args, bool agent = false, string? dataDir = null, IReadOnlyDictionary<string, string>? environment = null, string? exe = null)
     {
         var psi = new ProcessStartInfo(exe ?? NativeExe.Path, args)
@@ -36,7 +56,7 @@ public static class FetchleProcess
             psi.Environment[name] = value;
         }
 
-        using var process = Process.Start(psi)!;
+        using var process = await StartAsync(psi);
         // nothing here answers prompts
         process.StandardInput.Close();
         using var stdout = new MemoryStream();

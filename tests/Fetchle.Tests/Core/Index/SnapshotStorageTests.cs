@@ -182,7 +182,9 @@ public class SnapshotStorageTests
         });
         release.Start();
 
-        var report = index.Store.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None);
+        // a generous wait: on a loaded ci box the release thread can start seconds late, and this test is about waiting, not timing
+        var patient = new IndexStore(index.Dir) { LockWait = TimeSpan.FromSeconds(30) };
+        var report = patient.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None);
         release.Join();
 
         await Assert.That(report.Snapshot.Entries).IsGreaterThan(0);

@@ -29,9 +29,12 @@ bin_dir="$HOME/.local/share/fetchle/bin"
 exe="$bin_dir/fetchle"
 tree="$work/tree"
 tree2="$work/other-root"
-mkdir -p "$tree" "$tree2"
+# both roots hold a subdirectory: a multi-root rebuild once failed its own parent-order check on exactly that
+mkdir -p "$tree/sub" "$tree2/sub"
 echo '{}' > "$tree/settings.json"
 echo x > "$tree2/notes.txt"
+echo x > "$tree/sub/a.txt"
+echo x > "$tree2/sub/b.txt"
 
 # agent mode adds a footer line to query output
 unset CLAUDECODE FETCHLE_INSTALL_DIR FETCHLE_DATA_DIR XDG_DATA_HOME || true

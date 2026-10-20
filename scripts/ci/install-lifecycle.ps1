@@ -14,7 +14,7 @@ $Pwsh = (Get-Process -Id $PID).Path
 $Work = Join-Path ([System.IO.Path]::GetTempPath()) "fetchle-lifecycle-$([guid]::NewGuid().ToString('N'))"
 $LocalAppData = Join-Path $Work 'localappdata'
 $Tree = Join-Path $Work 'tree'
-# flat roots on purpose: IndexStore.Rebuild throws 'bad entry' when a multi-root build has a subdirectory in its first root (reported separately)
+# both roots hold a subdirectory: a multi-root rebuild once failed its own parent-order check on exactly that
 $Tree2 = Join-Path $Work 'other-root'
 $Bin = Join-Path $LocalAppData 'fetchle\bin'
 $Data = Join-Path $LocalAppData 'fetchle'
@@ -133,6 +133,9 @@ function Invoke-Cycle([int] $Number) {
 New-Item -ItemType Directory -Force -Path $Tree, $Tree2, $LocalAppData | Out-Null
 Set-Content (Join-Path $Tree 'settings.json') '{}'
 Set-Content (Join-Path $Tree2 'notes.txt') 'x'
+New-Item -ItemType Directory -Force -Path (Join-Path $Tree 'sub'), (Join-Path $Tree2 'sub') | Out-Null
+Set-Content (Join-Path $Tree 'sub.txt') 'x'
+Set-Content (Join-Path $Tree2 'sub.txt') 'x'
 
 $script:UserPathAtStart = Get-UserPathRaw
 $archivePath = (Resolve-Path $Archive).Path

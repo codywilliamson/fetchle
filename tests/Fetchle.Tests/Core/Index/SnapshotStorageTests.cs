@@ -163,8 +163,27 @@ public class SnapshotStorageTests
         using var tree = FixtureTree.Create(fillerFiles: 10);
         using var index = new TempIndex();
         using var held = new FileStream(index.Store.LockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        var store = new IndexStore(index.Dir) { LockWait = TimeSpan.FromMilliseconds(200) };
 
-        await Assert.That(() => index.Store.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None)).Throws<IndexBusyException>();
+        await Assert.That(() => store.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None)).Throws<IndexBusyException>();
+    }
+
+    [Test]
+    public async Task A_rebuild_waits_out_a_lock_released_moments_later()
+    {
+        using var tree = FixtureTree.Create(fillerFiles: 10);
+        using var index = new TempIndex();
+        var held = new FileStream(index.Store.LockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        var release = Task.Run(async () =>
+        {
+            await Task.Delay(300);
+            held.Dispose();
+        });
+
+        var report = index.Store.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None);
+        await release;
+
+        await Assert.That(report.Snapshot.Entries).IsGreaterThan(0);
     }
 
     [Test]

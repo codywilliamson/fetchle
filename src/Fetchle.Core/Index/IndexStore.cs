@@ -12,6 +12,7 @@ public sealed class IndexStore(string directory)
     public const string SNAPSHOT_FILE = "snapshot.fidx";
     public const string TEMP_SUFFIX = ".tmp";
     public const string LOCK_FILE = "write.lock";
+    const int LOCK_RETRY_MS = 50;
 
     public string Directory { get; } = directory;
 
@@ -20,6 +21,9 @@ public sealed class IndexStore(string directory)
     public string TempPath => SnapshotPath + TEMP_SUFFIX;
 
     public string LockPath => Path.Combine(Directory, LOCK_FILE);
+
+    // how long a rebuild waits for another writer before giving up
+    internal TimeSpan LockWait { get; init; } = TimeSpan.FromSeconds(3);
 
     // crash tests stop a rebuild between steps here
     internal Action<RebuildStep>? BeforeStep { get; init; }
@@ -118,16 +122,26 @@ public sealed class IndexStore(string directory)
         return new RootWalk(normalized, collectors, Stopwatch.GetElapsedTime(started));
     }
 
+    // a writer that just died can hold its handle a moment past exit on windows, and a second rebuild started
+    // right after the first should wait it out rather than fail, so this retries for a few seconds
     FileStream AcquireLock()
     {
-        try
+        var waited = Stopwatch.StartNew();
+        while (true)
         {
-            // FileShare.None is a real exclusive lock on windows and an flock on unix; the os drops it if we die
-            return new FileStream(LockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 1);
-        }
-        catch (IOException)
-        {
-            throw new IndexBusyException(LockPath);
+            try
+            {
+                // FileShare.None is a real exclusive lock on windows and an flock on unix; the os drops it if we die
+                return new FileStream(LockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, bufferSize: 1);
+            }
+            catch (IOException) when (waited.Elapsed < LockWait)
+            {
+                Thread.Sleep(LOCK_RETRY_MS);
+            }
+            catch (IOException)
+            {
+                throw new IndexBusyException(LockPath);
+            }
         }
     }
 

@@ -2,6 +2,10 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-20: pin the sdk to an exact version
+
+`global.json` pins 10.0.401 with `rollForward: disable`. With `10.0.400` plus `latestFeature`, setup-dotnet installed 10.0.402 the day it shipped, the SDK-added ILLink package moved from 10.0.12 to 10.0.13, and locked restore failed on all three CI runners while the dev box still had 10.0.401. An exact pin makes the SDK move only in a commit that also refreshes the lock files.
+
 ## 2026-10-20: v0.1 index targets, and the snapshot swap protocol
 
 Targets, proposed before building and kept unless a measurement says no. All exe numbers are process wall time including startup, 20+ runs, p50/p95, on the quiet self-hosted runners, never on a loaded dev box.

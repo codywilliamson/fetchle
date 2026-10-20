@@ -13,35 +13,16 @@ runs:
   steps:
     - name: fetch rg and fd (windows)
       if: runner.os == 'Windows'
-      shell: powershell
+      shell: cmd
       env:
         TOOLS_DIR: ${{ inputs.dir }}
         RG_URL: https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip
         RG_SHA256: 71b2fef860abe467217a538ff31de02f5258807c0129f771846f87bd029aafc5
         FD_URL: https://github.com/sharkdp/fd/releases/download/v10.5.0/fd-v10.5.0-x86_64-pc-windows-msvc.zip
         FD_SHA256: a227701b8551c35a9931d9f6da75503cf86d88e182d71fb849a70864c5d57cd7
-      run: |
-        $ErrorActionPreference = 'Stop'
-        # windows powershell 5.1: the runner has no pwsh. it needs tls 1.2 named, and its progress bar slows downloads
-        $ProgressPreference = 'SilentlyContinue'
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        New-Item -ItemType Directory -Force -Path $env:TOOLS_DIR | Out-Null
-        function Install-Tool($url, $sha256, $exe) {
-          $zip = Join-Path $env:RUNNER_TEMP ([IO.Path]::GetFileName($url))
-          Invoke-WebRequest -Uri $url -OutFile $zip
-          $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $zip).Hash.ToLowerInvariant()
-          if ($actual -ne $sha256) { throw "sha256 mismatch for ${url}: got $actual, want $sha256" }
-          $unpacked = "$zip.unpacked"
-          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $unpacked
-          Expand-Archive -LiteralPath $zip -DestinationPath $unpacked
-          $found = Get-ChildItem -Recurse -File -Path $unpacked -Filter $exe | Select-Object -First 1
-          if (-not $found) { throw "$exe not in $url" }
-          Copy-Item $found.FullName -Destination $env:TOOLS_DIR -Force
-        }
-        Install-Tool $env:RG_URL $env:RG_SHA256 'rg.exe'
-        Install-Tool $env:FD_URL $env:FD_SHA256 'fd.exe'
-        & (Join-Path $env:TOOLS_DIR 'rg.exe') --version
-        & (Join-Path $env:TOOLS_DIR 'fd.exe') --version
+      # windows powershell's execution policy on the runner blocks the script files actions writes for
+      # `shell: powershell`, so the script ships with the action and runs with the policy bypassed
+      run: powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${{ github.action_path }}/fetch-tools.ps1"
 
     - name: fetch rg and fd (linux)
       if: runner.os == 'Linux'

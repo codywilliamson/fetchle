@@ -84,7 +84,7 @@ jobs:
           dir: ${{ runner.temp }}/bench-tools
 
       - name: bench external
-        shell: powershell
+        shell: cmd
         env:
           FETCHLE_EXE: ${{ runner.temp }}/fetchle-exe/fetchle.exe
           FETCHLE_BENCH_TOOLS: ${{ runner.temp }}/bench-tools
@@ -163,10 +163,10 @@ jobs:
           global-json-file: global.json
 
       - name: benchmarkdotnet
-        shell: powershell
+        shell: cmd
         env:
           FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
-        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter '${{ inputs.filter || '*' }}'
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "${{ inputs.filter || '*' }}"
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

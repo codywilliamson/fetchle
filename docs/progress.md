@@ -1,26 +1,27 @@
 # v0.1 progress
 
-Resume notes for the v0.1 ship run (started 2026-10-20). Branch `v0.1-index`; the PR goes from it to main. Delete this file when v0.1 is tagged.
+Resume notes for the v0.1 ship run (2026-10-20). Branch `v0.1-index`, PR codywilliamson/fetchle#7 to main. Delete this file when v0.1 is tagged.
 
 ## Done means
 
-docs/roadmap.md's v0.1 exit check passes in CI: e2e green on windows, linux and macos; benchmark JSON committed; the install script installs, runs a query and uninstalls twice in a row on a clean runner. Targets are in docs/decisions.md (2026-10-20 entry).
+docs/roadmap.md's v0.1 exit check passes in CI: e2e green on windows, linux and macos; benchmark JSON committed; the install script installs, runs a query and uninstalls twice in a row on a clean runner. Targets and how they measured: docs/decisions.md, the 2026-10-20 entries.
 
 ## State
 
-- Path store and snapshot: built (`src/Fetchle.Core/Index/`). Format in `SnapshotFormat.cs`, swap protocol in `IndexStore.cs`, decision and spike in docs/decisions.md.
-- Search reads the snapshot for covered roots (`IndexedFileSearch`), walks the rest. Tests pin it to the walker's exact output (`tests/Fetchle.Tests/Core/Index/IndexSearchTests.cs`).
-- Storage tests: every-offset truncate and corrupt sweeps, structural fuzz without the checksum, crash at each rebuild step, swap under a live mapping, lock. E2E: sampled corrupt/truncate through the exe (exit 3), rebuild killed at ten points.
-- `roots add/remove/list`, `index status/rebuild`: done. `setup`, `uninstall`, `doctor`, install scripts, install CI job: a subagent on branch `v0.1-install`, merging when it reports.
-- Bench: 1M home corpus (`tests/Fetchle.Fixtures/HomeCorpus*.cs`), external runner with fetchle walk/index/rebuild, rg, fd, gci, dir, find and startup floors, `bench.yml` on the self-hosted runners, plus a BenchmarkDotNet job there. Results land as artifacts; commit `bench/results/external-*.json` and `Fetchle.Bench.*.json` from runner artifacts only.
+- Path store and snapshot: `src/Fetchle.Core/Index/`. Format in `SnapshotFormat.cs`, swap protocol in `IndexStore.cs`, drawn in `docs/diagrams/path-store.excalidraw`.
+- Search reads the snapshot for covered roots (`IndexedFileSearch`) and walks the rest; tests pin it to the walker's exact output.
+- `roots`, `index`, `setup`, `uninstall`, `doctor`, install scripts and `install.yml`: done.
+- Bench: 1M home corpus, external runner, `bench.yml` on the self-hosted runners with BenchmarkDotNet on both. Results committed in `bench/results/` from run 39456621264.
+- Reviews: an independent reviewer subagent, two rounds of GitHub Codex (the cap Cody set), then a local `codex review --base main -c model='"gpt-6-astra"'`. All findings fixed or answered on the PR.
 
 ## How to get numbers
 
-`gh workflow run bench.yml --ref <branch> [-f external=false] [-f filter='*IndexBenchmarks*']`, then `gh run download <id>`. Never quote numbers from the dev PC. BenchmarkDotNet's out-of-process toolchain fails locally while agent worktrees sit under `.claude/worktrees` (duplicate project names); `--inProcess` works for smoke checks.
+`gh workflow run bench.yml --ref <branch> [-f external=false] [-f filter='*IndexBenchmarks* *RebuildBenchmarks*']`, then `gh run download <id>`. Runs share one concurrency group, so dispatch one at a time or queued jobs get cancelled. Never quote numbers from the dev PC. BenchmarkDotNet's out-of-process toolchain fails locally while agent worktrees sit under `.claude/worktrees`; `--inProcess` works for smoke checks.
 
-## Open
+## Open, for after v0.1
 
-- Snapshot open at 1M looked well over 5 ms in an in-process dev-box run (not a result). Trimmed blob passes on `bench/open-trim`, waiting on before/after quiet-runner numbers.
-- The 25 ms warm-query target includes process start; the quiet-runner `fetchle --version` floor decides whether it's reachable.
-- Excalidraw diagram of the file layout and swap protocol: `docs/diagrams/path-store.excalidraw`.
-- Docs to update when behavior settles: architecture.md (index section), specs/cli.md (roots, index, exit 3, default roots), testing.md.
+- Snapshot open at 1M on windows is 10.3 ms against a 5 ms target; try `PrefetchVirtualMemory` before the checksum.
+- Cold rebuild on linux is 1.6-2.0x a bare walk against 1.2x; building rows inside the walk workers is the lever.
+- Case-sensitive macos volumes: root management (`RootsConfig.Covers`) still folds case.
+- Codex rounds past the cap raised: a top-level `null` config.json reads as no roots; install.ps1 doesn't restore `.old` if the copy itself fails; setup doesn't restore a same-file shell block after a failed receipt save; segment matching doesn't check the deadline mid-scan.
+- fetchle.dev redirects to the release's install scripts aren't set up (Cloudflare).

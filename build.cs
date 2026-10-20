@@ -89,21 +89,23 @@ static class Targets
     const string UNIT_TESTS = "tests/Fetchle.Tests";
     const string E2E_TESTS = "tests/Fetchle.E2E";
     const string EVALS = "evals/Fetchle.Evals";
+    const string BENCH_TESTS = "tests/Fetchle.Bench.Tests";
     const string BENCH = "bench/Fetchle.Bench";
     const string PUBLISH_DIR = "artifacts/publish";
     const string CONFIGURATION = "Release";
 
-    public static readonly string[] NAMES = ["restore", "build", "test", "e2e", "eval", "publish", "bench", "ci"];
+    public static readonly string[] NAMES = ["restore", "build", "test", "e2e", "eval", "publish", "bench", "bench-external", "ci"];
 
     public static Step[]? For(Options options) => options.Target switch
     {
         "restore" => [Restore(locked: false)],
         "build" => [Build(noRestore: false)],
-        "test" => [UnitTests(noBuild: false)],
+        "test" => [UnitTests(noBuild: false), BenchTests(noBuild: false)],
         "e2e" => [E2eTests(noBuild: false, exe: null)],
         "eval" => [Evals(noBuild: false)],
         "publish" => [Publish(options.Rid)],
         "bench" => Bench(options.Rid),
+        "bench-external" => [BenchExternal(options.Rid)],
         "ci" => Ci(options.Rid),
         _ => null,
     };
@@ -114,6 +116,7 @@ static class Targets
         Build(noRestore: true),
         Publish(rid),
         UnitTests(noBuild: true),
+        BenchTests(noBuild: true),
         E2eTests(noBuild: true, exe: PublishedExe(rid)),
         Evals(noBuild: true),
     ];
@@ -122,8 +125,16 @@ static class Targets
     [
         Publish(rid),
         new("bench", ["run", "--project", BENCH, "-c", CONFIGURATION]),
-        new("bench external", ["run", "--project", BENCH, "-c", CONFIGURATION, "--", "--external"], Env("FETCHLE_EXE", PublishedExe(rid))),
+        BenchExternal(rid),
     ];
+
+    // never publishes: the self-hosted runners have no AOT toolchain, so the exe comes from FETCHLE_EXE
+    // (a download of the hosted runners' build) or from an earlier local publish
+    static Step BenchExternal(string? rid)
+    {
+        var exe = Environment.GetEnvironmentVariable("FETCHLE_EXE");
+        return new("bench external", ["run", "--project", BENCH, "-c", CONFIGURATION, "--", "--external"], Env("FETCHLE_EXE", string.IsNullOrEmpty(exe) ? PublishedExe(rid) : exe));
+    }
 
     static Step Restore(bool locked)
     {
@@ -134,6 +145,8 @@ static class Targets
     static Step Build(bool noRestore) => new("build", WithFlag(["build", SOLUTION, "-c", CONFIGURATION], "--no-restore", noRestore));
 
     static Step UnitTests(bool noBuild) => new("unit", WithFlag(["test", "--project", UNIT_TESTS, "-c", CONFIGURATION], "--no-build", noBuild));
+
+    static Step BenchTests(bool noBuild) => new("bench tests", WithFlag(["test", "--project", BENCH_TESTS, "-c", CONFIGURATION], "--no-build", noBuild));
 
     static Step E2eTests(bool noBuild, string? exe)
     {

@@ -30,7 +30,24 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
     public async Task<ExitCode> RunAsync(string[] args)
     {
         var app = args.Length > 0 && Find(args[0]) is not null ? CreateCommandsApp() : CreateSearchApp();
-        var exitCode = (ExitCode)await app.RunAsync(args);
+        ExitCode exitCode;
+        try
+        {
+            exitCode = (ExitCode)await app.RunAsync(args);
+        }
+        catch (InvalidDataException e)
+        {
+            // a hand-edited or truncated config or receipt. every command reads them, doctor included
+            Console.Error.WriteLine($"fetchle: {e.Message}");
+            Console.Error.WriteLine("fix or delete that file and try again");
+            return ExitCode.Usage;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            Console.Error.WriteLine($"fetchle: {e.Message}");
+            return ExitCode.InstallProblem;
+        }
+
         // the parser reports bad args as 1, which is our "no results"
         return exitCode != ExitCode.Success && !_tracker.Ran ? ExitCode.Usage : exitCode;
     }

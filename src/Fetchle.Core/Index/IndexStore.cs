@@ -68,17 +68,37 @@ public sealed class IndexStore(string directory)
     // temp file, flushed, then renamed over the snapshot. returns bytes written
     internal long WriteAndSwap(byte[] image)
     {
-        Step(RebuildStep.WriteTemp);
-        using (var temp = new FileStream(TempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
+        try
         {
-            temp.Write(image);
-            Step(RebuildStep.Flush);
-            temp.Flush(flushToDisk: true);
-        }
+            Step(RebuildStep.WriteTemp);
+            using (var temp = new FileStream(TempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
+            {
+                temp.Write(image);
+                Step(RebuildStep.Flush);
+                temp.Flush(flushToDisk: true);
+            }
 
-        Step(RebuildStep.Rename);
-        AtomicReplace.Move(TempPath, SnapshotPath);
-        return image.Length;
+            Step(RebuildStep.Rename);
+            AtomicReplace.Move(TempPath, SnapshotPath);
+            return image.Length;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // a snapshot-sized temp file isn't worth leaving behind; readers never look at it either way
+            TryDelete(TempPath);
+            throw;
+        }
+    }
+
+    static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+        }
     }
 
     internal static RootWalk WalkRoot(string root, PruneRules prune)

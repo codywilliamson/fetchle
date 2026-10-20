@@ -78,6 +78,25 @@ public class IndexTests
     }
 
     [Test]
+    [Arguments("settings")]
+    [Arguments("roots", "list")]
+    [Arguments("index", "status")]
+    [Arguments("index", "rebuild")]
+    [Arguments("doctor")]
+    public async Task A_corrupt_config_is_a_clean_usage_error(params string[] args)
+    {
+        using var data = new TempDir();
+        Directory.CreateDirectory(data.Path);
+        File.WriteAllText(Path.Combine(data.Path, "config.json"), "{\"roots\": [");
+
+        var run = await FetchleProcess.RunAsync(args, dataDir: data.Path);
+
+        await Assert.That(run.ExitCode).IsEqualTo(2).Because(run.Stderr);
+        await Assert.That(run.Stderr).Contains("config.json");
+        await Assert.That(run.Stderr).DoesNotContain("   at ");
+    }
+
+    [Test]
     public async Task A_damaged_snapshot_is_exit_3_at_every_sampled_offset()
     {
         using var tree = FixtureTree.Create(fillerFiles: 20);

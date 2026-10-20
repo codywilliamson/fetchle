@@ -34,6 +34,7 @@ public sealed class InstallSandbox : IDisposable
     public IReadOnlyDictionary<string, string> Env => new Dictionary<string, string>
     {
         ["HOME"] = Home,
+        ["USERPROFILE"] = Home,
         ["SHELL"] = "/bin/bash",
         ["FETCHLE_DATA_DIR"] = Data,
         ["FETCHLE_INSTALL_DIR"] = Bin,

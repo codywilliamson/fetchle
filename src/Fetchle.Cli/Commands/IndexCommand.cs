@@ -98,6 +98,12 @@ static class IndexCommand
             ctx.Error.WriteLine($"fetchle index: {e.Message}");
             return ExitCode.IndexMissing;
         }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // disk full, a failed rename, a locked temp file: the old snapshot is still the one readers see
+            ctx.Error.WriteLine($"fetchle index: couldn't write the snapshot, kept the old one: {e.Message}");
+            return ExitCode.IndexMissing;
+        }
         catch (IndexUnreadableException e)
         {
             // the new image failed its own checks before it was written, so the old snapshot is still in place

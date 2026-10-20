@@ -167,7 +167,8 @@ jobs:
         env:
           FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
           BENCH_FILTER: ${{ inputs.filter || '*' }}
-        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "%BENCH_FILTER%"
+        # unquoted so several space-separated patterns stay several filters; cmd doesn't glob
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter %BENCH_FILTER%
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

@@ -174,14 +174,16 @@ public class SnapshotStorageTests
         using var tree = FixtureTree.Create(fillerFiles: 10);
         using var index = new TempIndex();
         var held = new FileStream(index.Store.LockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        var release = Task.Run(async () =>
+        // a thread of its own: parallel tests can starve the thread pool past the lock wait
+        var release = new Thread(() =>
         {
-            await Task.Delay(300);
+            Thread.Sleep(300);
             held.Dispose();
         });
+        release.Start();
 
         var report = index.Store.Rebuild([tree.Root], PruneRules.Default, CancellationToken.None);
-        await release;
+        release.Join();
 
         await Assert.That(report.Snapshot.Entries).IsGreaterThan(0);
     }

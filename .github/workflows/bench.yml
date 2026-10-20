@@ -197,7 +197,10 @@ jobs:
       - name: benchmarkdotnet
         env:
           BENCH_FILTER: ${{ inputs.filter || '*' }}
-        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "$BENCH_FILTER"
+        # several space-separated patterns are several filters; -f keeps the shell from globbing them
+        run: |
+          set -f
+          dotnet run --project bench/Fetchle.Bench -c Release -- --filter $BENCH_FILTER
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

@@ -14,25 +14,38 @@ internal static class SetupAction
         var persistence = PathPersistence.ForSetup(env);
         var alreadyOnPath = persistence.Count(entry) > 0;
         var edit = persistence.Add(entry);
-        var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), [], edit);
+        // a windows PATH entry the user had before fetchle isn't ours to record, so uninstall leaves it alone.
+        // a marker block is always ours, and a previous receipt naming this entry means fetchle added it back then
+        var owned = !alreadyOnPath || edit.Kind == PathEditKinds.SHELL_RC_BLOCK || SameEntry(previous?.PathEdit, edit);
+        var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), [], owned ? edit : null);
+        var removedStale = false;
         try
         {
             // the old edit goes first, while the old receipt still records it: if removing it fails, nothing has
             // been forgotten yet. only then does the new receipt replace the old one
-            RemoveStaleEdit(previous?.PathEdit, edit);
+            removedStale = RemoveStaleEdit(previous?.PathEdit, edit);
             ReceiptStore.Save(dirs.Receipt, receipt);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            // no receipt records the new edit, so don't leave one uninstall can't undo
+            // put things back the way the old receipt describes them: no new entry, the old edit restored
             if (!alreadyOnPath)
             {
                 persistence.Remove(entry);
+            }
+
+            if (removedStale && previous?.PathEdit is { } old)
+            {
+                PathPersistence.FromReceipt(old)?.Add(old.Entry);
             }
             throw;
         }
 
         output.WriteLine(edit.File is null ? $"on your user PATH: {entry}" : $"on PATH via {edit.File}: {entry}");
+        if (!owned)
+        {
+            output.WriteLine("that PATH entry was already there before fetchle, so uninstall will leave it");
+        }
         output.WriteLine($"receipt: {dirs.Receipt}");
         output.WriteLine("open a new shell for PATH to take effect. agent registration arrives in v0.3");
         WarnWhenExeIsElsewhere(entry, output);
@@ -54,16 +67,22 @@ internal static class SetupAction
 
     // the shell, OS flavor or install dir changed since last time, so the old edit would be orphaned. an rc block
     // in the same file was already replaced in place by Add, so removing it again would undo the new one
-    static void RemoveStaleEdit(PathEdit? old, PathEdit current)
+    // returns whether it removed anything
+    static bool RemoveStaleEdit(PathEdit? old, PathEdit current)
     {
         if (old is null || (old.Kind == current.Kind && old.File == current.File
-            && (old.Kind == PathEditKinds.SHELL_RC_BLOCK || PathRules.Current.Key(old.Entry).Equals(PathRules.Current.Key(current.Entry)))))
+            && (old.Kind == PathEditKinds.SHELL_RC_BLOCK || SameEntry(old, current))))
         {
-            return;
+            return false;
         }
 
-        PathPersistence.FromReceipt(old)?.Remove(old.Entry);
+        var persistence = PathPersistence.FromReceipt(old);
+        persistence?.Remove(old.Entry);
+        return persistence is not null;
     }
+
+    static bool SameEntry(PathEdit? a, PathEdit b) =>
+        a is not null && a.Kind == b.Kind && PathRules.Current.Key(a.Entry).Equals(PathRules.Current.Key(b.Entry));
 
     static void WarnWhenExeIsElsewhere(string entry, TextWriter output)
     {

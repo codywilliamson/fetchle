@@ -12,6 +12,7 @@ public sealed class ExternalBenchRunner(ExternalBenchOptions options, ToolMeasur
     const int EXIT_OK = 0;
     const int EXIT_FAILED_TOOLS = 1;
     const int EXIT_NO_FETCHLE = 2;
+    static readonly string SNAPSHOT_PATH = Path.Combine("index", "snapshot.fidx");
 
     public int Run()
     {
@@ -44,10 +45,14 @@ public sealed class ExternalBenchRunner(ExternalBenchOptions options, ToolMeasur
             {
                 results.Add(measurer.Measure(plan, shape, root));
             }
+
+            var snapshot = new FileInfo(Path.Combine(indexDirs.Dirs.Query, SNAPSHOT_PATH));
+            corpora[^1] = counts with { SnapshotBytes = snapshot.Exists ? snapshot.Length : null };
         }
 
         WriteReport(corpora, skipped, results);
-        return results.Any(r => r.Status == ResultStatus.FAILED) ? EXIT_FAILED_TOOLS : EXIT_OK;
+        // a comparison tool that can't cope with a shape is recorded as failed in the json; only fetchle failing fails the run
+        return results.Any(r => r.Status == ResultStatus.FAILED && r.Tool.StartsWith("fetchle", StringComparison.Ordinal)) ? EXIT_FAILED_TOOLS : EXIT_OK;
     }
 
     void WriteReport(List<CorpusCounts> corpora, List<SkippedTool> skipped, List<ExternalResult> results)

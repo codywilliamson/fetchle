@@ -55,7 +55,8 @@ internal static class TreeRemoval
             return new RemovalResult(locked, false, []);
         }
 
-        SpawnCleanup(CleanupScript.Build(locked, owned.Dirs));
+        var receipt = Path.Combine(dataDir, RECEIPT_FILE);
+        SpawnCleanup(CleanupScript.Build([.. locked.Where(f => !IsReceipt(f, dataDir))], File.Exists(receipt) ? receipt : null, owned.Dirs));
         return new RemovalResult(locked, true, []);
     }
 
@@ -135,12 +136,18 @@ internal static class CleanupScript
     const int RETRIES = 60;
     const string SLEEP_ONE_SECOND = "ping -n 2 127.0.0.1 >nul";
 
-    // each locked file: retry del for about a minute, which outlasts this process exiting. then each dir with a
-    // plain rmdir, which only removes it if empty. loops are parenthesized or the next one nests inside it. echo
-    // is off because for loops echo into our stdout pipe, and cmd dies when that breaks
-    public static string Build(IReadOnlyList<string> files, IReadOnlyList<string> dirs)
+    // each locked file: retry del for about a minute, which outlasts this process exiting. the receipt goes next,
+    // but only if every one of those is gone, so a file still locked after a minute keeps its plan for a retry.
+    // then each dir with a plain rmdir, which only removes it if empty. loops are parenthesized or the next one
+    // nests inside it. echo is off because for loops echo into our stdout pipe, and cmd dies when that breaks
+    public static string Build(IReadOnlyList<string> files, string? receipt, IReadOnlyList<string> dirs)
     {
         var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist \"{file}\" ({SLEEP_ONE_SECOND} & del /f /q \"{file}\" 2>nul))").ToList();
+        if (receipt is not null)
+        {
+            var guards = string.Concat(files.Select(file => $"if not exist \"{file}\" "));
+            steps.Add($"({guards}del /f /q \"{receipt}\" 2>nul)");
+        }
         steps.AddRange(dirs.Select(dir => $"rmdir \"{dir}\" 2>nul"));
         return "@echo off & " + string.Join(" & ", steps);
     }

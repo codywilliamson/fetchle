@@ -12,7 +12,8 @@ public static class FetchleProcess
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
 
-    public static async Task<CliRun> RunAsync(string[] args, bool agent = false)
+    // every run gets a data dir of its own unless the test passes one, so nothing touches the real install
+    public static async Task<CliRun> RunAsync(string[] args, bool agent = false, string? dataDir = null)
     {
         var psi = new ProcessStartInfo(NativeExe.Path, args)
         {
@@ -26,6 +27,8 @@ public static class FetchleProcess
         {
             psi.Environment["CLAUDECODE"] = "1";
         }
+
+        psi.Environment["FETCHLE_DATA_DIR"] = dataDir ?? System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"fetchle-e2e-data-{Guid.NewGuid():N}");
 
         using var process = Process.Start(psi)!;
         using var stdout = new MemoryStream();

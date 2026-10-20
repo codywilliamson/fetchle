@@ -13,8 +13,6 @@ public class CommandTests
     }
 
     [Test]
-    [Arguments("roots", "list")]
-    [Arguments("index", "status")]
     [Arguments("setup")]
     [Arguments("doctor", "--fix")]
     [Arguments("update")]

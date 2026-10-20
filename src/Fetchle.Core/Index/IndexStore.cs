@@ -53,6 +53,8 @@ public sealed class IndexStore(string directory)
 
         var tree = TreeAssembler.Assemble(walks);
         var image = SnapshotWriter.ToBytes(tree, DateTimeOffset.UtcNow);
+        // checked before anything touches disk, so a writer bug can never replace a good snapshot with a bad one
+        using var written = Snapshot.FromBytes(image, SnapshotPath);
         cancellationToken.ThrowIfCancellationRequested();
 
         Step(RebuildStep.WriteTemp);
@@ -66,8 +68,6 @@ public sealed class IndexStore(string directory)
         Step(RebuildStep.Rename);
         AtomicReplace.Move(TempPath, SnapshotPath);
         Step(RebuildStep.Done);
-
-        using var written = Snapshot.FromBytes(image, SnapshotPath);
         return new RebuildReport(written.Info(), walkTime, Stopwatch.GetElapsedTime(start));
     }
 

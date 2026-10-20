@@ -98,6 +98,12 @@ static class IndexCommand
             ctx.Error.WriteLine($"fetchle index: {e.Message}");
             return ExitCode.IndexMissing;
         }
+        catch (IndexUnreadableException e)
+        {
+            // the new image failed its own checks before it was written, so the old snapshot is still in place
+            ctx.Error.WriteLine($"fetchle index: rebuild produced a bad snapshot, kept the old one: {e.Reason}");
+            return ExitCode.IndexMissing;
+        }
 
         var info = report.Snapshot;
         ctx.Out.WriteLine($"indexed {info.Entries:N0} entries in {report.TotalTime.TotalMilliseconds:0} ms (walk {report.WalkTime.TotalMilliseconds:0} ms)");

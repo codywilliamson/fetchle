@@ -31,8 +31,9 @@ static class TreeAssembler
         var segments = new List<string>();
         var segmentIds = new Dictionary<string, int>(StringComparer.Ordinal);
         var lookup = segmentIds.GetAlternateLookup<ReadOnlySpan<char>>();
-        var roots = new List<TreeRoot>(walks.Count);
-        var queue = new Queue<(uint Id, string Path)>();
+        // one queue for every root: dequeuing in id order is what keeps the parent column from ever decreasing
+        var queue = new Queue<(uint Id, string Path, int Root)>();
+        var perRoot = new int[walks.Count];
         var next = (uint)walks.Count;
         var attached = 0;
 
@@ -41,39 +42,40 @@ static class TreeAssembler
             parents[r] = SnapshotFormat.NO_PARENT;
             names[r] = (uint)r;
             flags[r] = SnapshotFormat.FLAG_DIRECTORY | SnapshotFormat.FLAG_ROOT;
+            queue.Enqueue(((uint)r, walks[r].Path, r));
         }
 
-        for (var r = 0; r < walks.Count; r++)
+        while (queue.TryDequeue(out var dir))
         {
-            var first = next;
-            queue.Enqueue(((uint)r, walks[r].Path));
-            while (queue.TryDequeue(out var dir))
+            if (!groups.TryGetValue(dir.Path, out var groupRef))
             {
-                if (!groups.TryGetValue(dir.Path, out var groupRef))
-                {
-                    continue;
-                }
-
-                attached++;
-                var collector = groupRef.Collector;
-                var group = collector.Groups[groupRef.Group];
-                for (var e = group.First; e < group.First + group.Count; e++)
-                {
-                    var name = collector.Name(e);
-                    var id = next++;
-                    parents[id] = dir.Id;
-                    names[id] = (uint)Intern(name, segments, ref lookup);
-                    var isDirectory = collector.IsDirectory(e);
-                    flags[id] = isDirectory ? SnapshotFormat.FLAG_DIRECTORY : (byte)0;
-                    if (isDirectory)
-                    {
-                        // the walker spells a child dir as Path.Join(parent, name), so the same spelling finds its group
-                        queue.Enqueue((id, Path.Join(dir.Path, name)));
-                    }
-                }
+                continue;
             }
 
-            roots.Add(new TreeRoot(walks[r].Path, (int)(next - first), walks[r].WalkTime));
+            attached++;
+            var collector = groupRef.Collector;
+            var group = collector.Groups[groupRef.Group];
+            for (var e = group.First; e < group.First + group.Count; e++)
+            {
+                var name = collector.Name(e);
+                var id = next++;
+                parents[id] = dir.Id;
+                names[id] = (uint)Intern(name, segments, ref lookup);
+                perRoot[dir.Root]++;
+                var isDirectory = collector.IsDirectory(e);
+                flags[id] = isDirectory ? SnapshotFormat.FLAG_DIRECTORY : (byte)0;
+                if (isDirectory)
+                {
+                    // the walker spells a child dir as Path.Join(parent, name), so the same spelling finds its group
+                    queue.Enqueue((id, Path.Join(dir.Path, name), dir.Root));
+                }
+            }
+        }
+
+        var roots = new List<TreeRoot>(walks.Count);
+        for (var r = 0; r < walks.Count; r++)
+        {
+            roots.Add(new TreeRoot(walks[r].Path, perRoot[r], walks[r].WalkTime));
         }
 
         // entries in groups that never attached are dropped, so trim to what was placed

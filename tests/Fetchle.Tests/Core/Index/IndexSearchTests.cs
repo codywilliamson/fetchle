@@ -52,6 +52,22 @@ public class IndexSearchTests
     }
 
     [Test]
+    public async Task Several_indexed_roots_with_subdirs_build_and_search_like_a_walk()
+    {
+        using var a = FixtureTree.Create(seed: 1, fillerFiles: 300);
+        using var b = FixtureTree.Create(seed: 2, fillerFiles: 300);
+        using var c = FixtureTree.Create(seed: 3, fillerFiles: 300);
+        using var index = TempIndex.Built(a.Root, b.Root, c.Root);
+        var info = index.Store.ReadInfo()!;
+
+        await Assert.That(info.Roots.Count).IsEqualTo(3);
+        await Assert.That(info.Roots.Sum(r => r.Entries) + 3).IsEqualTo(info.Entries);
+        await AssertSame(index, Request("e", [a.Root, b.Root, c.Root], 60));
+        await AssertSame(index, Request("settings", [c.Root], 10));
+        await AssertSame(index, Request("filler", [b.Full("filler")], 10));
+    }
+
+    [Test]
     public async Task Search_reads_the_snapshot_not_the_disk()
     {
         using var tree = FixtureTree.Create(fillerFiles: 50);

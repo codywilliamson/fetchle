@@ -50,6 +50,13 @@ static class UninstallCommand
             return ExitCode.InstallProblem;
         }
 
+        // a PATH edit this os can't undo (a receipt from another os or a newer fetchle) would outlive its receipt
+        if (receipt.PathEdit is { } edit && PathPersistence.FromReceipt(edit) is null)
+        {
+            ctx.Error.WriteLine($"fetchle uninstall: refusing, can't undo a '{edit.Kind}' PATH edit ({edit.Entry}) on this os");
+            return Refuse(ctx, receipt.InstallDir, receipt.DataDir);
+        }
+
         return Confirm(ctx, plan, yes) ? Execute(ctx, plan) : ExitCode.Usage;
     }
 

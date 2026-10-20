@@ -31,8 +31,12 @@ public static class ToolPlans
         return plans;
     }
 
+    const string LONG_PATH_PREFIX = @"\\?\";
+
     public static List<ToolPlan> For(LocatedTools tools, string root, IndexDirs indexDirs)
     {
+        // backslashes on windows: cmd reads a "/x" inside a path as a switch
+        root = Path.GetFullPath(root);
         var plans = new List<ToolPlan>();
         if (tools.Fetchle is { } fetchle)
         {
@@ -52,7 +56,9 @@ public static class ToolPlans
         }
         if (tools.PowerShell is { } shell)
         {
-            var script = $"Get-ChildItem -LiteralPath '{root.Replace("'", "''")}' -Recurse -Force -Filter *{QUERY}* | ForEach-Object FullName";
+            // windows powershell 5.1 stops at 260 chars unless the path carries the \\?\ prefix; the home corpus goes deeper
+            var literal = OperatingSystem.IsWindows() ? LONG_PATH_PREFIX + root : root;
+            var script = $"Get-ChildItem -LiteralPath '{literal.Replace("'", "''")}' -Recurse -Force -Filter *{QUERY}* | ForEach-Object FullName";
             plans.Add(Plain(new ToolCommand("Get-ChildItem -Recurse", shell, ["-NoProfile", "-NonInteractive", "-Command", script], SUCCESS)));
         }
         if (tools.Cmd is { } cmd)

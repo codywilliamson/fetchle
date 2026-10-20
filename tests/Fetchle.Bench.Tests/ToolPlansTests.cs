@@ -5,7 +5,8 @@ namespace Fetchle.Bench.Tests;
 public class ToolPlansTests
 {
     const string FETCHLE = "fetchle";
-    const string ROOT = "corpus-root";
+    // absolute, because the plans expand the root to a full path
+    static readonly string ROOT = Path.GetFullPath("corpus-root");
     static readonly IndexDirs Dirs = new("data-query", "data-rebuild");
 
     static readonly LocatedTools Everything = new(FETCHLE, "rg", "fd", "pwsh", "cmd", "find");
@@ -121,7 +122,7 @@ public class ToolPlansTests
     {
         var plans = ToolPlans.For(Everything, "it's", Dirs);
         var script = plans.Single(p => p.Timed.Tool == "Get-ChildItem -Recurse").Timed.Arguments[^1];
-        await Assert.That(script).Contains("'it''s'");
+        await Assert.That(script).Contains("it''s' -Recurse");
     }
 
     [Test]

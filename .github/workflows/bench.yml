@@ -58,7 +58,7 @@ jobs:
   # AOT-publishes: the runners have no MSVC linker or clang
   bench-windows:
     needs: publish
-    if: github.repository == 'codywilliamson/fetchle' && inputs.external != false
+    if: github.repository == 'codywilliamson/fetchle' && (github.event_name != 'workflow_dispatch' || inputs.external)
     runs-on: [self-hosted, Windows, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -101,7 +101,7 @@ jobs:
   bench-linux:
     needs: [publish, bench-windows]
     # run even when the windows job failed, but never at the same time as it
-    if: ${{ !cancelled() && needs.publish.result == 'success' && github.repository == 'codywilliamson/fetchle' && inputs.external != false }}
+    if: ${{ !cancelled() && needs.publish.result == 'success' && github.repository == 'codywilliamson/fetchle' && (github.event_name != 'workflow_dispatch' || inputs.external) }}
     runs-on: [self-hosted, Linux, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -146,7 +146,7 @@ jobs:
   # hot-path commits quote these numbers before and after
   bench-dotnet:
     needs: [bench-windows, bench-linux]
-    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && inputs.dotnet != false }}
+    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && (github.event_name != 'workflow_dispatch' || inputs.dotnet) }}
     runs-on: [self-hosted, Windows, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -166,7 +166,8 @@ jobs:
         shell: cmd
         env:
           FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
-        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "${{ inputs.filter || '*' }}"
+          BENCH_FILTER: ${{ inputs.filter || '*' }}
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "%BENCH_FILTER%"
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -177,7 +178,7 @@ jobs:
 
   bench-dotnet-linux:
     needs: [bench-dotnet]
-    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && inputs.dotnet != false }}
+    if: ${{ !cancelled() && github.repository == 'codywilliamson/fetchle' && (github.event_name != 'workflow_dispatch' || inputs.dotnet) }}
     runs-on: [self-hosted, Linux, homelab, fetchle]
     timeout-minutes: 120
     concurrency:
@@ -194,7 +195,9 @@ jobs:
           global-json-file: global.json
 
       - name: benchmarkdotnet
-        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter '${{ inputs.filter || '*' }}'
+        env:
+          BENCH_FILTER: ${{ inputs.filter || '*' }}
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter "$BENCH_FILTER"
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

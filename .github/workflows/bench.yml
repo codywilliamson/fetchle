@@ -67,7 +67,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
       - uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
 
@@ -107,7 +110,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
       - uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
 
@@ -149,7 +155,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
       - uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
 

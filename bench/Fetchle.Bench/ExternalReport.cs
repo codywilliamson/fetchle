@@ -13,7 +13,8 @@ public static class ResultStatus
 }
 
 // walker counts use the default prune rules, the plain ones count everything on disk
-public sealed record CorpusCounts(string Shape, int Dirs, int Files, int Entries, int WalkerDirs, int WalkerFiles, int WalkerEntries);
+// SnapshotBytes: size of the snapshot the indexed-query setup built, so bytes per entry can be read off
+public sealed record CorpusCounts(string Shape, int Dirs, int Files, int Entries, int WalkerDirs, int WalkerFiles, int WalkerEntries, long? SnapshotBytes = null);
 
 public sealed record SkippedTool(string Tool, string Reason);
 

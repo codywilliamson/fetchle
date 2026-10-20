@@ -59,32 +59,17 @@ static class SegmentMatcher
 
         var blob = snapshot.SegmentBlob;
         var offsets = snapshot.SegmentOffsets;
-        var lower = (byte)char.ToLowerInvariant((char)needle[0]);
-        var upper = (byte)char.ToUpperInvariant((char)needle[0]);
         var any = false;
         var position = 0;
-        var last = blob.Length - needle.Length;
-        while (position <= last)
+        while (position < blob.Length)
         {
-            var found = lower == upper ? blob[position..].IndexOf(lower) : blob[position..].IndexOfAny(lower, upper);
+            var found = AsciiFinder.IndexOf(blob[position..], needle);
             if (found < 0)
             {
                 break;
             }
 
-            position += found;
-            if (position > last)
-            {
-                break;
-            }
-
-            if (!Ascii.EqualsIgnoreCase(blob.Slice(position, needle.Length), needle))
-            {
-                position++;
-                continue;
-            }
-
-            var segment = SegmentAt(offsets, position);
+            var segment = SegmentAt(offsets, position + found);
             bits[segment / BITS] |= 1UL << (int)(segment % BITS);
             any = true;
             // one hit is enough for a segment, carry on from the next one

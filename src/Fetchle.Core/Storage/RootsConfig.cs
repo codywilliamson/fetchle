@@ -7,7 +7,9 @@ namespace Fetchle.Core.Storage;
 public sealed record RootsFile(List<string> Roots);
 
 [JsonSerializable(typeof(RootsFile))]
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true)]
+// a missing roots list or a null root is a JsonException, so a hand-edited config fails loudly instead of later
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true,
+    RespectRequiredConstructorParameters = true, RespectNullableAnnotations = true)]
 partial class StorageJson : JsonSerializerContext;
 
 // the configured roots, in <data dir>/config.json. a missing file means no roots

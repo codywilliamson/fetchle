@@ -78,11 +78,15 @@ public class ReceiptTests
         await Assert.That(ReceiptStore.Load(TempFile())).IsNull();
 
     [Test]
-    public async Task Corrupt_file_throws_invalid_data()
+    [Arguments("{ nope")]
+    [Arguments("{}")]
+    [Arguments("""{ "version": "0", "channel": "script", "install_dir": null, "data_dir": "x", "agents": [] }""")]
+    [Arguments("""{ "version": "0", "channel": "script", "install_dir": "x", "data_dir": "x" }""")]
+    public async Task Corrupt_or_incomplete_file_throws_invalid_data(string json)
     {
         var path = TempFile();
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, "{ nope");
+        File.WriteAllText(path, json);
         try
         {
             await Assert.That(() => ReceiptStore.Load(path)).Throws<InvalidDataException>();

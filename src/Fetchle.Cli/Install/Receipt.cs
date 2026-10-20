@@ -22,7 +22,9 @@ internal static class Channels
 }
 
 [JsonSerializable(typeof(Receipt))]
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+// a receipt missing a field, or holding a null where none belongs, is a JsonException here, not a null later
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    RespectRequiredConstructorParameters = true, RespectNullableAnnotations = true)]
 internal partial class ReceiptJson : JsonSerializerContext;
 
 internal static class ReceiptStore

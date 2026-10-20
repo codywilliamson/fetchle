@@ -9,7 +9,7 @@ Describe a file in plain words and fetchle brings back the path, ranked, in mill
   2 of 2 matches · 6 ms
 ```
 
-That output is the target, not shipped behavior. fetchle is pre-alpha, at v0.1. It indexes the roots you give it into a memory-mapped snapshot and answers from that, so a query skips the walk entirely: on a quiet Linux box, 16 ms p95 over a 1M-entry home dir where `rg --files` takes 779 ms. Matching is still a case-insensitive substring of the path; ranking, plain-words search and the file watcher are the next work. See the [roadmap](docs/roadmap.md) for what lands when.
+That output is the target, not shipped behavior. fetchle is pre-alpha, at v0.1. It indexes the roots you give it into a memory-mapped snapshot and answers from that, so a query skips the walk entirely. On a quiet Linux box, over a 48k-dir tree with nothing to prune, an indexed query takes 8 ms p95 where `rg --files` takes 586 ms. Over a 1M-entry home dir it's 16 ms against 187 ms for fetchle's own walk of the same pruned tree (rg walks the pruned third too, so its 779 ms isn't like for like). Method and caveats: [docs/testing.md](docs/testing.md). Matching is still a case-insensitive substring of the path; ranking, plain-words search and the file watcher are the next work. See the [roadmap](docs/roadmap.md) for what lands when.
 
 ## Why it exists
 

@@ -14,24 +14,23 @@ internal static class SetupAction
         var persistence = PathPersistence.ForSetup(env);
         var alreadyOnPath = persistence.Count(entry) > 0;
         var edit = persistence.Add(entry);
-
         var receipt = new Receipt(env.Version, Channels.SCRIPT, entry, Path.GetFullPath(dirs.Data), [], edit);
         try
         {
+            // the old edit goes first, while the old receipt still records it: if removing it fails, nothing has
+            // been forgotten yet. only then does the new receipt replace the old one
+            RemoveStaleEdit(previous?.PathEdit, edit);
             ReceiptStore.Save(dirs.Receipt, receipt);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            // no receipt means uninstall can't find the PATH edit later, so don't leave one it can't undo
+            // no receipt records the new edit, so don't leave one uninstall can't undo
             if (!alreadyOnPath)
             {
                 persistence.Remove(entry);
             }
             throw;
         }
-
-        // only once the new receipt is safe: the old edit is dropped when nothing records it anymore
-        RemoveStaleEdit(previous?.PathEdit, edit);
 
         output.WriteLine(edit.File is null ? $"on your user PATH: {entry}" : $"on PATH via {edit.File}: {entry}");
         output.WriteLine($"receipt: {dirs.Receipt}");

@@ -50,7 +50,7 @@ static class IndexCommand
 
         var age = env.Clock.GetUtcNow() - info.BuiltAt;
         ctx.Out.WriteLine($"snapshot  {info.File}");
-        ctx.Out.WriteLine($"built     {info.BuiltAt:u} ({Output.Humanize.Age(age)} ago)");
+        ctx.Out.WriteLine($"built     {info.BuiltAt:u} ({Output.Humanize.Age(age)})");
         ctx.Out.WriteLine($"entries   {info.Entries:N0} ({info.Segments:N0} unique names)");
         ctx.Out.WriteLine($"size      {Output.Humanize.Size(info.Bytes)} ({info.BytesPerEntry:0.0} bytes per entry)");
         foreach (var root in info.Roots)

@@ -13,6 +13,7 @@ public class InstallLifecycleTests
     static string? UserPath() => OperatingSystem.IsWindows() ? Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User) : null;
 
     [Test]
+    [NotInParallel("user-path")]
     public async Task Setup_and_uninstall_leave_the_machine_as_they_found_it()
     {
         Skip.Unless(InstallSandbox.CanEditUserPath, "setup edits the real user PATH on Windows, runs on CI only");

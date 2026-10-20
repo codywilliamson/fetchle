@@ -17,7 +17,8 @@ internal static class TreeRemoval
 
     // every name the install scripts, setup, roots and the index write
     static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new"];
-    static readonly string[] DataFiles = ["receipt.json", "receipt.json.tmp", "config.json", "config.json.tmp"];
+    const string RECEIPT_FILE = "receipt.json";
+    static readonly string[] DataFiles = [RECEIPT_FILE, RECEIPT_FILE + ".tmp", "config.json", "config.json.tmp"];
     static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE];
     const string INDEX_DIR = "index";
 
@@ -26,7 +27,16 @@ internal static class TreeRemoval
         var owned = OwnedPaths(installDir, dataDir);
         foreach (var file in owned.Files)
         {
-            TryDeleteFile(file);
+            if (!IsReceipt(file, dataDir))
+            {
+                TryDeleteFile(file);
+            }
+        }
+
+        // the receipt is the plan for a retry, so it goes only once everything else it lists is gone
+        if (!owned.Files.Exists(f => !IsReceipt(f, dataDir) && File.Exists(f)))
+        {
+            TryDeleteFile(Path.Combine(dataDir, RECEIPT_FILE));
         }
 
         foreach (var dir in owned.Dirs)
@@ -68,6 +78,8 @@ internal static class TreeRemoval
         }
         return (files, dirs);
     }
+
+    static bool IsReceipt(string file, string dataDir) => file.Equals(Path.Combine(dataDir, RECEIPT_FILE), PathComparison.Default);
 
     static void TryDeleteFile(string file)
     {

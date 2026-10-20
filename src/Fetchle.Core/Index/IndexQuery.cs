@@ -189,16 +189,18 @@ static class IndexQuery
             throw new InvalidOperationException("entry outside every scope");
         }
 
+        // one decode buffer per pass, grown once for the longest name seen, so long unicode names don't allocate per hit
+        char[] _nameBuffer = new char[256];
+
         bool ExtensionMatches(int entry, IReadOnlyList<string> extensions)
         {
             var bytes = snapshot.Segment(snapshot.Names[entry]);
-            Span<char> chars = stackalloc char[256];
-            if (bytes.Length > chars.Length)
+            if (bytes.Length > _nameBuffer.Length)
             {
-                chars = new char[bytes.Length];
+                _nameBuffer = new char[bytes.Length];
             }
 
-            var name = chars[..Encoding.UTF8.GetChars(bytes, chars)];
+            var name = _nameBuffer.AsSpan(0, Encoding.UTF8.GetChars(bytes, _nameBuffer));
             var ext = Path.GetExtension(name).TrimStart('.');
             for (var e = 0; e < extensions.Count; e++)
             {

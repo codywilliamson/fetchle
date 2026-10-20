@@ -19,16 +19,28 @@ fetchle.dev is on Cloudflare. The install URLs redirect to the scripts in the la
 1. Detect OS and arch. Fail with a clear message on anything unsupported.
 2. Download the release archive and its `.sha256` from GitHub releases.
 3. Verify the checksum. Stop on mismatch, delete the download.
-4. Extract the exe and the model file into the install dir.
-5. Run `fetchle setup`, which handles PATH, the receipt and agent registration.
+4. Extract the exe into the install dir. The model file joins it once embeddings ship; v0.1 has none.
+5. Run `fetchle setup --yes`, which handles PATH and the receipt (agent registration lands in v0.3).
 
 Re-running the script upgrades or repairs. It never adds a second PATH entry.
+
+The scripts read their settings from env vars, because `irm | iex` can't take arguments.
+
+| variable | meaning |
+|---|---|
+| `FETCHLE_VERSION` | Release to install, `0.1.0` or `v0.1.0`. Default: the latest GitHub release. |
+| `FETCHLE_DOWNLOAD_BASE` | Where `fetchle-<version>-<rid>.zip` (`.tar.gz` on Unix) and its `.sha256` live: a URL or a local directory. Needs `FETCHLE_VERSION`. CI installs from a locally built archive this way. |
+| `FETCHLE_INSTALL_DIR` | Install dir override. |
+
+Supported platforms are win-x64, win-arm64, linux-x64, linux-arm64 and osx-arm64. Anything else fails with a message naming them. `scripts/archive.sh` makes the archives for both `publish.yml` and the install CI job, so the layout the scripts unpack can't drift from what releases ship.
 
 | OS | install dir | data dir (index, savings) |
 |---|---|---|
 | Windows | `%LOCALAPPDATA%\fetchle\bin` | `%LOCALAPPDATA%\fetchle` |
 | Linux | `~/.local/share/fetchle/bin` | `$XDG_DATA_HOME/fetchle`, else `~/.local/share/fetchle` |
 | macOS | `~/.local/share/fetchle/bin` | `~/Library/Application Support/fetchle` |
+
+`FETCHLE_DATA_DIR` and `FETCHLE_INSTALL_DIR` override both, for the binary and the scripts alike. Tests and CI use them (and a temp `HOME` or `LOCALAPPDATA`) so a run never touches the real install.
 
 ## The receipt
 
@@ -39,6 +51,7 @@ Re-running the script upgrades or repairs. It never adds a second PATH entry.
   "version": "0.1.0",
   "channel": "script",
   "install_dir": "C:\\Users\\Cody\\AppData\\Local\\fetchle\\bin",
+  "data_dir": "C:\\Users\\Cody\\AppData\\Local\\fetchle",
   "path_edit": { "kind": "windows-user-path", "entry": "C:\\Users\\Cody\\AppData\\Local\\fetchle\\bin" },
   "agents": [
     { "agent": "claude-code", "kind": "mcp", "file": "C:\\Users\\Cody\\.claude.json" },
@@ -47,11 +60,17 @@ Re-running the script upgrades or repairs. It never adds a second PATH entry.
 }
 ```
 
-On Unix, `path_edit` names the shell rc file and the marker block it added.
+On Unix, `path_edit` is `{ "kind": "shell-rc-block", "entry": "<install dir>", "file": "<rc file>" }`. In v0.1 `agents` is always `[]`.
 
 ## `setup`
 
-Detects Claude Code, Codex, Cursor, VS Code, OpenCode and Gemini CLI. Shows a checklist, then for each selected agent registers the MCP server and installs a skill that tells the agent to call fetchle instead of `gci` or `find`.
+v0.1 does PATH and the receipt only; the agent registration below is v0.3 on the roadmap.
+
+- Windows: adds the install dir to the front of `HKCU\Environment` `Path`, keeping the value's registry kind (new values are `REG_EXPAND_SZ`) and other entries' `%VARS%` unexpanded. An existing copy is kept once and duplicates are dropped. It then broadcasts `WM_SETTINGCHANGE` so new terminals see it.
+- Unix: writes a marker block into one rc file, chosen from `$SHELL`: zsh `~/.zshrc`, bash `~/.bashrc`, anything else `~/.profile`. The block is a guarded `export PATH=...` that is safe to source twice. A re-run replaces the block in place; if the existing block differs from what setup would write (hand-edited), the file is copied to `<rc>.bak` first. Duplicate blocks collapse to one.
+- If a previous receipt used a different rc file, that old block is removed.
+
+v0.3 will detect Claude Code, Codex, Cursor, VS Code, OpenCode and Gemini CLI, show a checklist, then for each selected agent register the MCP server and install a skill that tells the agent to call fetchle instead of `gci` or `find`.
 
 Every block it writes into a file someone else owns sits between markers:
 
@@ -75,7 +94,11 @@ Lists what it would remove with sizes: index data for roots no longer configured
 
 ## `uninstall`
 
-Removes exactly what the receipt lists: the PATH entry, each marker block, each skill file, the install dir and the data dir. It never touches anything it didn't create. For package-manager channels it prints the manager's uninstall command instead.
+Removes exactly what the receipt lists: the PATH entry, each marker block, each skill file, the install dir and the data dir. It never touches anything it didn't create. For package-manager channels it prints the manager's uninstall command (`brew uninstall fetchle`, `winget uninstall fetchle`, `scoop uninstall fetchle`, `dotnet tool uninstall -g fetchle`) and exits 0 without removing anything.
+
+It lists the steps and asks to continue; `--yes` skips the question, and without a terminal it refuses unless `--yes` is given. A receipt whose directories are a filesystem root, the home dir or a relative path is refused. An rc file that held only the fetchle block is deleted. A parent directory named `fetchle` is removed when it ends up empty.
+
+Windows can't delete a running exe. Uninstall deletes everything it can, then starts a detached `cmd` that retries removing what's left for about a minute, which outlasts the process exiting. The command exits 0 once that is started. Unix deletes everything directly.
 
 ## Failure modes
 
@@ -83,6 +106,6 @@ Removes exactly what the receipt lists: the PATH entry, each marker block, each 
 |---|---|
 | checksum mismatch | Stop, delete the download, exit nonzero, print the expected and actual hash. |
 | marker block edited by hand | Replace it anyway, keep a `.bak` of the file first. |
-| receipt missing | `doctor` warns. `uninstall` refuses and prints manual steps. |
+| receipt missing | `doctor` warns. `uninstall` refuses, prints manual steps and exits 5. |
 | agent config file missing | Skip that agent, report it, continue. |
 | running inside a package-manager install | `update` and `uninstall` defer to the manager. |

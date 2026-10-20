@@ -53,19 +53,7 @@ jobs:
       - name: archive
         id: archive
         run: |
-          version="${TAG#v}"
-          name="fetchle-${version}-${{ matrix.rid }}"
-          mkdir -p "stage/$name" dist
-          if [[ "${{ matrix.rid }}" == win-* ]]; then
-            cp artifacts/publish/fetchle.exe "stage/$name/"
-            (cd stage && 7z a -tzip "../dist/$name.zip" "$name" > /dev/null)
-            archive="dist/$name.zip"
-          else
-            cp artifacts/publish/fetchle "stage/$name/"
-            tar -czf "dist/$name.tar.gz" -C stage "$name"
-            archive="dist/$name.tar.gz"
-          fi
-          (cd dist && shasum -a 256 "$(basename "$archive")" > "$(basename "$archive").sha256")
+          archive="$(bash scripts/archive.sh "${TAG#v}" "${{ matrix.rid }}" artifacts/publish dist | tail -n 1)"
           echo "path=$archive" >> "$GITHUB_OUTPUT"
 
       - uses: actions/attest-build-provenance@v2
@@ -76,3 +64,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$TAG" dist/* --clobber
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: upload install scripts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" scripts/install.ps1 scripts/install.sh --clobber

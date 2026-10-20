@@ -9,7 +9,7 @@ Describe a file in plain words and fetchle brings back the path, ranked, in mill
   2 of 2 matches · 6 ms
 ```
 
-That output is the target, not shipped behavior. fetchle is pre-alpha. Search works end to end, but it's a naive placeholder: one thread walks the tree and matches your query as a case-insensitive substring of the path, inside a time budget. The real walker, the index, ranking and the file watcher are the next work. Most other commands exist but print "not implemented yet". See the [roadmap](docs/roadmap.md) for what lands when.
+That output is the target, not shipped behavior. fetchle is pre-alpha, at v0.1. It indexes the roots you give it into a memory-mapped snapshot and answers from that, so a query skips the walk entirely. On a quiet Linux box, over a 48k-dir tree with nothing to prune, an indexed query takes 8 ms p95 where `rg --files` takes 586 ms. Over a 1M-entry home dir it's 16 ms against 187 ms for fetchle's own walk of the same pruned tree (rg walks the pruned third too, so its 779 ms isn't like for like). Method and caveats: [docs/testing.md](docs/testing.md). Matching is still a case-insensitive substring of the path; ranking, plain-words search and the file watcher are the next work. See the [roadmap](docs/roadmap.md) for what lands when.
 
 ## Why it exists
 
@@ -35,6 +35,16 @@ artifacts/publish/fetchle config --root ~/src
 ```
 
 A root that doesn't exist fails right away with exit code 2 instead of turning into a slow crawl.
+
+Index the roots you search most, and queries read the snapshot instead of walking:
+
+```sh
+artifacts/publish/fetchle roots add ~
+artifacts/publish/fetchle index rebuild
+artifacts/publish/fetchle config
+```
+
+The snapshot is as fresh as the last `index rebuild` until the watcher lands in v0.4.
 
 Run the MCP server over stdio, for an agent to connect to:
 

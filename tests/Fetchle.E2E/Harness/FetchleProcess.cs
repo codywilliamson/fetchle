@@ -12,12 +12,35 @@ public static class FetchleProcess
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
 
-    public static async Task<CliRun> RunAsync(string[] args, bool agent = false)
+    // every run gets a data dir of its own unless the test passes one, so nothing touches the real install.
+    // environment overrides win over everything else; exe runs a copy instead of the shared build
+    const int ETXTBSY = 26;
+    const int START_RETRIES = 20;
+
+    // a test that just copied an exe can race another test's fork: the child briefly inherits the copy's
+    // still-open write fd, and exec of the copy fails with ETXTBSY until that child execs. retry that one error
+    static async Task<Process> StartAsync(ProcessStartInfo psi)
     {
-        var psi = new ProcessStartInfo(NativeExe.Path, args)
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return Process.Start(psi)!;
+            }
+            catch (System.ComponentModel.Win32Exception e) when (e.NativeErrorCode == ETXTBSY && !OperatingSystem.IsWindows() && attempt < START_RETRIES)
+            {
+                await Task.Delay(50);
+            }
+        }
+    }
+
+    public static async Task<CliRun> RunAsync(string[] args, bool agent = false, string? dataDir = null, IReadOnlyDictionary<string, string>? environment = null, string? exe = null)
+    {
+        var psi = new ProcessStartInfo(exe ?? NativeExe.Path, args)
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
+            RedirectStandardInput = true,
             StandardErrorEncoding = Encoding.UTF8,
         };
         // the suite may itself run under an agent, so set agent mode explicitly either way
@@ -27,7 +50,15 @@ public static class FetchleProcess
             psi.Environment["CLAUDECODE"] = "1";
         }
 
-        using var process = Process.Start(psi)!;
+        psi.Environment["FETCHLE_DATA_DIR"] = dataDir ?? System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"fetchle-e2e-data-{Guid.NewGuid():N}");
+        foreach (var (name, value) in environment ?? new Dictionary<string, string>())
+        {
+            psi.Environment[name] = value;
+        }
+
+        using var process = await StartAsync(psi);
+        // nothing here answers prompts
+        process.StandardInput.Close();
         using var stdout = new MemoryStream();
         var copy = process.StandardOutput.BaseStream.CopyToAsync(stdout);
         var stderr = process.StandardError.ReadToEndAsync();

@@ -10,15 +10,7 @@ public sealed class FileSearch(PruneRules prune) : IFileSearch
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
     {
         var start = Stopwatch.GetTimestamp();
-        var roots = new string[request.Roots.Count];
-        for (var i = 0; i < roots.Length; i++)
-        {
-            roots[i] = NormalizeRoot(request.Roots[i]);
-            if (!Directory.Exists(roots[i]))
-            {
-                throw InvalidRootException.NotFound(request.Roots[i]);
-            }
-        }
+        var roots = SearchRoots.Resolve(request.Roots);
 
         var deadline = Deadline.After(request.Budget, start);
         var completed = true;
@@ -58,7 +50,7 @@ public sealed class FileSearch(PruneRules prune) : IFileSearch
         return new SearchResult(merged.ToSortedList(), total, Stopwatch.GetElapsedTime(start), stoppedEarly);
     }
 
-    static string NormalizeRoot(string root)
+    internal static string NormalizeRoot(string root)
     {
         try
         {

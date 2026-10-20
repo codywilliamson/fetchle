@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\bench\Fetchle.Bench\Fetchle.Bench.csproj" />
+    <ProjectReference Include="..\Fetchle.Fixtures\Fetchle.Fixtures.csproj" />
+  </ItemGroup>
+</Project>

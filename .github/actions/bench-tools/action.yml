@@ -1,0 +1,55 @@
+name: bench tools
+description: Download the pinned rg and fd release binaries into a directory, verifying their sha256. The external bench puts that directory ahead of PATH.
+
+inputs:
+  dir:
+    description: directory to put rg and fd in
+    required: true
+
+# versions and hashes are pinned here and nowhere else. the sha256 values are the digests GitHub
+# reports for each release asset. to bump a tool, change the version and both hashes together
+runs:
+  using: composite
+  steps:
+    - name: fetch rg and fd (windows)
+      if: runner.os == 'Windows'
+      shell: cmd
+      env:
+        TOOLS_DIR: ${{ inputs.dir }}
+        RG_URL: https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip
+        RG_SHA256: 71b2fef860abe467217a538ff31de02f5258807c0129f771846f87bd029aafc5
+        FD_URL: https://github.com/sharkdp/fd/releases/download/v10.5.0/fd-v10.5.0-x86_64-pc-windows-msvc.zip
+        FD_SHA256: a227701b8551c35a9931d9f6da75503cf86d88e182d71fb849a70864c5d57cd7
+      # windows powershell's execution policy on the runner blocks the script files actions writes for
+      # `shell: powershell`, so the script ships with the action and runs with the policy bypassed
+      run: powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${{ github.action_path }}/fetch-tools.ps1"
+
+    - name: fetch rg and fd (linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      env:
+        TOOLS_DIR: ${{ inputs.dir }}
+        RG_URL: https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-unknown-linux-musl.tar.gz
+        RG_SHA256: 33e15bcf1624b25cdd2a55813a47a2f95dbe126268203e76aa6a585d1e7b149c
+        FD_URL: https://github.com/sharkdp/fd/releases/download/v10.5.0/fd-v10.5.0-x86_64-unknown-linux-musl.tar.gz
+        FD_SHA256: 761c72dc8e120d85b22292063be8a796e2eeb20eb3e4f38b8fa2343ccf3514a7
+      run: |
+        set -euo pipefail
+        mkdir -p "$TOOLS_DIR"
+        install_tool() {
+          local url=$1 sha256=$2 exe=$3
+          local archive="$RUNNER_TEMP/$(basename "$url")"
+          curl -fsSL -o "$archive" "$url"
+          echo "$sha256  $archive" | sha256sum --check --strict -
+          local unpacked="$archive.unpacked"
+          rm -rf "$unpacked" && mkdir -p "$unpacked"
+          tar -xzf "$archive" -C "$unpacked"
+          local found
+          found=$(find "$unpacked" -type f -name "$exe" | head -n 1)
+          test -n "$found" || { echo "$exe not in $url" >&2; exit 1; }
+          install -m 0755 "$found" "$TOOLS_DIR/$exe"
+        }
+        install_tool "$RG_URL" "$RG_SHA256" rg
+        install_tool "$FD_URL" "$FD_SHA256" fd
+        "$TOOLS_DIR/rg" --version
+        "$TOOLS_DIR/fd" --version

@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using Fetchle.Core.Storage;
 
 namespace Fetchle.Core.Walking;
 
@@ -49,11 +50,11 @@ public sealed class PruneRules
 
     static string[] DefaultPaths()
     {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var home = UserDirs.Home(Environment.GetEnvironmentVariable);
         var paths = new List<string> { Path.GetTempPath() };
         if (OperatingSystem.IsWindows())
         {
-            paths.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp"));
+            paths.Add(Path.Combine(UserDirs.LocalAppData(Environment.GetEnvironmentVariable), "Temp"));
         }
         else if (OperatingSystem.IsMacOS())
         {

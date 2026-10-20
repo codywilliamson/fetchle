@@ -1,4 +1,5 @@
 using System.Reflection;
+using Fetchle.Core.Storage;
 
 namespace Fetchle.Cli.Commands;
 
@@ -9,6 +10,8 @@ public sealed record CliEnvironment(
     TimeProvider Clock,
     string Version)
 {
+    public FetchleDirs Dirs => FetchleDirs.Resolve(GetVariable);
+
     public static CliEnvironment FromProcess() => new(
         Environment.CurrentDirectory,
         Console.IsOutputRedirected,

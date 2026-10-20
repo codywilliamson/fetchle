@@ -8,6 +8,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Fetchle.Fixtures/Fetchle.Fixtures.csproj" />
     <Project Path="tests/Fetchle.Tests/Fetchle.Tests.csproj" />
+    <Project Path="tests/Fetchle.Bench.Tests/Fetchle.Bench.Tests.csproj" />
     <Project Path="tests/Fetchle.E2E/Fetchle.E2E.csproj" />
   </Folder>
   <Folder Name="/bench/">

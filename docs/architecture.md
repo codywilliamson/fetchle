@@ -10,6 +10,12 @@ Pruning is the single biggest lever. On `AppData` it took the corpus from 2.6 mi
 
 Paths are stored as a tree, not as strings. Each node is a parent id plus an interned name segment, laid out as struct-of-arrays so the whole store can be memory-mapped from one file. Segments repeat heavily. The pruned `AppData` set had 4.28 million segment occurrences but only 442 thousand unique ones, so everything expensive happens per unique segment.
 
+The snapshot is that store on disk, `snapshot.fidx` in the index dir. A fixed header names the format version, endianness, file length and an XxHash3 of everything after it, and a section table points at the columns: parent ids, segment ids, flags, segment offsets, the UTF-8 segment blob, and the roots. Rows go roots first, then breadth-first, so a parent's id is always below its children's and the parent column never decreases. That makes a dir's children one contiguous run, found by binary search. A reader maps the file, checks the header, checksum and invariants, and then reads the columns as spans in place. Nothing is deserialized. The layout and the swap protocol are drawn in [diagrams/path-store.excalidraw](diagrams/path-store.excalidraw).
+
+A rebuild takes the write lock, walks, writes the whole image to a temp file, flushes it and renames it over the old snapshot. On Windows that rename uses POSIX semantics, the only form that replaces a file another process still has mapped. A writer dying at any step leaves the old snapshot intact.
+
+A query on the snapshot works per unique segment, then per entry. An ASCII query scans the segment blob once with a vectorized byte search and marks every segment containing it; only names with non-ASCII bytes get decoded. One forward pass over the rows then carries two bits from parent to child, "inside the searched scope" and "path matches". Because parents come first, that one pass sees every parent before its children. Only the hits that make the top-k ever become strings.
+
 ## Embedding segments
 
 Each unique segment gets a vector from a static Model2Vec model, `potion-retrieval-32M` quantized to int8. Static means no transformer at query time: tokenize, look up rows, average. An encode takes about 0.05 ms under AOT.
@@ -52,7 +58,7 @@ Changes never rewrite the snapshot in place. They land in an in-memory overlay o
 
 The parent-pointer store makes this cheap. Renaming a directory changes one row's name and leaves its subtree alone, where string paths would change every descendant. Embeddings are cached per unique segment, so a new file costs one encode for its new name and reuses every other vector. Lexical postings for new segments go in the overlay too.
 
-The MCP server, or `fetchle index`, is the only writer, guarded by a lock file. The CLI only reads. When its snapshot is stale for the root being searched, it catches up that scope in memory within the query's budget and leaves the file alone.
+The MCP server, or `fetchle index`, is the only writer, guarded by a lock file. The CLI only reads. In v0.1 the CLI reads the snapshot as it is, and a configured root that isn't in it yet is walked live. Catching a stale scope up in memory within the query's budget comes with the watcher work in v0.4.
 
 ## Cross-platform from the first commit
 

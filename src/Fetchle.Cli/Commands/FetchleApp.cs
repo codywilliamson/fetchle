@@ -1,4 +1,5 @@
 using Fetchle.Core.Search;
+using Fetchle.Core.Storage;
 using Fetchle.Mcp;
 using XenoAtom.CommandLine;
 
@@ -24,14 +25,31 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         new("help", "Help for a command"),
     ];
 
-    bool _actionRan;
+    readonly ActionTracker _tracker = new();
 
     public async Task<ExitCode> RunAsync(string[] args)
     {
         var app = args.Length > 0 && Find(args[0]) is not null ? CreateCommandsApp() : CreateSearchApp();
-        var exitCode = (ExitCode)await app.RunAsync(args);
+        ExitCode exitCode;
+        try
+        {
+            exitCode = (ExitCode)await app.RunAsync(args);
+        }
+        catch (InvalidDataException e)
+        {
+            // a hand-edited or truncated config or receipt. every command reads them, doctor included
+            Console.Error.WriteLine($"fetchle: {e.Message}");
+            Console.Error.WriteLine("fix or delete that file and try again");
+            return ExitCode.Usage;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            Console.Error.WriteLine($"fetchle: {e.Message}");
+            return ExitCode.InstallProblem;
+        }
+
         // the parser reports bad args as 1, which is our "no results"
-        return exitCode != ExitCode.Success && !_actionRan ? ExitCode.Usage : exitCode;
+        return exitCode != ExitCode.Success && !_tracker.Ran ? ExitCode.Usage : exitCode;
     }
 
     CommandApp CreateSearchApp()
@@ -44,7 +62,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
             { "i", "Live picker, re-ranks as you type", _ => args.Interactive = true },
             { "limit=", "Max {N} results (10 on a TTY, 20 for agents)", (int v) => args.Limit = ParseLimit(v) },
             { "budget=", "Stop after {DURATION} and report what was skipped (default 2s)", v => args.Budget = Durations.Parse(v, "budget") },
-            { "root=", "Restrict to {PATH}, repeatable (default: current directory)", args.Roots },
+            { "root=", "Restrict to {PATH}, repeatable (default: configured roots, else the current directory)", args.Roots },
             { "ext=", "Only this {EXT}ension, repeatable", args.Extensions },
             { "since=", "Modified within {DURATION}, e.g. 3d", v => args.Since = Durations.Parse(v, "since") },
             { "type=", "{f|d}: files or directories only", v => args.Type = ParseType(v) },
@@ -64,12 +82,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
             app.Add($"  {command.Name,-27}{command.Description}");
         }
 
-        app.Add((ctx, _) =>
-        {
-            _actionRan = true;
-            var exitCode = args.Interactive ? NotImplemented(ctx, "-i") : new SearchCommand(search, env).Run(ctx, args);
-            return ValueTask.FromResult((int)exitCode);
-        });
+        app.Add((ctx, _) => _tracker.Done(args.Interactive ? NotImplemented(ctx, "-i") : new SearchCommand(search, env).Run(ctx, args)));
         return app;
     }
 
@@ -77,14 +90,14 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
     {
         var app = new CommandApp("fetchle")
         {
-            Stub("roots"),
-            Stub("index"),
+            RootsCommand.Create(env, _tracker),
+            IndexCommand.Create(env, _tracker),
             Mcp(),
-            Stub("setup"),
-            Stub("doctor", "fix", "Run the fixes"),
+            SetupCommand.Create(env, _tracker),
+            DoctorCommand.Create(env, _tracker),
             Stub("update"),
             Stub("cleanup", "yes", "Don't ask for confirmation"),
-            Stub("uninstall", "yes", "Don't ask for confirmation"),
+            UninstallCommand.Create(env, _tracker),
             Stub("savings"),
         };
         app.Add(Help(app));
@@ -96,8 +109,12 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         new HelpOption(),
         async (_, _) =>
         {
-            _actionRan = true;
-            var tools = new Tools(search, env.CurrentDirectory);
+            await _tracker.Done(ExitCode.Success);
+            var tools = new Tools(search, () =>
+            {
+                var configured = RootsConfig.Load(env.Dirs.Config);
+                return configured.Count > 0 ? configured : [env.CurrentDirectory];
+            });
             await new FetchleMcpServer(tools, env.Version).RunAsync(CancellationToken.None);
             return (int)ExitCode.Success;
         },
@@ -110,11 +127,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         {
             new HelpOption(),
             { "<command>?", "Command name", target },
-            (ctx, _) =>
-            {
-                _actionRan = true;
-                return ValueTask.FromResult((int)ShowHelp(ctx, commandsApp, target));
-            },
+            (ctx, _) => _tracker.Done(ShowHelp(ctx, commandsApp, target)),
         };
     }
 
@@ -127,11 +140,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
         }
 
         command.Add("<args>*", "Arguments", new List<string>());
-        command.Add((ctx, _) =>
-        {
-            _actionRan = true;
-            return ValueTask.FromResult((int)NotImplemented(ctx, name));
-        });
+        command.Add((ctx, _) => _tracker.Done(NotImplemented(ctx, name)));
         return command;
     }
 

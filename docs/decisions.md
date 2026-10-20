@@ -2,6 +2,48 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-20: v0.1 measured against its targets; two held only on one os
+
+Quiet self-hosted runners (Randy-PC1, Ryzen 5 3600: Windows 11 26300, and Ubuntu 24.04), run 39456621264 at fec3a98, process wall time over 20 runs after a warmup, nearest-rank percentiles. Raw data: `bench/results/external-*.json`, `bench/results/{windows,linux}/`.
+
+| target | windows | linux | held? |
+|---|---|---|---|
+| warm query, dir-heavy, p95 <= 25 ms | 16.6 ms (rg 962 ms) | 7.7 ms (rg 572 ms) | yes |
+| warm query, 1M home corpus, p95 <= 50 ms | 26.6 ms (rg 1,895 ms) | 13.4 ms (rg 710 ms) | yes |
+| snapshot open, 1M entries, <= 5 ms (BenchmarkDotNet mean) | 10.3 ms | 3.6 ms | linux only |
+| on disk <= 40 B per entry | 15.2-27.0 | 15.2-27.0 | yes |
+| cold rebuild <= 1.2x a bare walk (p50) | 1.04x dir-heavy, 1.07x 1M, 1.23x realistic | 1.57x, 1.65x, 1.99x | windows, barely |
+
+For scale, the process floor on that box: `fetchle --version` 13.7 ms p50 on windows and 9.7 ms on linux, `rg --version` 6.2 and 1.0 ms.
+
+Open on windows: mapping and checksumming the synthetic 1M-entry snapshot (every name unique, so larger than a real one) costs nearly three times what it does on linux on the same cpu. Guess, not profiled: page-fault cost of first touch through the mapping. Real snapshots are smaller (11 MB for the 653k-entry home corpus), and the whole 1M query still lands at 26.6 ms p95 including process start, so the miss doesn't move the headline target. Next lever to measure: `PrefetchVirtualMemory` before the checksum pass.
+
+Rebuild on linux: the walk there is fast (152 ms for 653k entries), so the fixed costs show. BenchmarkDotNet at 1M entries puts them at assemble 98 ms, image 33 ms, check 3.6 ms and write plus fsync plus rename 68 ms. Assemble already dropped from 258 ms (interning into one arena). Getting to 1.2x would need building rows inside the walk workers instead of after them, which is a walker change and a v0.2 job. The fsync stays: the snapshot is derived data, but dropping the flush before the rename would trade a crash-consistent swap for a benchmark ratio, and a storage engine doesn't make that trade.
+
+Also learned: Smart App Control (`VerifiedAndReputableDesktop`) on the windows runner blocked the downloaded exe and even locally built dlls with "An Application Control policy has blocked this file" (0x800711C7) until it was turned off; nothing in the repo can work around that.
+
+## 2026-10-20: pin the sdk to an exact version
+
+`global.json` pins 10.0.401 with `rollForward: disable`. With `10.0.400` plus `latestFeature`, setup-dotnet installed 10.0.402 the day it shipped, the SDK-added ILLink package moved from 10.0.12 to 10.0.13, and locked restore failed on all three CI runners while the dev box still had 10.0.401. An exact pin makes the SDK move only in a commit that also refreshes the lock files.
+
+## 2026-10-20: v0.1 index targets, and the snapshot swap protocol
+
+Targets, proposed before building and kept unless a measurement says no. All exe numbers are process wall time including startup, 20+ runs, p50/p95, on the quiet self-hosted runners, never on a loaded dev box.
+
+| target | number | why |
+|---|---|---|
+| warm query, built index, dir-heavy (47,821 dirs) | p95 <= 25 ms | rg walks it in 887 ms, so this is the 10x+ the index exists for |
+| warm query, built index, 1M-entry home corpus | p95 <= 50 ms | proposed here: the per-entry pass is linear, so 15x the entries can't stay at 25 ms |
+| snapshot open, 1M entries | <= 5 ms | memory-mapped, checksum and invariants verified, nothing deserialized |
+| on-disk size | <= 40 bytes per entry | parent id + segment id + flags is 9 bytes, the rest is unique segment text |
+| cold `fetchle index rebuild` | <= 1.2x a bare walk of the same roots | building and writing must not cost more than a fifth of the walk |
+
+Swap protocol. The writer writes `snapshot.fidx.tmp`, flushes it to disk, then renames it over `snapshot.fidx`. On Windows a plain `File.Move(..., overwrite: true)` fails with access denied while any reader has the old file mapped (spike, Windows 11 26200, NTFS). `SetFileInformationByHandle(FileRenameInfoEx)` with `FILE_RENAME_FLAG_REPLACE_IF_EXISTS | FILE_RENAME_FLAG_POSIX_SEMANTICS` replaced it three times in a row while the old view stayed readable and kept its old bytes. Readers open with `FileShare.Read | FileShare.Delete`. On Unix `rename(2)` already has these semantics. One writer at a time holds `index/write.lock` open with `FileShare.None`; the OS drops it if the writer dies.
+
+Reads trust nothing. Open checks magic, version, endianness, the file length, an XxHash3 over the whole file and every structural invariant (section bounds, parent before child, ids in range) before answering. Any failure is exit 3, never a crash or a partial answer.
+
+A configured root that isn't in the snapshot is walked live rather than failing, so `roots add` never breaks search. A snapshot that exists but can't be read is exit 3. The snapshot can be stale until the next rebuild; freshness is v0.4.
+
 ## 2026-10-05: native relative-open lister is the Windows default, for safety not speed
 
 The walker lists Windows dirs with `NtCreateFile` relative to the parent's handle (`OBJ_DONT_REPARSE` plus `FILE_OPEN_REPARSE_POINT`, no backup intent) and `NtQueryDirectoryFileEx` into a 64 KB per-worker buffer. Other OSes keep the .NET `FileSystemEnumerator` lister behind the same seam.
@@ -89,6 +131,12 @@ Evidence: [spikes/naming.md](spikes/naming.md).
 ## 2026-10-03: MIT license
 
 Matches the ecosystem: semble, Model2Vec.Net, fastfind and MFTLib are all MIT.
+
+## 2026-10-20: uninstall hands the running exe's dir to a detached cmd
+
+Windows can't delete a running exe, so uninstall deletes everything else, then spawns `cmd` that retries `rmdir` for about a minute. Moving the exe to `.old` doesn't help, the file is still in the dir being deleted. Two traps found on the way: `cmd` dies when its redirected stdout pipe breaks (a `for` loop echoes into it) so the script starts with `@echo off`, and a second `for` after a first nests inside it unless each is parenthesized. The child's stdio is redirected and closed so a test harness waiting on our stdout doesn't wait on it too. `doctor` judges PATH from the registry value or rc file, not the process env, so a fix passes immediately instead of after a new shell.
+
+Evidence: `scripts/ci/install-lifecycle.ps1` run locally on Windows, two cycles; the E2E case `Uninstall_removes_the_dir_that_holds_its_own_exe`.
 
 ## Open
 

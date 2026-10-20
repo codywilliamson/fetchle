@@ -13,13 +13,8 @@ public class CommandTests
     }
 
     [Test]
-    [Arguments("roots", "list")]
-    [Arguments("index", "status")]
-    [Arguments("setup")]
-    [Arguments("doctor", "--fix")]
     [Arguments("update")]
     [Arguments("cleanup", "--yes")]
-    [Arguments("uninstall", "--yes")]
     [Arguments("savings")]
     [Arguments("-i")]
     public async Task Unimplemented_commands_say_so_and_exit_2(params string[] args)

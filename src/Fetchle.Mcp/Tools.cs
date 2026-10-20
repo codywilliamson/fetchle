@@ -1,13 +1,15 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Fetchle.Core.Index;
 using Fetchle.Core.Search;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 
 namespace Fetchle.Mcp;
 
-public sealed class Tools(IFileSearch search, string defaultRoot)
+// defaultRoots: read per call, so a long-lived server sees `roots add`. the configured roots, or the working directory when none are configured
+public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaultRoots)
 {
     public const int MAX_BUDGET_MS = 25_000;
 
@@ -61,9 +63,27 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
             throw InvalidParams("ext must not contain null");
         }
 
+        // configured roots that went missing are skipped and named, never silently dropped
+        IReadOnlyList<string> roots;
+        var missing = new List<string>();
+        if (args.Root is { } root)
+        {
+            roots = [root];
+        }
+        else
+        {
+            var configured = defaultRoots();
+            roots = configured.Where(Directory.Exists).ToList();
+            missing = configured.Where(r => !Directory.Exists(r)).ToList();
+            if (roots.Count == 0)
+            {
+                return Failed($"every configured root is missing: {string.Join(", ", missing)}. run `fetchle roots remove <path>` for any that are gone for good");
+            }
+        }
+
         var request = new SearchRequest(
             args.Query,
-            [args.Root ?? defaultRoot],
+            roots,
             args.Limit,
             TimeSpan.FromMilliseconds(Math.Min(args.BudgetMs, MAX_BUDGET_MS)),
             args.Ext);
@@ -77,6 +97,10 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
         {
             throw InvalidParams(e.Message);
         }
+        catch (IndexUnreadableException e)
+        {
+            return Failed($"{e.Message}. run `fetchle index rebuild`");
+        }
 
         var text = new StringBuilder();
         foreach (var hit in result.Hits)
@@ -84,6 +108,10 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
             text.Append(hit.Path).Append('\n');
         }
         text.Append(result.Footer());
+        if (missing.Count > 0)
+        {
+            text.Append($"\nskipped missing roots: {string.Join(", ", missing)}");
+        }
         var structured = new FindFilesResult(result.Hits, result.TotalMatches, result.Hits.Count, (long)result.Elapsed.TotalMilliseconds, result.StoppedEarly);
         return new CallToolResult
         {
@@ -94,11 +122,21 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
 
     CallToolResult IndexStatus()
     {
-        var status = search.GetStatus([defaultRoot]);
+        IndexStatus status;
+        try
+        {
+            status = search.GetStatus(defaultRoots());
+        }
+        catch (IndexUnreadableException e)
+        {
+            return Failed($"{e.Message}. run `fetchle index rebuild`");
+        }
+
         var text = new StringBuilder();
         foreach (var root in status.Roots)
         {
-            text.Append($"{root.Path}: {(root.FileCount is { } n ? $"{n} files" : "not indexed")}\n");
+            var state = !Directory.Exists(root.Path) ? "missing on disk" : root.FileCount is { } n ? $"{n} files" : "not indexed";
+            text.Append($"{root.Path}: {state}\n");
         }
         text.Append($"vectors complete: {(status.VectorsComplete ? "yes" : "no")}, watcher live: {(status.WatcherLive ? "yes" : "no")}");
         return new CallToolResult
@@ -122,6 +160,13 @@ public sealed class Tools(IFileSearch search, string defaultRoot)
             throw InvalidParams(e.Message);
         }
     }
+
+    // a tool-level failure the agent can read and act on, not a protocol error
+    static CallToolResult Failed(string message) => new()
+    {
+        IsError = true,
+        Content = [new TextContentBlock { Text = message }],
+    };
 
     static McpProtocolException InvalidParams(string message) => new(message, McpErrorCode.InvalidParams);
 }

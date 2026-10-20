@@ -4,6 +4,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <!-- xxhash3 checksums the snapshot -->
+    <PackageReference Include="System.IO.Hashing" />
+  </ItemGroup>
+  <ItemGroup>
     <!-- the bench sweeps internal knobs like the walker's worker count, tests poke internal types -->
     <InternalsVisibleTo Include="Fetchle.Bench" />
     <InternalsVisibleTo Include="Fetchle.Tests" />

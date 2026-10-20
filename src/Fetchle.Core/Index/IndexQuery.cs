@@ -178,11 +178,12 @@ static class IndexQuery
                 at = (int)parents[at];
             }
 
-            foreach (var scope in scopes)
+            // indexed loops: a foreach over the interface would box an enumerator per matched entry
+            for (var s = 0; s < scopes.Count; s++)
             {
-                if (scope.Entry == at)
+                if (scopes[s].Entry == at)
                 {
-                    return scope;
+                    return scopes[s];
                 }
             }
             throw new InvalidOperationException("entry outside every scope");
@@ -199,9 +200,9 @@ static class IndexQuery
 
             var name = chars[..Encoding.UTF8.GetChars(bytes, chars)];
             var ext = Path.GetExtension(name).TrimStart('.');
-            foreach (var e in extensions)
+            for (var e = 0; e < extensions.Count; e++)
             {
-                if (ext.Equals(e.TrimStart('.'), StringComparison.OrdinalIgnoreCase))
+                if (ext.Equals(extensions[e].AsSpan().TrimStart('.'), StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

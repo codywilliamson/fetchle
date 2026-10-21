@@ -2,6 +2,27 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-21: v0.2 ranking targets and the eval protocol
+
+Proposed before building, kept unless a measurement says no. Latency numbers come only from the quiet self-hosted runners (`bench.yml`), on the published AOT exe, process wall time, 20 runs after a warmup, nearest-rank percentiles.
+
+| target | number | why |
+|---|---|---|
+| held-out top-3 hit rate | >= 90% | the vision's headline number, and the roadmap's v0.2 exit check |
+| held-out top-1 hit rate | >= 70% | an agent mostly reads the first path; below 70% it has to read three every time |
+| held-out MRR | reported per release, no floor | tracks movement inside the top 10 that top-1/top-3 hide |
+| CI gate | fails below the committed held-out baseline on top-1, top-3 or MRR | ranking can only move up without someone deciding otherwise |
+| warm ranked query, `home-1m` | p95 <= 50 ms | the v0.1 target for the same corpus; substring measured 26.6 ms windows and 13.4 ms linux, ranking may spend the difference and no more |
+| segment vectors on disk | <= 64 bytes per unique segment | 512 int8 dims is 512 bytes, 216 MB at the spike's 442k segments. 64 bytes is 28 MB, small enough to map whole |
+| background embed, `home-1m` | <= 10 s wall, lexical answers before it finishes | the spike's single-threaded encode took 17 s for 442k segments; a rebuild must not wait on it |
+| `fetchle -i` keystroke to repaint | p95 <= 16 ms over the 1M index | one 60 Hz frame |
+
+Eval protocol. Queries come from two sources, kept apart so neither leaks into the other: real file hunts mined from Cody's Claude Code transcripts (the search command, the user's intent, and the path the agent used next), and queries a separate subagent writes from the fixture corpus alone, without ever seeing ranker output. Target 150+ judged queries. Each query gets a stable id; the split is by a hash of the id, about two thirds dev and one third held out, stratified by source. Tuning only ever reads dev results. The CI gate, the baseline and every reported number come from held-out. Raw transcripts never enter the repo: only the derived query, the expected paths and the corpus paths needed to reproduce them, with secret-looking names and `~/.ssh`-style dirs filtered out.
+
+The corpus is built from a path list straight into a snapshot in memory, with no files on disk, so the eval can be large (mined real paths, the paths seen in transcript listings as real distractors, and the seeded `HomeCorpus` filler) and still run in CI on three OSes.
+
+Every held-out miss gets a row in `evals/failures.md` saying which stage lost it: tokenizer, noise, lexical, semantic, fusion or depth. Fixes target a class of failure and must hold on dev; a fix aimed at one query is not allowed.
+
 ## 2026-10-20: v0.1 measured against its targets; two held only on one os
 
 Quiet self-hosted runners (Randy-PC1, Ryzen 5 3600: Windows 11 26300, and Ubuntu 24.04), run 39456621264 at fec3a98, process wall time over 20 runs after a warmup, nearest-rank percentiles. Raw data: `bench/results/external-*.json`, `bench/results/{windows,linux}/`.

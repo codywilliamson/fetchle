@@ -4,6 +4,7 @@ using BenchmarkDotNet.Attributes;
 using Fetchle.Cli.Commands;
 using Fetchle.Cli.Picker;
 using Fetchle.Core.Index;
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
 using Fetchle.Fixtures;
@@ -17,7 +18,8 @@ static class PickerBench
 {
     public const string QUERY = "windows terminal settings";
     public const int ENTRIES = HomeCorpus.DEFAULT_ENTRIES;
-    const string CORPUS_VERSION = "v1";
+    // v2: snapshot format 2 and vectors beside it
+    const string CORPUS_VERSION = "v2";
     static readonly string Root = Path.Join(Path.GetTempPath(), "fetchle-picker-bench-root");
 
     // the snapshot is built once per machine and mapped on later runs, like the real index
@@ -26,13 +28,18 @@ static class PickerBench
         // the search resolves its root on disk even though the snapshot answers it, so the dir exists and stays empty
         Directory.CreateDirectory(Root);
         var store = new IndexStore(Path.Join(Path.GetTempPath(), $"fetchle-picker-bench-{entries}-{CORPUS_VERSION}"));
-        if (!File.Exists(store.SnapshotPath))
+        var model = BenchModel.Instance;
+        if (!File.Exists(store.SnapshotPath) || !File.Exists(store.VectorsPath))
         {
             Directory.CreateDirectory(store.Directory);
             var tree = TreeFromPaths.Build(Root, HomeCorpus.Entries(entries));
-            store.WriteAndSwap(SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch));
+            var image = SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch);
+            store.WriteAndSwap(image, store.TempPath, store.SnapshotPath);
+            using var snapshot = Snapshot.FromBytes(image);
+            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(snapshot, model), snapshot.Checksum, model.Checksum);
+            store.WriteAndSwap(vectors, store.VectorsPath + IndexStore.TEMP_SUFFIX, store.VectorsPath);
         }
-        return SearchSession.Open(store, PruneRules.Default, null);
+        return SearchSession.Open(store, PruneRules.Default, model);
     }
 
     public static SearchRequest Template => new("", [Root], PickerCommand.RESULT_LIMIT, TimeSpan.FromSeconds(5));

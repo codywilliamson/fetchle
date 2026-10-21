@@ -7,7 +7,7 @@ namespace Fetchle.Core.Ranking.Semantic;
 //     8  u32 version
 //    12  u32 endian marker 0x01020304, written native-endian
 //    16  u64 file length
-//    24  u64 xxhash3 of bytes [32, file length)
+//    24  u64 checksum of bytes [32, file length): ChunkedChecksum, as the snapshot's
 //    32  u64 checksum of the snapshot these vectors belong to
 //    40  u64 checksum of the model that made them
 //    48  u32 segments, u32 entries
@@ -22,7 +22,8 @@ namespace Fetchle.Core.Ranking.Semantic;
 static class VectorFormat
 {
     public const ulong MAGIC = 0x6365_7668_6374_6566; // "fetchvec" read little-endian
-    public const uint VERSION = 1;
+    // 2: the chunked checksum
+    public const uint VERSION = 2;
     public const uint ENDIAN_MARKER = 0x0102_0304;
     public const string FILE_NAME = "vectors.fvec";
 

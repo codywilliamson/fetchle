@@ -51,5 +51,5 @@ static class VectorWriter
         return image;
     }
 
-    public static ulong Checksum(ReadOnlySpan<byte> image) => XxHash3.HashToUInt64(image[VectorFormat.CHECKSUMMED_FROM..]);
+    public static ulong Checksum(ReadOnlySpan<byte> image) => Index.ChunkedChecksum.Compute(image[VectorFormat.CHECKSUMMED_FROM..]);
 }

@@ -9,7 +9,7 @@ namespace Fetchle.Bench;
 static class HomeIndex
 {
     // bump when the snapshot or vectors format changes
-    const string VERSION = "v2";
+    const string VERSION = "v3";
 
     // searches resolve their root on disk even though the snapshot answers them, so the dir exists and stays empty
     public static readonly string Root = Path.Join(Path.GetTempPath(), "fetchle-home-index-root");

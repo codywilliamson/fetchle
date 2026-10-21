@@ -7,7 +7,7 @@ namespace Fetchle.Core.Index;
 //     8  u32 version
 //    12  u32 endian marker 0x01020304, written native-endian
 //    16  u64 file length
-//    24  u64 xxhash3 of bytes [32, file length)
+//    24  u64 checksum of bytes [32, file length): ChunkedChecksum, xxhash3 of the 1 MiB chunks' xxhash3s
 //    32  i64 built at, unix ms
 //    40  u32 entries, u32 segments, u32 roots, u32 non-ascii segments
 //    56  u32 section count, u32 tokens
@@ -19,8 +19,8 @@ namespace Fetchle.Core.Index;
 static class SnapshotFormat
 {
     public const ulong MAGIC = 0x7864_6968_6374_6566; // "fetchidx" read little-endian
-    // 2 added the lexicon
-    public const uint VERSION = 2;
+    // 2 added the lexicon, 3 the chunked checksum
+    public const uint VERSION = 3;
     public const uint ENDIAN_MARKER = 0x0102_0304;
 
     public const int MAGIC_OFFSET = 0;

@@ -83,7 +83,7 @@ static class SnapshotWriter
         return image;
     }
 
-    public static ulong Checksum(ReadOnlySpan<byte> image) => XxHash3.HashToUInt64(image[SnapshotFormat.CHECKSUMMED_FROM..]);
+    public static ulong Checksum(ReadOnlySpan<byte> image) => ChunkedChecksum.Compute(image[SnapshotFormat.CHECKSUMMED_FROM..]);
 
     // a segment that names any file gets its extension split off; dirs like Fetchle.Core keep "core" a word
     static bool[] SegmentsUsedByFiles(PathTree tree)

@@ -5,7 +5,7 @@ using BenchmarkDotNet.Running;
 using Fetchle.Bench;
 using Microsoft.Extensions.Logging;
 
-// usage: Fetchle.Bench [--external] [benchmarkdotnet args, e.g. --filter *Walk*]
+// usage: Fetchle.Bench [--external | --picker-latency] [benchmarkdotnet args, e.g. --filter *Walk*]
 // results land as json in bench/results/
 using var loggerFactory = CreateLoggerFactory();
 var logger = loggerFactory.CreateLogger("Fetchle.Bench");
@@ -20,6 +20,12 @@ if (args is ["--external", ..])
     var measurer = new ToolMeasurer(new ProcessTimer(), loggerFactory.CreateLogger<ToolMeasurer>());
     var runner = new ExternalBenchRunner(options, measurer, loggerFactory.CreateLogger<ExternalBenchRunner>());
     return runner.Run();
+}
+
+// keystroke to repaint p50/p95 over a 1M-entry index, the picker's v0.2 target
+if (args is ["--picker-latency"])
+{
+    return PickerLatency.Run(resultsDir);
 }
 
 var artifacts = Path.Combine(repo, "artifacts", "bench");

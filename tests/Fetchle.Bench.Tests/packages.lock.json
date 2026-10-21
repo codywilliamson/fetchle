@@ -97,6 +97,11 @@
         "resolved": "3.1.6",
         "contentHash": "jek4XYaQ/PGUwDKKhwR8K47Uh1189PFzMeLqO83mXrXQVIpARZCcfuDedH50YDTepBkfijCZN5U/vZi++erxtg=="
       },
+      "Microsoft.Extensions.AI.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.8.3",
+        "contentHash": "K0B05oApxmviWalNHPMBBcRC7erKiDATz3ENNR/jqTR9JwIwLRefgDhj2jCRwL1aca99pXUe0qyQC73/xIuZig=="
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "10.0.12",
@@ -301,13 +306,37 @@
           "TUnit.Core": "1.72.16"
         }
       },
+      "Wcwidth": {
+        "type": "Transitive",
+        "resolved": "4.0.1",
+        "contentHash": "PMU8u3pGf9nUkee39KMrB8qqId7u7kyGWaZpOh9E4Mal3xChq+relS/hHQOicGAswyzi7F5DjXjac0mTnRBX8Q=="
+      },
+      "XenoAtom.Ansi": {
+        "type": "Transitive",
+        "resolved": "1.7.1",
+        "contentHash": "TXxP5wKT4kMJBEG72crUoMPPntykmZhCizq2LNO21gk/GgGBxzcKA+CoewJNKe/qfncS3Zkd4ss4VbHsdE5BKA==",
+        "dependencies": {
+          "Wcwidth": "4.0.1"
+        }
+      },
+      "fetchle": {
+        "type": "Project",
+        "dependencies": {
+          "Fetchle.Core": "[0.1.0, )",
+          "Fetchle.Mcp": "[0.1.0, )",
+          "XenoAtom.CommandLine": "[2.0.3, )",
+          "XenoAtom.Terminal": "[2.2.0, )",
+          "XenoAtom.Terminal.UI": "[3.10.0, )"
+        }
+      },
       "fetchle.bench": {
         "type": "Project",
         "dependencies": {
           "BenchmarkDotNet": "[0.15.8, )",
-          "Fetchle.Core": "[0.0.0, )",
-          "Fetchle.Fixtures": "[0.0.0, )",
-          "Microsoft.Extensions.Logging.Console": "[10.0.12, )"
+          "Fetchle.Core": "[0.1.0, )",
+          "Fetchle.Fixtures": "[0.1.0, )",
+          "Microsoft.Extensions.Logging.Console": "[10.0.12, )",
+          "fetchle": "[0.1.0, )"
         }
       },
       "fetchle.core": {
@@ -318,6 +347,13 @@
       },
       "fetchle.fixtures": {
         "type": "Project"
+      },
+      "fetchle.mcp": {
+        "type": "Project",
+        "dependencies": {
+          "Fetchle.Core": "[0.1.0, )",
+          "ModelContextProtocol.Core": "[2.2.0, )"
+        }
       },
       "BenchmarkDotNet": {
         "type": "CentralTransitive",
@@ -350,11 +386,46 @@
           "Microsoft.Extensions.Options": "10.0.12"
         }
       },
+      "ModelContextProtocol.Core": {
+        "type": "CentralTransitive",
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "FeBfXU6T8k+jw4afg4sfxdEX2rL/e5oKOk9ROOGztu9k47+7Bz08sdaToYt2XvMY1opNbwxYQOFMj6wH9TInhA==",
+        "dependencies": {
+          "Microsoft.Extensions.AI.Abstractions": "10.8.3",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.10"
+        }
+      },
       "System.IO.Hashing": {
         "type": "CentralTransitive",
         "requested": "[10.0.12, )",
         "resolved": "10.0.12",
         "contentHash": "jDix4bBMYnpZdSPcnY+KDV6ik3SRMzpMKby/bZl/XUwIiflwRNAFZ0oOl61R/pSaveIJ8t1gs2BUlrGsPs/bcg=="
+      },
+      "XenoAtom.CommandLine": {
+        "type": "CentralTransitive",
+        "requested": "[2.0.3, )",
+        "resolved": "2.0.3",
+        "contentHash": "LLYJ7/U+03yHUq6njRl5EEYZpvPCepXNU5/jLyem4zDMK7PDFzQuWEk+9Cae5UTd8SuOVl2QOCPVZ4RG6lx3ag=="
+      },
+      "XenoAtom.Terminal": {
+        "type": "CentralTransitive",
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "J3oOWIoJm24pAN2zsSesy8eyv6nUQyjmW6OFqmbH596HyaEOErQPKdQMEIPNqQT7QymipcbHm6qEAfREuomfkA==",
+        "dependencies": {
+          "XenoAtom.Ansi": "1.7.0"
+        }
+      },
+      "XenoAtom.Terminal.UI": {
+        "type": "CentralTransitive",
+        "requested": "[3.10.0, )",
+        "resolved": "3.10.0",
+        "contentHash": "Dvdgw2EyoSdL9NoXsuVKHfl9Ebz6tCpikv7lyzqgyLa7TNhOosR63cIus3EAaerDjWG891ujAvge2S5Tkse2pw==",
+        "dependencies": {
+          "XenoAtom.Ansi": "1.7.1",
+          "XenoAtom.Terminal": "2.2.0"
+        }
       }
     }
   }

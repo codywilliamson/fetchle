@@ -11,6 +11,7 @@ namespace Fetchle.Cli.Picker;
 sealed class PickerDriver : IDisposable
 {
     static readonly TimeSpan WaitLimit = TimeSpan.FromSeconds(10);
+    static readonly TimeSpan UnchangedGrace = TimeSpan.FromMilliseconds(250);
 
     readonly PickerApp _picker;
     readonly VirtualTerminalBackend _backend;
@@ -67,8 +68,9 @@ sealed class PickerDriver : IDisposable
         WaitForFrameAfterApply(limit, spin);
     }
 
-    // presses one character and measures until the frame carrying its results is written
-    public TimeSpan PressAndWaitForPaint(char c)
+    // presses one character and measures until the frame carrying its results is written. null when the new results
+    // looked exactly like the old ones, so nothing was repainted
+    public TimeSpan? PressAndWaitForPaint(char c)
     {
         var limit = Stopwatch.StartNew();
         var spin = new SpinWait();
@@ -85,23 +87,30 @@ sealed class PickerDriver : IDisposable
         {
             Guard(limit, spin);
         }
-        WaitForFrameAfterApply(limit, spin);
-        return Stopwatch.GetElapsedTime(start, _screen.LastFrameEnd);
+        return WaitForFrameAfterApply(limit, spin) ? Stopwatch.GetElapsedTime(start, _screen.LastFrameEnd) : null;
     }
 
-    void WaitForFrameAfterApply(Stopwatch limit, SpinWait spin)
+    // a result that renders the same cells as the last one (same count, same rounded ms) writes no frame at all. after
+    // the grace period that counts as painted-and-unchanged, not as a hang
+    bool WaitForFrameAfterApply(Stopwatch limit, SpinWait spin)
     {
+        var applied = Stopwatch.StartNew();
         while (_screen.Frames <= Volatile.Read(ref _framesAtApply))
         {
+            if (applied.Elapsed > UnchangedGrace)
+            {
+                return false;
+            }
             Guard(limit, spin);
         }
+        return true;
     }
 
     void Guard(Stopwatch limit, SpinWait spin)
     {
         if (limit.Elapsed > WaitLimit)
         {
-            throw new TimeoutException($"the picker never painted. applied {_picker.AppliedSequence} of {_picker.LastSubmitted}, {_screen.Frames} frames");
+            throw new TimeoutException($"the picker never painted. applied {_picker.AppliedSequence} of {_picker.LastSubmitted}, {_screen.Frames} frames, loop {(_run.IsFaulted ? _run.Exception : _run.Status)}");
         }
         spin.SpinOnce(-1);
     }
@@ -124,6 +133,7 @@ sealed class PickerDriver : IDisposable
         readonly StringBuilder _text = new();
         long _frames;
         long _lastFrameEnd;
+        int _matched;
 
         public override Encoding Encoding => Encoding.UTF8;
         public long Frames => Volatile.Read(ref _frames);
@@ -155,10 +165,22 @@ sealed class PickerDriver : IDisposable
                 }
             }
 
-            if (chunk.Contains(FRAME_END, StringComparison.Ordinal))
+            // the marker can straddle two writes, so match it one char at a time across them
+            foreach (var c in chunk)
             {
-                Volatile.Write(ref _lastFrameEnd, Stopwatch.GetTimestamp());
-                Interlocked.Increment(ref _frames);
+                if (c == FRAME_END[_matched])
+                {
+                    if (++_matched == FRAME_END.Length)
+                    {
+                        _matched = 0;
+                        Volatile.Write(ref _lastFrameEnd, Stopwatch.GetTimestamp());
+                        Interlocked.Increment(ref _frames);
+                    }
+                }
+                else
+                {
+                    _matched = c == FRAME_END[0] ? 1 : 0;
+                }
             }
         }
     }

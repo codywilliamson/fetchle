@@ -71,6 +71,14 @@ public static class RootsConfig
 
     public static string Normalize(string root) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
 
+    // drops the root spelled exactly like root; with no exact spelling, the one root's volume says is the same path.
+    // on a case-sensitive volume Foo and foo are two roots, and removing one must leave the other. returns how many went
+    public static int Remove(List<string> roots, string root)
+    {
+        var exact = roots.RemoveAll(r => r.Equals(root, StringComparison.Ordinal));
+        return exact > 0 ? exact : roots.RemoveAll(r => r.Equals(root, PathComparison.For(r)));
+    }
+
     // true when path is root itself or somewhere under it, compared the way root's volume compares paths
     public static bool Covers(string root, string path) => Covers(root, path, PathComparison.For(root));
 

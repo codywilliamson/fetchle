@@ -54,7 +54,27 @@ public sealed class QueryTerms
 
         // a trailing separator means the last word is finished
         var endsInWord = query.Length > 0 && char.IsLetterOrDigit(query[^1]);
+        DropStopwords(terms, parts, keepLast: lastIsPrefix && endsInWord);
         return new QueryTerms([.. terms], [.. parts], lastIsPrefix && endsInWord);
+    }
+
+    // a query of nothing but stopwords keeps them, it's all there is to go on. the word still being typed stays too:
+    // "the" may be the start of "theme"
+    static void DropStopwords(List<string> terms, List<string[]> parts, bool keepLast)
+    {
+        if (terms.TrueForAll(Stopwords.Contains))
+        {
+            return;
+        }
+
+        for (var t = terms.Count - (keepLast ? 2 : 1); t >= 0; t--)
+        {
+            if (Stopwords.Contains(terms[t]))
+            {
+                terms.RemoveAt(t);
+                parts.RemoveAt(t);
+            }
+        }
     }
 
     static string[] SplitParts(ReadOnlySpan<char> chunk)

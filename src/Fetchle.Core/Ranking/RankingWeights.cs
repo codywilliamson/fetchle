@@ -34,6 +34,9 @@ static class RankingWeights
     // a path under a dir named for worktrees is an agent's scratch copy of something that also lives elsewhere
     public const float COPY_PENALTY = 0.5f;
 
+    // a file's score when the query asked for a folder: still findable, ranked below dirs that match as well
+    public const float NOT_A_DIRECTORY = 0.5f;
+
     // fusion
     public const int RRF_K = 60;
     // how much a semantic rank counts against a lexical one. when some file matched every query word, lexical

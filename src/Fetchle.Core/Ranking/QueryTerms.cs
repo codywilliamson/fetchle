@@ -7,12 +7,19 @@ public sealed class QueryTerms
 {
     public const int MAX_TERMS = 8;
 
-    QueryTerms(string[] terms, string[][] parts, bool lastIsPrefix)
+    // words that say what kind of entry is wanted rather than what it's called: "the migrations folder"
+    static readonly string[] DirectoryWords = ["folder", "folders", "directory", "directories", "dir", "dirs"];
+
+    QueryTerms(string[] terms, string[][] parts, bool lastIsPrefix, bool wantsDirectory)
     {
         Terms = terms;
         Parts = parts;
         LastIsPrefix = lastIsPrefix;
+        WantsDirectory = wantsDirectory;
     }
+
+    // the query named the kind: a dir. the word itself isn't a term, since few dirs are called "folder"
+    public bool WantsDirectory { get; }
 
     public string[] Terms { get; }
 
@@ -55,7 +62,8 @@ public sealed class QueryTerms
         // a trailing separator means the last word is finished
         var endsInWord = query.Length > 0 && char.IsLetterOrDigit(query[^1]);
         DropStopwords(terms, parts, keepLast: lastIsPrefix && endsInWord);
-        return new QueryTerms([.. terms], [.. parts], lastIsPrefix && endsInWord);
+        var wantsDirectory = DropDirectoryWords(terms, parts, keepLast: lastIsPrefix && endsInWord);
+        return new QueryTerms([.. terms], [.. parts], lastIsPrefix && endsInWord, wantsDirectory);
     }
 
     // a query of nothing but stopwords keeps them, it's all there is to go on. the word still being typed stays too:
@@ -75,6 +83,22 @@ public sealed class QueryTerms
                 parts.RemoveAt(t);
             }
         }
+    }
+
+    // like stopwords, but noted: true when one was there. a query that is only the word keeps it
+    static bool DropDirectoryWords(List<string> terms, List<string[]> parts, bool keepLast)
+    {
+        var found = false;
+        for (var t = terms.Count - (keepLast ? 2 : 1); t >= 0 && terms.Count > 1; t--)
+        {
+            if (Array.IndexOf(DirectoryWords, terms[t]) >= 0)
+            {
+                terms.RemoveAt(t);
+                parts.RemoveAt(t);
+                found = true;
+            }
+        }
+        return found;
     }
 
     static string[] SplitParts(ReadOnlySpan<char> chunk)

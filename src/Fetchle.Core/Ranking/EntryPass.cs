@@ -23,8 +23,9 @@ sealed class EntryPass
     readonly PassWorker[] _workers;
 
     public EntryPass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, SemanticScores? semantic,
-        ulong[]? copies, byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
+        ulong[]? copies, byte[] state, byte[] depth, ulong[] carried, float[]? pathSums, bool wantsDirectory)
     {
+        WantsDirectory = wantsDirectory;
         Snapshot = snapshot;
         Request = request;
         Scopes = scopes;
@@ -61,6 +62,8 @@ sealed class EntryPass
     public ulong[] Carried { get; }
 
     public float[]? PathSums { get; }
+
+    public bool WantsDirectory { get; }
 
     public int Total { get; private set; }
 

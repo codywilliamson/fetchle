@@ -44,7 +44,7 @@ static class RankedQuery
             }
             first = Math.Max(first, snapshot.RootCount);
 
-            var pass = new EntryPass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums);
+            var pass = new EntryPass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums, terms.WantsDirectory);
             var completed = pass.Run(first, deadline);
             var lexicalHits = pass.Ranked(lexical: true);
             var semanticHits = pass.Ranked(lexical: false);

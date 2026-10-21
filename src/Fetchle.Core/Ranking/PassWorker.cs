@@ -41,6 +41,7 @@ sealed class PassWorker(EntryPass pass)
         var norms = semantic is null ? [] : semantic.Vectors.Norms;
         var request = pass.Request;
         var filtered = request.Type != EntryType.Any || request.Extensions is { Count: > 0 };
+        var wantsDirectory = pass.WantsDirectory;
 
         // an entry whose own name matched nothing scores exactly like its siblings that didn't either: only the
         // parent's carried matches, the depth and the copy discount count. siblings are contiguous, so one cache
@@ -70,6 +71,10 @@ sealed class PassWorker(EntryPass pass)
             var ancestors = atTop ? 0 : carried[parent];
             carried[i] = MaxBytes(own, ancestors);
             var isDirectory = (flags[i] & SnapshotFormat.FLAG_DIRECTORY) != 0;
+            if (wantsDirectory && !isDirectory)
+            {
+                discount *= RankingWeights.NOT_A_DIRECTORY;
+            }
             var counted = false;
             if ((own | ancestors) != 0)
             {
@@ -97,8 +102,7 @@ sealed class PassWorker(EntryPass pass)
                 {
                     Total++;
                     counted = true;
-                    // a dir that names every word is often the folder the wanted file sits in, so it doesn't count
-                    Covered |= full && !isDirectory;
+                    Covered |= full;
                     if (Lexical.WouldKeep(score, i) && ModifiedInRange(i))
                     {
                         Lexical.Add(score, i);

@@ -53,7 +53,15 @@ sealed class PickerApp
     public string? Run(TerminalInstance terminal)
     {
         var root = BuildVisual();
-        terminal.Live(root, OnUpdate, new TerminalLiveOptions());
+        try
+        {
+            terminal.Live(root, OnUpdate, new TerminalLiveOptions());
+        }
+        finally
+        {
+            // the caller closes the index next; no search may still be reading it
+            _search.Stop();
+        }
         return _chosen;
     }
 

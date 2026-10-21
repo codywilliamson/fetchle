@@ -197,4 +197,36 @@ public class PickerLatestWinsTests
         await Assert.That(done.Error).IsEqualTo("disk gone");
         await Assert.That(done.Result).IsNull();
     }
+
+    [Test]
+    public async Task Stop_waits_for_a_search_that_ignores_its_token_and_publishes_nothing_after()
+    {
+        // the real search only looks at its token between chunks, so Stop can't rely on cancellation alone
+        using var started = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        var finished = 0;
+        var published = new Published();
+        var search = new LatestWinsSearch((query, _) =>
+        {
+            started.Set();
+            release.Wait();
+            Interlocked.Exchange(ref finished, 1);
+            return Result(query);
+        }, published.Add);
+
+        search.Submit("slow");
+        started.Wait(Limit);
+        var stop = Task.Run(search.Stop);
+        await Task.Delay(100);
+        await Assert.That(stop.IsCompleted).IsFalse();
+
+        release.Set();
+        await stop.WaitAsync(Limit);
+        await Assert.That(Volatile.Read(ref finished)).IsEqualTo(1);
+        await Assert.That(published.Queries()).IsEmpty();
+
+        search.Submit("after stop");
+        await Task.Delay(100);
+        await Assert.That(published.Queries()).IsEmpty();
+    }
 }

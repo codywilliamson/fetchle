@@ -73,7 +73,7 @@ sealed class EntryPass
     public bool AnyWordMatched { get; private set; }
 
     // returns false when the deadline cut the pass short
-    public bool Run(int first, Deadline deadline)
+    public bool Run(int first, Deadline deadline, CancellationToken cancellationToken = default)
     {
         SeedScopes();
         foreach (var (start, end) in BfsLevels.Of(Snapshot.Parents, Snapshot.RootCount))
@@ -84,14 +84,14 @@ sealed class EntryPass
             }
 
             var from = Math.Max(start, first);
-            if (deadline.IsExpired())
+            if (deadline.IsExpired() || cancellationToken.IsCancellationRequested)
             {
                 return Merge(false);
             }
 
             if (end - from < PARALLEL_LEVEL)
             {
-                if (!ScanChunks(_workers[0], from, end, deadline))
+                if (!ScanChunks(_workers[0], from, end, deadline, cancellationToken))
                 {
                     return Merge(false);
                 }
@@ -106,7 +106,7 @@ sealed class EntryPass
             {
                 var runFrom = from + w * perWorker * CHUNK;
                 var runTo = Math.Min(end, runFrom + perWorker * CHUNK);
-                if (runFrom < runTo && !ScanChunks(_workers[w], runFrom, runTo, deadline))
+                if (runFrom < runTo && !ScanChunks(_workers[w], runFrom, runTo, deadline, cancellationToken))
                 {
                     Interlocked.Exchange(ref expired, 1);
                 }
@@ -121,11 +121,11 @@ sealed class EntryPass
     }
 
     // the deadline is a timestamp read, so it's checked once per chunk, not per row
-    static bool ScanChunks(PassWorker worker, int from, int to, Deadline deadline)
+    static bool ScanChunks(PassWorker worker, int from, int to, Deadline deadline, CancellationToken cancellationToken)
     {
         for (var chunk = from; chunk < to; chunk += CHUNK)
         {
-            if (deadline.IsExpired())
+            if (deadline.IsExpired() || cancellationToken.IsCancellationRequested)
             {
                 return false;
             }

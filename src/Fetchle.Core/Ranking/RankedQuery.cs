@@ -19,7 +19,9 @@ static class RankedQuery
     public sealed record Outcome(List<RankedEntry> Lexical, List<RankedEntry> Semantic, int Total, bool Completed, bool LexicalCovered = false);
 
     // semantic is null when there's no model, no vectors for this snapshot, or nothing in the query the model knows
-    public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline, SemanticScores? semantic = null)
+    // a cancelled token stops the pass at the next chunk like a spent deadline; the caller throws
+    public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline,
+        SemanticScores? semantic = null, CancellationToken cancellationToken = default)
     {
         if (scopes.Count == 0 || deadline.IsExpired())
         {
@@ -45,7 +47,7 @@ static class RankedQuery
             first = Math.Max(first, snapshot.RootCount);
 
             var pass = new EntryPass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums, terms.WantsDirectory);
-            var completed = pass.Run(first, deadline);
+            var completed = pass.Run(first, deadline, cancellationToken);
             var lexicalHits = pass.Ranked(lexical: true);
             var semanticHits = pass.Ranked(lexical: false);
             if (!pass.AnyWordMatched && (semanticHits.Count == 0 || semanticHits[0].Score < RankingWeights.MIN_SEMANTIC_ALONE))

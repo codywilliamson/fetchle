@@ -72,7 +72,7 @@ public sealed class SearchSession : IDisposable
         if (scopes.Count > 0)
         {
             using var semantic = _vectors is null ? null : SemanticScores.Build(_snapshot!, _vectors, _model!, request.Query);
-            var outcome = RankedQuery.Run(_snapshot!, request, terms, scopes, deadline, semantic);
+            var outcome = RankedQuery.Run(_snapshot!, request, terms, scopes, deadline, semantic, cancellationToken);
             sources.Add((_snapshot!, outcome));
             total += outcome.Total;
             completed = outcome.Completed;
@@ -89,7 +89,7 @@ public sealed class SearchSession : IDisposable
             }
 
             using var semantic = live.Vectors is null ? null : SemanticScores.Build(live.Snapshot, live.Vectors, _model!, request.Query);
-            var outcome = RankedQuery.Run(live.Snapshot, request, terms, liveScopes, deadline, semantic);
+            var outcome = RankedQuery.Run(live.Snapshot, request, terms, liveScopes, deadline, semantic, cancellationToken);
             sources.Add((live.Snapshot, outcome));
             total += outcome.Total;
             completed = live.Completed && outcome.Completed;

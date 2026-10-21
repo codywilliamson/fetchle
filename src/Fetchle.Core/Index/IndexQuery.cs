@@ -35,7 +35,14 @@ static class IndexQuery
         }
 
         var bySeparator = request.Query.Contains(Path.DirectorySeparatorChar);
-        var bits = bySeparator ? null : SegmentMatcher.Match(snapshot, request.Query, out _);
+        var matched = true;
+        var bits = bySeparator ? null : SegmentMatcher.Match(snapshot, request.Query, deadline, out _, out matched);
+        if (!matched)
+        {
+            ArrayPool<ulong>.Shared.Return(bits!);
+            return false;
+        }
+
         var state = ArrayPool<byte>.Shared.Rent(snapshot.EntryCount);
         try
         {

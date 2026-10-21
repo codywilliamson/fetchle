@@ -7,6 +7,9 @@ namespace Fetchle.Core.Search;
 // walks with FastWalker, one HitCollector per worker, then merges the collectors into one top-k
 public sealed class FileSearch(PruneRules prune) : IFileSearch
 {
+    // a live walk has no index to rebuild
+    public bool IsRebuilding() => false;
+
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
     {
         var start = Stopwatch.GetTimestamp();

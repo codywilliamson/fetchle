@@ -13,6 +13,9 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
 {
     public const int MAX_BUDGET_MS = 25_000;
 
+    // the last footer line while a rebuild holds the index write lock; queries keep answering from the old snapshot
+    public const string REBUILDING_NOTICE = "index rebuild in progress (write lock held), results may be stale";
+
     public static readonly List<Tool> Definitions =
     [
         new()
@@ -112,6 +115,7 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
         {
             text.Append($"\nskipped missing roots: {string.Join(", ", missing)}");
         }
+        AppendRebuildNotice(text);
         var structured = new FindFilesResult(result.Hits, result.TotalMatches, result.Hits.Count, (long)result.Elapsed.TotalMilliseconds, result.StoppedEarly);
         return new CallToolResult
         {
@@ -139,11 +143,20 @@ public sealed class Tools(IFileSearch search, Func<IReadOnlyList<string>> defaul
             text.Append($"{root.Path}: {state}\n");
         }
         text.Append($"vectors complete: {(status.VectorsComplete ? "yes" : "no")}, watcher live: {(status.WatcherLive ? "yes" : "no")}");
+        AppendRebuildNotice(text);
         return new CallToolResult
         {
             Content = [new TextContentBlock { Text = text.ToString() }],
             StructuredContent = JsonSerializer.SerializeToElement(status, McpJson.Default.IndexStatus),
         };
+    }
+
+    void AppendRebuildNotice(StringBuilder text)
+    {
+        if (search.IsRebuilding())
+        {
+            text.Append('\n').Append(REBUILDING_NOTICE);
+        }
     }
 
     static T Parse<T>(IDictionary<string, JsonElement>? arguments, JsonTypeInfo<T> typeInfo)

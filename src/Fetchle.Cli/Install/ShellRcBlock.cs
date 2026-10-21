@@ -11,7 +11,7 @@ internal sealed class ShellRcBlock(string file) : IPathPersistence
         return MarkerBlock.Find(Read()).Count(block => block == expected);
     }
 
-    public PathEdit Add(string entry)
+    public PathAdd Add(string entry)
     {
         var edit = MarkerBlock.Apply(Read(), ShellProfile.PathBody(entry));
         if (edit.Change != BlockChange.Unchanged)
@@ -25,7 +25,7 @@ internal sealed class ShellRcBlock(string file) : IPathPersistence
             WriteAtomically(edit.Content);
         }
 
-        return new PathEdit(PathEditKinds.SHELL_RC_BLOCK, entry, file);
+        return new PathAdd(new PathEdit(PathEditKinds.SHELL_RC_BLOCK, entry, file), edit.Change == BlockChange.Replaced);
     }
 
     public void Remove(string entry)

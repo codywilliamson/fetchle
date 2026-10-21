@@ -17,6 +17,8 @@ public class RankedQueryTests
         "source/fetchle/src/Fetchle.Core/Walking/PruneRules.cs",
         "source/fetchle/src/Fetchle.Core/Naive/NaiveWalker.cs",
         "source/other/settings/readme.md",
+        "source/site/theme/page-cart.php",
+        "source/site-worktrees/step4/page-cart.php",
     ];
 
     static string[] Search(string query, EntryType type = EntryType.Any)
@@ -51,6 +53,10 @@ public class RankedQueryTests
     [Test]
     public async Task Type_filter_drops_dirs() =>
         await Assert.That(Search("settings", EntryType.Files)).DoesNotContain("source/other/settings");
+
+    [Test]
+    public async Task The_real_checkout_beats_a_shallower_worktree_copy() =>
+        await Assert.That(Search("page-cart.php")[0]).IsEqualTo("source/site/theme/page-cart.php");
 
     [Test]
     public async Task Nothing_matching_returns_nothing() =>

@@ -18,6 +18,8 @@ static class RankedQuery
 {
     const byte SCOPE = 1;
     const byte INSIDE = 2;
+    // set on an entry at or below a scratch copy dir, see CopyMarks
+    const byte COPY = 4;
     const int DEADLINE_STRIDE = 16 * 1024;
 
     // each retriever's candidates, best first
@@ -32,6 +34,7 @@ static class RankedQuery
         }
 
         using var scores = TermScores.Build(snapshot.Lexicon, snapshot.SegmentCount, terms);
+        var copies = CopyMarks.Build(snapshot);
         var count = snapshot.EntryCount;
         var state = ArrayPool<byte>.Shared.Rent(count);
         var depth = ArrayPool<byte>.Shared.Rent(count);
@@ -48,7 +51,7 @@ static class RankedQuery
             }
             first = Math.Max(first, snapshot.RootCount);
 
-            var pass = new Pass(snapshot, request, scopes, scores, semantic, state, depth, carried, pathSums);
+            var pass = new Pass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums);
             pass.SeedScopes();
             var completed = pass.Run(first, deadline);
             return new Outcome(pass.Ranked(pass.Lexical), pass.Ranked(pass.Semantic), pass.Total, completed);
@@ -66,7 +69,7 @@ static class RankedQuery
     }
 
     sealed class Pass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, SemanticScores? semantic,
-        byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
+        HashSet<uint> copies, byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
     {
         public EntryHeap Lexical { get; } = new(RankingWeights.CANDIDATES);
 
@@ -123,7 +126,9 @@ static class RankedQuery
                     continue;
                 }
 
-                state[i] = INSIDE;
+                var copy = (above & COPY) != 0 || (copies.Count > 0 && copies.Contains(names[i]));
+                state[i] = copy ? (byte)(INSIDE | COPY) : INSIDE;
+                var discount = copy ? RankingWeights.COPY_PENALTY : 1f;
                 // a scope's own name isn't part of its entries' paths, so its matches don't carry down
                 var atTop = above == SCOPE;
                 depth[i] = atTop ? (byte)1 : (byte)Math.Min(depth[parent] + 1, byte.MaxValue);
@@ -133,7 +138,7 @@ static class RankedQuery
                 var counted = false;
                 if ((own | ancestors) != 0)
                 {
-                    var score = LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]]) - RankingWeights.DEPTH_PENALTY * depth[i];
+                    var score = discount * LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]]) - RankingWeights.DEPTH_PENALTY * depth[i];
                     if (score > 0 && TypeAndExtensionMatch(i))
                     {
                         Total++;
@@ -147,7 +152,7 @@ static class RankedQuery
 
                 if (semantic is not null)
                 {
-                    ScoreSemantic(i, parent, counted);
+                    ScoreSemantic(i, parent, counted, discount);
                 }
             }
             return true;
@@ -155,7 +160,7 @@ static class RankedQuery
 
         // cosine of the query with the path's weighted centroid: name 2, parent 1, older ancestors 0.5. with A the
         // running sum of segment scores down the path, the numerator is 2 s(name) + 0.5 s(parent) + 0.5 A(parent)
-        void ScoreSemantic(int i, int parent, bool counted)
+        void ScoreSemantic(int i, int parent, bool counted, float discount)
         {
             var bySegment = semantic!.BySegment;
             var mine = bySegment[snapshot.Names[i]];
@@ -182,7 +187,7 @@ static class RankedQuery
                 Total++;
             }
 
-            var score = cosine - RankingWeights.SEMANTIC_DEPTH_PENALTY * depth[i];
+            var score = discount * cosine - RankingWeights.SEMANTIC_DEPTH_PENALTY * depth[i];
             if (Semantic.WouldKeep(score, i) && ModifiedInRange(i))
             {
                 Semantic.Add(score, i);
@@ -280,7 +285,7 @@ static class RankedQuery
 
             var parents = snapshot.Parents;
             var at = (int)parents[entry];
-            while (state[at] != SCOPE)
+            while ((state[at] & SCOPE) == 0)
             {
                 at = (int)parents[at];
             }

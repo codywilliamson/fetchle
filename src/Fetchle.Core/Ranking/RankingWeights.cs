@@ -27,6 +27,9 @@ static class RankingWeights
     // the spike's centroid+depth scorer: 0.02 per segment
     public const float SEMANTIC_DEPTH_PENALTY = 0.02f;
 
+    // a path under a dir named for worktrees is an agent's scratch copy of something that also lives elsewhere
+    public const float COPY_PENALTY = 0.5f;
+
     // fusion
     public const int RRF_K = 60;
     // candidates each retriever hands to fusion

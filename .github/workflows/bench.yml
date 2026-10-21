@@ -32,7 +32,8 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, rid: win-x64, exe: fetchle.exe }
-          - { os: ubuntu-latest, rid: linux-x64, exe: fetchle }
+          # pinned to the quiet linux runner's glibc (24.04); ubuntu-latest links against 2.43 and the exe won't start there
+          - { os: ubuntu-24.04, rid: linux-x64, exe: fetchle }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

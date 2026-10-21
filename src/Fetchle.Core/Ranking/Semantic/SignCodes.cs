@@ -61,6 +61,9 @@ static class SignCodes
         return table;
     }
 
+    // a model of another width can't fill these codes; callers treat it as no model
+    public static bool Fits(ITextEncoder? model) => model is not null && model.Dimensions == DIMENSIONS;
+
     // the query's cosine with one code, the code read back as a unit vector
     public static float Score(ReadOnlySpan<float> table, ReadOnlySpan<byte> code)
     {

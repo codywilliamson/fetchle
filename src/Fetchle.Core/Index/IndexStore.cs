@@ -78,10 +78,10 @@ public sealed class IndexStore(string directory)
 
         TimeSpan? embedTime = null;
         long vectorBytes = 0;
-        if (model is not null)
+        if (SignCodes.Fits(model))
         {
             var embedding = Stopwatch.GetTimestamp();
-            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(written, model, cancellationToken), written.Checksum, model.Checksum);
+            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(written, model!, cancellationToken), written.Checksum, model!.Checksum);
             vectorBytes = WriteAndSwap(vectors, VectorsPath + TEMP_SUFFIX, VectorsPath);
             embedTime = Stopwatch.GetElapsedTime(embedding);
         }

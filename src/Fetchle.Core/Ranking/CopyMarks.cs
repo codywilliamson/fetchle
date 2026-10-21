@@ -26,6 +26,12 @@ static class CopyMarks
             marks ??= new ulong[(snapshot.SegmentCount + 63) / 64];
             foreach (var posting in lexicon.Postings(rank))
             {
+                // a word in the name, not an extension: notes.wt isn't a worktree
+                if (Posting.Kind(posting) != Posting.WORD)
+                {
+                    continue;
+                }
+
                 var segment = Posting.Segment(posting);
                 marks[segment >> 6] |= 1UL << (int)(segment & 63);
             }

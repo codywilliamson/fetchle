@@ -4,6 +4,8 @@ Newest first. Each entry says what was decided, why, and the evidence. Supersede
 
 ## 2026-10-21: v0.2 fusion: semantic counts 0.75, files only, and not at all once words cover the query
 
+"Cover" means some lexical candidate, file or dir, that --since keeps matched every query word; a dir counts since the held-out failure table (m-152, m-221).
+
 Plain RRF of lexical and semantic, as the spike proposed, cut dev top-1 from 74.6% (lexical alone) to 63.2%. The cause was structural, not a weight: a one-segment path like `.vscode` or `.config` is its whole centroid, so it scored cosine 0.85 for any query sharing that one word, and the spike's 0.02-per-segment depth term favored exactly those shallow paths. Semantic alone on dev was 42.5% top-1.
 
 Every variant below was measured on dev only (228 queries), all else fixed:

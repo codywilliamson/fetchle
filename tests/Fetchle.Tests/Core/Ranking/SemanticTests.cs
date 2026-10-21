@@ -21,6 +21,8 @@ sealed class FakeEncoder : ITextEncoder
 
     public ulong Checksum => 42;
 
+    public int Dimensions => SignCodes.DIMENSIONS;
+
     public ReadOnlySpan<float> Mean => _mean;
 
     public bool Encode(ReadOnlySpan<char> text, Span<float> vector)
@@ -264,5 +266,28 @@ public class SemanticTests
                 File.Delete(path);
             }
         }
+    }
+
+    [Test]
+    public async Task When_a_file_matches_every_word_semantic_adds_no_candidates()
+    {
+        // settings.json matches both words, so only lexical candidates may appear: here that's one file
+        var hits = Search("settings json");
+        await Assert.That(hits).IsEquivalentTo(new[] { "AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json" });
+    }
+
+    sealed class NarrowEncoder : ITextEncoder
+    {
+        public ulong Checksum => 7;
+        public int Dimensions => 256;
+        public ReadOnlySpan<float> Mean => new float[256];
+        public bool Encode(ReadOnlySpan<char> text, Span<float> vector) => throw new InvalidOperationException("never called");
+    }
+
+    [Test]
+    public async Task A_model_of_another_width_counts_as_no_model()
+    {
+        using var session = SearchSession.Open(null, Fetchle.Core.Walking.PruneRules.Default, new NarrowEncoder());
+        await Assert.That(session.SemanticOff).Contains("256 dims");
     }
 }

@@ -14,7 +14,8 @@ static class VectorBuilder
     public const float PARENT_WEIGHT = 1f;
     public const float ANCESTOR_WEIGHT = 0.5f;
     const int MAX_NAME = 1024;
-    const int MAX_DEPTH = 256;
+    // deeper than any real tree; the entry pass's running sums have no cap, so this one mustn't bite in practice
+    const int MAX_DEPTH = 4096;
 
     public static VectorParts Build(Snapshot snapshot, ITextEncoder encoder, CancellationToken cancellationToken = default)
     {

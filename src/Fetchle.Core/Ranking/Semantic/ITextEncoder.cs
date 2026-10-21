@@ -6,6 +6,9 @@ public interface ITextEncoder
     // identifies the model a vector store was built with
     ulong Checksum { get; }
 
+    // the vector width. ranking needs SignCodes.DIMENSIONS; a model of another width counts as no model
+    int Dimensions { get; }
+
     // the mean of the model's vectors, subtracted before taking signs so the bits split each dim evenly
     ReadOnlySpan<float> Mean { get; }
 

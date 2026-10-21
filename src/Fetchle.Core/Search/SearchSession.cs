@@ -34,6 +34,11 @@ public sealed class SearchSession : IDisposable
     public static SearchSession Open(IndexStore? store, PruneRules prune, ITextEncoder? model)
     {
         var snapshot = store?.Open();
+        if (model is not null && !SignCodes.Fits(model))
+        {
+            return new SearchSession(snapshot, null, null, prune, $"the model has {model.Dimensions} dims, ranking needs {SignCodes.DIMENSIONS}");
+        }
+
         if (snapshot is null || model is null)
         {
             return new SearchSession(snapshot, null, model, prune, model is null ? "no model file" : null);

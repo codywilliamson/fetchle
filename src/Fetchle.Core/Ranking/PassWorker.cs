@@ -60,7 +60,9 @@ sealed class PassWorker(EntryPass pass)
             }
 
             var name = names[i];
-            var copy = (above & EntryPass.COPY) != 0 || (copies is not null && CopyMarks.IsSet(copies, name));
+            var isDirectory = (flags[i] & SnapshotFormat.FLAG_DIRECTORY) != 0;
+            // only a dir named for worktrees roots a copy: worktree.ts is a file about worktrees, not a copy
+            var copy = (above & EntryPass.COPY) != 0 || (isDirectory && copies is not null && CopyMarks.IsSet(copies, name));
             state[i] = copy ? (byte)(EntryPass.INSIDE | EntryPass.COPY) : EntryPass.INSIDE;
             var discount = copy ? RankingWeights.COPY_PENALTY : 1f;
             // a scope's own name isn't part of its entries' paths, so its matches don't carry down
@@ -70,7 +72,6 @@ sealed class PassWorker(EntryPass pass)
             var own = packed[name];
             var ancestors = atTop ? 0 : carried[parent];
             carried[i] = MaxBytes(own, ancestors);
-            var isDirectory = (flags[i] & SnapshotFormat.FLAG_DIRECTORY) != 0;
             if (wantsDirectory && !isDirectory)
             {
                 discount *= RankingWeights.NOT_A_DIRECTORY;
@@ -102,8 +103,11 @@ sealed class PassWorker(EntryPass pass)
                 {
                     Total++;
                     counted = true;
-                    Covered |= full;
-                    if (Lexical.WouldKeep(score, i) && ModifiedInRange(i))
+                    // --since stats only rows that could matter: a top-k candidate, or one that would mark the query covered
+                    var wouldKeep = Lexical.WouldKeep(score, i);
+                    var inRange = (wouldKeep || full) && ModifiedInRange(i);
+                    Covered |= full && inRange;
+                    if (wouldKeep && inRange)
                     {
                         Lexical.Add(score, i);
                     }

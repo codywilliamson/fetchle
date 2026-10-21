@@ -70,6 +70,12 @@ sealed class SemanticScores : IDisposable
             squared += vector[d] * vector[d];
         }
 
+        // a query exactly at the model's mean has no direction left to compare
+        if (!(squared > 0))
+        {
+            return null;
+        }
+
         var scale = 1f / MathF.Sqrt(squared);
         for (var d = 0; d < vector.Length; d++)
         {

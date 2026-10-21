@@ -19,6 +19,8 @@ public class RankedQueryTests
         "source/other/settings/readme.md",
         "source/site/theme/page-cart.php",
         "source/site-worktrees/step4/page-cart.php",
+        "source/tool/src/worktree.ts",
+        "source/tool/old-worktrees/worktree.ts",
     ];
 
     static string[] Search(string query, EntryType type = EntryType.Any)
@@ -57,6 +59,10 @@ public class RankedQueryTests
     [Test]
     public async Task The_real_checkout_beats_a_shallower_worktree_copy() =>
         await Assert.That(Search("page-cart.php")[0]).IsEqualTo("source/site/theme/page-cart.php");
+
+    [Test]
+    public async Task A_file_about_worktrees_is_not_itself_a_copy() =>
+        await Assert.That(Search("worktree.ts")[0]).IsEqualTo("source/tool/src/worktree.ts");
 
     [Test]
     public async Task Nothing_matching_returns_nothing() =>

@@ -164,7 +164,8 @@ static class Targets
         return new("e2e", args, exe is null ? null : Env("FETCHLE_EXE", exe));
     }
 
-    static Step Evals(bool noBuild) => new("evals", WithFlag(["run", "--project", EVALS, "-c", CONFIGURATION], "--no-build", noBuild));
+    // the gate reads held-out only: dev is for tuning and is never what ci judges
+    static Step Evals(bool noBuild) => new("evals", [.. WithFlag(["run", "--project", EVALS, "-c", CONFIGURATION], "--no-build", noBuild), "--", "--gate"]);
 
     static Step Publish(string? rid)
     {

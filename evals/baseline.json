@@ -1,80 +1,1555 @@
 {
-  "searcher": "FileSearch",
-  "corpus_filler": 20000,
-  "top1": 0,
-  "top3": 0,
-  "queries": [
+  "searcher": "ranked",
+  "split": "heldout",
+  "queries": 81,
+  "set_aside": 5,
+  "top1": 0.7901234567901234,
+  "top3": 0.9382716049382716,
+  "mrr": 0.8641975308641975,
+  "results": [
     {
-      "query": "desktop app bundled claude binary",
+      "id": "b-002",
+      "query": "keyboard shortcuts i set in vs code",
+      "kind": "descriptive",
       "rank": null,
       "total_matches": 0,
-      "elapsed_ms": 420
+      "elapsed_ms": 55.7906,
+      "top": []
     },
     {
-      "query": "powershell command history",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 373
+      "id": "b-006",
+      "query": "chrome default profile bookmarks",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 44,
+      "elapsed_ms": 29.8381,
+      "top": [
+        "AppData/Local/Google/Chrome/User Data/Default/Bookmarks",
+        "AppData/Local/Google/Chrome/User Data/Default",
+        "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release",
+        "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release",
+        "AppData/LocalLow/Epic/Desktop/Default-databases/Profiles-Default",
+        "AppData/LocalLow/Zoom/Shared/plugins-Profiles/locales-Default",
+        "AppData/LocalLow/Zoom/Shared/plugins-Profiles/logs-Default",
+        "AppData/Roaming/Figma/Helper/Profiles4/Default-temp",
+        "AppData/Roaming/Figma/Helper/Profiles4/backups-Default",
+        "AppData/Roaming/Mozilla/Firefox/Profiles/gzyvk5z5.default-release"
+      ]
     },
     {
-      "query": "vscode user settings",
+      "id": "b-007",
+      "query": "thunderbird email search index",
+      "kind": "descriptive",
       "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 346
+      "total_matches": 19,
+      "elapsed_ms": 12.552,
+      "top": [
+        "source/repos/search-529/middleware-types/Index.ts",
+        "source/repos/search-529/types/Index.py",
+        "source/repos/search-648/common-dist/Index.cs",
+        "source/repos/search-648/middleware38/Index.ts",
+        "source/repos/search-648/styles11/Index.ts",
+        "source/repos/search-529/assets13/CursorIndex.xml",
+        "source/repos/search-529/common/IndexPolicy.js",
+        "source/repos/search-529/fixtures-src/IndexBuffer.py",
+        "source/repos/search-529/hooks/GraphIndex.cs",
+        "source/repos/search-529/middleware-types/AccountIndex.xml"
+      ]
     },
     {
-      "query": "windows terminal config",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 355
+      "id": "b-008",
+      "query": "thunderbird profile prefs",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 8,
+      "elapsed_ms": 12.505,
+      "top": [
+        "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/prefs.js",
+        "AppData/Roaming/Thunderbird/Profiles",
+        "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release",
+        "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release",
+        "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release/global-messages-db.sqlite",
+        "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite",
+        "AppData/Roaming/Thunderbird",
+        ".profile"
+      ]
     },
     {
-      "query": "chrome browsing history",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 420
+      "id": "b-009",
+      "query": "discord auto updater",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 6,
+      "elapsed_ms": 12.1429,
+      "top": [
+        "AppData/Local/Discord/Update.exe",
+        "AppData/Local/Discord",
+        "AppData/Local/Discord/app-0.0.309/Discord.exe",
+        "AppData/Local/Discord/app-1.0.9163/Discord.exe",
+        "AppData/Local/Discord/app-1.0.9260/Discord.exe",
+        "AppData/Local/Microsoft/Updater/databases/updates1/shader.db"
+      ]
     },
     {
-      "query": "firefox bookmarks database",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 407
+      "id": "b-011",
+      "query": "nvm settings txt",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 6792,
+      "elapsed_ms": 12.8566,
+      "top": [
+        "AppData/Roaming/nvm/settings.txt",
+        ".claude/settings.json",
+        "AppData/Roaming/nvm",
+        ".claude/settings.json.bak",
+        ".claude/settings.local.json",
+        ".claude/settings.json.bak-cache",
+        ".claude/settings.json.pixel-agents.backup",
+        ".claude/settings.local.json.bak-cache",
+        "AppData/LocalLow/Brave/Updater/Default-Cache/data_66.txt",
+        "AppData/LocalLow/Valve/Engine/Extensions-logs/Default35/data_10.txt"
+      ]
     },
     {
-      "query": "node version manager settings",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 388
+      "id": "b-023",
+      "query": "week-calendar agent",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 6,
+      "elapsed_ms": 12.8124,
+      "top": [
+        ".claude/agents/week-calendar.md",
+        ".calendar",
+        ".agents",
+        ".pixel-agents",
+        ".claude/agents",
+        ".claude/AGENTS.md"
+      ]
     },
     {
-      "query": "github desktop executable",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 384
+      "id": "b-024",
+      "query": "semble mcp python module",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 1,
+      "elapsed_ms": 8.6366,
+      "top": [
+        "AppData/Roaming/uv/tools/semble/Lib/site-packages/semble/mcp.py"
+      ]
     },
     {
-      "query": "discord app executable",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 367
+      "id": "b-032",
+      "query": "native aot build of the fetchle test suite",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 35,
+      "elapsed_ms": 11.3405,
+      "top": [
+        "source/spectacl3/dev/fetchle/artifacts/tests-aot/Fetchle.Tests.exe",
+        "source/spectacl3/dev/fetchle/artifacts/tests-aot",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/Fetchle.Tests.csproj",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/obj/Release/net10.0/win-x64/Fetchle.Tests.AssemblyInfo.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/obj/Release/net10.0/Fetchle.Tests.AssemblyInfo.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/obj/Release/net10.0/win-x64/Fetchle.Tests.GlobalUsings.g.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/Fetchle.Fixtures.csproj",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/obj/Release/net10.0/Fetchle.Tests.GlobalUsings.g.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/obj/Debug/net10.0/Fetchle.Tests.AssemblyInfo.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.E2E/Fetchle.E2E.csproj"
+      ]
     },
     {
-      "query": "obsidian vault list",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 347
+      "id": "b-035",
+      "query": "quibble lanch checklist",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 1,
+      "elapsed_ms": 11.6838,
+      "top": [
+        "source/spectacl3/dev/monocle/.claude/worktrees/agent-af88cf123754b1bda/docs/quibble/launch/launch-checklist.md"
+      ]
     },
     {
-      "query": "thunderbird mail search index",
+      "id": "b-037",
+      "query": "how the ticket agent sends push notifications",
+      "kind": "descriptive",
       "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 366
+      "total_matches": 3,
+      "elapsed_ms": 10.5853,
+      "top": [
+        "source/spectacl3/dev/relay-ticket-agent",
+        ".claude/projects/C--Users-Alex-source-spectacl3-dev-relay-ticket-agent",
+        "source/spectacl3/dev/relay-ticket-agent/src/notify/costAlert.ts"
+      ]
     },
     {
-      "query": "music streaming app",
-      "rank": null,
-      "total_matches": 0,
-      "elapsed_ms": 361
+      "id": "b-038",
+      "query": "relay trello api client",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 875,
+      "elapsed_ms": 13.3105,
+      "top": [
+        "source/spectacl3/dev/relay-ticket-agent/src/trello/client.ts",
+        "source/repos/cli-983/api.9/build_client.json",
+        "source/spectacl3/dev/relay-ticket-agent/src/trello/client.test.ts",
+        "source/repos/portal-662/api37/Client.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/trello/client.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/trello",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/trello",
+        "source/spectacl3/dev/qs-ai-platform/src/pages/api/trello",
+        "source/spectacl3/dev/relay-ticket-agent/src/trello/types.ts",
+        "source/repos/docs-site-548/scripts-api/Client.cs"
+      ]
+    },
+    {
+      "id": "b-056",
+      "query": "watcher stalker design",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 18,
+      "elapsed_ms": 9.9541,
+      "top": [
+        "source/spectacl3/dev/bx-addons/docs/superpowers/specs/2026-09-07-watcher-stalker-design.md",
+        "source/spectacl3/dev/bx-addons/addons/watcher/bp/scripts/stalker.js",
+        "source/spectacl3/dev/bx-addons/docs/superpowers/specs/2026-08-03-watcher-design.md",
+        "source/spectacl3/dev/bx-addons/docs/superpowers/specs/2026-08-04-watcher-companion-features-design.md",
+        "source/spectacl3/dev/bx-addons/docs/superpowers/specs/2026-08-04-watcher-creepy-overhaul-design.md",
+        "Downloads/Quill-Customer-Email-Design-Review-2026-10-06.zip",
+        "source/spectacl3/dev/bx-addons/.captures/watcher.png",
+        "source/spectacl3/dev/bx-addons/addons/watcher/bp/entities/watcher.json",
+        "source/spectacl3/dev/bx-addons/addons/watcher/bp/functions/watcher/chat_ambient_line.mcfunction",
+        "source/spectacl3/dev/bx-addons/addons/watcher/rp/animation_controllers/spectacl3_watcher.animation_controllers.json"
+      ]
+    },
+    {
+      "id": "b-058",
+      "query": "script behind the pet whistle item",
+      "kind": "descriptive",
+      "rank": 2,
+      "total_matches": 3,
+      "elapsed_ms": 10.9179,
+      "top": [
+        "source/spectacl3/dev/bx-addons/addons/pets/bp/items/whistle.json",
+        "source/spectacl3/dev/bx-addons/addons/pets/bp/scripts/whistle.js",
+        "source/spectacl3/dev/bx-addons/addons/pets/bp/items/pet_guide.json"
+      ]
+    },
+    {
+      "id": "b-060",
+      "query": "generates open graph images for lantern software",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 206,
+      "elapsed_ms": 11.7355,
+      "top": [
+        "source/spectacl3/dev/infra/lanternsoftware/scripts/generate-og-images.ts",
+        "Downloads/projects/2021.2/202036/reports-screenshots/2024/graph-88.svg",
+        "Pictures/archive/backup-screenshots/holiday37/2020/graph-11.svg",
+        "Pictures/2019/wallpapers13/2021/graph_82103.gif",
+        "source/repos/billing-760/lib/migrations/build.7/obj/handlers-obj/GraphGraph.js",
+        "Downloads/projects/scans-2023/graph-280.svg",
+        "Downloads/screenshots/2019/2022.1/receipts/projects-backup/graph-256.gif",
+        "Downloads/screenshots/2019/wallpapers-2024/archive.6/graph-287.gif",
+        "Downloads/2022/2023-2022/graph-170.gif",
+        "source/repos/billing-760/config-common/api/plugins-common/shared/components5/scripts.7/fixtures21/GraphGraph.cs"
+      ]
+    },
+    {
+      "id": "b-061",
+      "query": "lanternsoftware redirects file",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 2,
+      "elapsed_ms": 9.1609,
+      "top": [
+        "source/spectacl3/dev/infra/lanternsoftware/public/_redirects",
+        "source/spectacl3/dev/infra/lanternsoftware/13.5.0"
+      ]
+    },
+    {
+      "id": "b-064",
+      "query": "Model2Vec tokenizer",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 878,
+      "elapsed_ms": 10.4561,
+      "top": [
+        "source/spectacl3/dev/spikes/embeddings/src-ref/src/Model2Vec.Net/Model2VecTokenizer.cs",
+        "source/spectacl3/dev/spikes/embeddings/Model2Vec.Net.sln",
+        "source/spectacl3/dev/spikes/embeddings/src-ref/src/Model2Vec.Net",
+        "source/spectacl3/dev/spikes/embeddings/src-ref/bench/Model2Vec.Net.Benchmarks",
+        ".cargo/registry/src/async-eslint/loader-stream/ModelToken.html",
+        ".cargo/registry/src/async-eslint/node/core/dom29/ModelToken.json",
+        ".cargo/registry/src/chalk/yargs29/cjs.7/react.3/react-glob/uuid/model_token.html",
+        ".cargo/registry/src/minimatch/uuid/shim-async/TokenModel.html",
+        ".cargo/registry/src/semver/ModelToken.md",
+        ".m2/repository/babel/runtime22/axios13/compat12/parser-glob/ModelToken.cs"
+      ]
+    },
+    {
+      "id": "m-005",
+      "query": "tests for the triage playbook in ticket agent",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 72,
+      "elapsed_ms": 9.9583,
+      "top": [
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/triage.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/playbooks/triage.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/runTriage.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/playbooks/runTriage.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/triage.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/runTriage.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/digest.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/json.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/bugReport.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/playbooks/reviewQueue.test.ts"
+      ]
+    },
+    {
+      "id": "m-010",
+      "query": "repos.test.ts relay-ticket-agent",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 1560,
+      "elapsed_ms": 15.0395,
+      "top": [
+        "source/spectacl3/dev/relay-ticket-agent/src/repo/repos.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/repo/repos.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/repo/runsRepo.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/repo/runsRepo.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/config.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/daemon/cycle.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/daemon/tick.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/db/db.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/domain/status.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/notify/ntfy.test.ts"
+      ]
+    },
+    {
+      "id": "m-015",
+      "query": "qs-main resources css app",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 3601,
+      "elapsed_ms": 12.7199,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/account.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/checkout.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/custom.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/fonts.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/transitions.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/editor-style.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/login-style.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/product-page.css"
+      ]
+    },
+    {
+      "id": "m-017",
+      "query": "ticket-prep skill qs-main",
+      "kind": "partial",
+      "rank": 3,
+      "total_matches": 10,
+      "elapsed_ms": 11.9822,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.agents/skills/ticket-prep",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.claude/skills/ticket-prep",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.agents/skills/ticket-prep/SKILL.md",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.claude/skills/ticket-prep/SKILL.md",
+        "source/spectacl3/dev/fetchle/.agents/skills/ticket-prep",
+        "source/spectacl3/dev/fetchle/.agents/skills/ticket-prep/SKILL.md",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.agents/skills",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.claude/skills",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/agent-docs/.agents/skills/ticket-prep/SKILL.md",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/emails-376/.agents/skills/ticket-prep/SKILL.md"
+      ]
+    },
+    {
+      "id": "m-029",
+      "query": "npgsql efcore postgresql xml docs",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 328,
+      "elapsed_ms": 12.877,
+      "top": [
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1/lib",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3/lib",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1/lib/net10.0",
+        ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3/lib/net10.0",
+        "source/repos/billing-162/docs31/templates-middleware/docs37/query_frame.xml"
+      ]
+    },
+    {
+      "id": "m-031",
+      "query": "attest wiki conventions",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 23,
+      "elapsed_ms": 9.5699,
+      "top": [
+        "source/spectacl3/dev/attest/docs/wiki/Conventions.md",
+        "source/spectacl3/dev/attest-wt/agentapi/docs/wiki/Conventions.md",
+        "source/spectacl3/dev/attest-wt/artifacts/docs/wiki/Conventions.md",
+        "source/spectacl3/dev/attest-wt/auth/docs/wiki/Conventions.md",
+        "source/spectacl3/dev/attest-wt/github/docs/wiki/Conventions.md",
+        "source/spectacl3/dev/attest/docs/wiki",
+        "source/spectacl3/dev/attest-wt/agentapi/docs/wiki",
+        "source/spectacl3/dev/attest-wt/artifacts/docs/wiki",
+        "source/spectacl3/dev/attest-wt/auth/docs/wiki",
+        "source/spectacl3/dev/attest-wt/e2e/docs/wiki"
+      ]
+    },
+    {
+      "id": "m-038",
+      "query": "ArtifactEndpoints",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 182,
+      "elapsed_ms": 9.9768,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/dashboard/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/review/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/web17/src/Attest.Api/Endpoints/ArtifactEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/tests/Attest.Api.Tests/ArtifactEndpointsTests.cs",
+        "source/spectacl3/dev/attest-wt/authfix/tests/Attest.Api.Tests/ArtifactEndpointsTests.cs",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Api.Tests/ArtifactEndpointsTests.cs"
+      ]
+    },
+    {
+      "id": "m-043",
+      "query": "ActivityEventTypes",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 99,
+      "elapsed_ms": 10.7142,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Domain/Activity/ActivityEventTypes.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Domain/Activity/ActivityEventTypes.cs",
+        "source/spectacl3/dev/attest-wt/auth/src/Attest.Domain/Activity/ActivityEventTypes.cs",
+        "source/spectacl3/dev/attest-wt/review/src/Attest.Domain/Activity/ActivityEventTypes.cs",
+        "source/spectacl3/dev/attest-wt/web17/src/Attest.Domain/Activity/ActivityEventTypes.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/tests/Attest.Domain.Tests/ActivityEventTypesTests.cs",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Domain.Tests/ActivityEventTypesTests.cs",
+        "source/spectacl3/dev/attest-wt/review/tests/Attest.Domain.Tests/ActivityEventTypesTests.cs",
+        ".cargo/registry/src/babel-parser/types/Event.html",
+        ".cargo/registry/src/debug/yargs8/types.2/types28/frame_index.ts"
+      ]
+    },
+    {
+      "id": "m-044",
+      "query": "items query test attest web",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 565,
+      "elapsed_ms": 11.7558,
+      "top": [
+        "source/spectacl3/dev/attest/src/web/lib/queries/items.test.tsx",
+        "source/spectacl3/dev/attest/src/web/page.test.tsx",
+        "source/spectacl3/dev/attest/src/web/lib/queries/revisions.test.tsx",
+        "source/spectacl3/dev/attest/src/web/api.test.ts",
+        "source/spectacl3/dev/attest/src/web/markdown.test.ts",
+        "source/spectacl3/dev/attest-wt/web19/src/web/items.test.tsx",
+        "source/spectacl3/dev/attest-wt/dashboard/src/web/lib/queries/items.test.tsx",
+        "source/spectacl3/dev/attest-wt/landing/src/web/lib/queries/items.test.tsx",
+        "source/spectacl3/dev/attest-wt/web17/src/web/lib/queries/items.test.tsx",
+        "source/spectacl3/dev/attest-wt/web18/src/web/lib/queries/items.test.tsx"
+      ]
+    },
+    {
+      "id": "m-045",
+      "query": "attest domain executions folder",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 161,
+      "elapsed_ms": 11.4824,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Domain",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Domain.Tests",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/auth/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/dashboard/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/domain/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Domain/Executions",
+        "source/spectacl3/dev/attest-wt/format/src/Attest.Domain/Executions"
+      ]
+    },
+    {
+      "id": "m-047",
+      "query": "attest domain ErrorCodes",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 97,
+      "elapsed_ms": 9.4886,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest-wt/auth/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest-wt/authfix/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest-wt/domain/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest-wt/security/src/Attest.Domain/Errors/ErrorCodes.cs",
+        "source/spectacl3/dev/attest/Attest.Domain",
+        "source/spectacl3/dev/attest-wt/agentapi/tests/Attest.Domain.Tests/ErrorCodesTests.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/tests/Attest.Domain.Tests/ErrorCodesTests.cs",
+        "source/spectacl3/dev/attest-wt/auth/tests/Attest.Domain.Tests/ErrorCodesTests.cs"
+      ]
+    },
+    {
+      "id": "m-052",
+      "query": "attest workspace detail page",
+      "kind": "descriptive",
+      "rank": 4,
+      "total_matches": 26,
+      "elapsed_ms": 10.4613,
+      "top": [
+        "source/spectacl3/dev/attest/pnpm-workspace.yaml",
+        "source/spectacl3/dev/attest/src/web/new-workspace-dialog.tsx",
+        "source/spectacl3/dev/attest/src/Attest.Application/Workspaces/WorkspaceLookup.cs",
+        "source/spectacl3/dev/attest/src/web/app/orgs/[org]/workspaces/[ws]/page.tsx",
+        "source/spectacl3/dev/attest/src/web/page.test.tsx",
+        "source/spectacl3/dev/attest/src/Attest.Application/Workspaces",
+        "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/WorkspaceEndpoints.cs",
+        "source/spectacl3/dev/attest/src/web/page.tsx",
+        "source/spectacl3/dev/attest/src/Attest.Application/Artifacts/ArtifactDetailDto.cs",
+        "source/spectacl3/dev/attest/Attest.Domain"
+      ]
+    },
+    {
+      "id": "m-058",
+      "query": "activity recorder infrastructure",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 12,
+      "elapsed_ms": 9.8317,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Infrastructure/Activity/ActivityRecorder.cs",
+        "source/spectacl3/dev/attest-wt/seed/src/Attest.Infrastructure/Activity/ActivityRecorder.cs",
+        "source/spectacl3/dev/attest/src/Attest.Application/Activity/IActivityRecorder.cs",
+        "source/spectacl3/dev/attest/src/Attest.Infrastructure/Activity",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Application/Activity/IActivityRecorder.cs",
+        "source/spectacl3/dev/attest-wt/review/src/Attest.Application/Activity/IActivityRecorder.cs",
+        "source/spectacl3/dev/attest-wt/seed/src/Attest.Application/Activity/IActivityRecorder.cs",
+        "source/spectacl3/dev/attest-wt/web17/src/Attest.Application/Activity/IActivityRecorder.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Infrastructure/Activity",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Infrastructure/Activity"
+      ]
+    },
+    {
+      "id": "m-060",
+      "query": "evidence endpoints",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 384,
+      "elapsed_ms": 11.2782,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/EvidenceEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Api/Endpoints/EvidenceEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/dashboard/src/Attest.Api/Endpoints/EvidenceEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Api/Endpoints/EvidenceEndpoints.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/tests/Attest.Api.Tests/EvidenceEndpointsTests.cs",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Api.Tests/EvidenceEndpointsTests.cs",
+        "source/spectacl3/dev/attest-wt/seed/tests/Attest.Api.Tests/EvidenceEndpointsTests.cs",
+        "AppData/Local/quill-campaign/evidence",
+        "source/spectacl3/dev/amdotcom/docs/scout/evidence",
+        "source/spectacl3/dev/attest/src/Attest.Application/Evidence"
+      ]
+    },
+    {
+      "id": "m-061",
+      "query": "attest demo seeder",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 27,
+      "elapsed_ms": 10.3863,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Api/Seeding/DemoSeeder.cs",
+        "source/spectacl3/dev/attest-wt/e2e/src/Attest.Api/Seeding/DemoSeeder.cs",
+        "source/spectacl3/dev/attest-wt/seed2/src/Attest.Api/Seeding/DemoSeeder.cs",
+        "source/spectacl3/dev/attest-wt/seed/src/Attest.Api/Seeding/DemoSeeder.cs",
+        "source/spectacl3/dev/attest-wt/seed2/tests/Attest.Api.Tests/DemoSeederTests.cs",
+        "source/spectacl3/dev/attest-wt/e2e/src/Attest.Api/Seeding/DemoSeederContext.cs",
+        "source/spectacl3/dev/attest-wt/e2e/src/Attest.Api/Seeding/DemoSeederExtras.cs",
+        "source/spectacl3/dev/attest-wt/e2e/src/Attest.Api/Seeding/DemoSeederStory.cs",
+        "source/spectacl3/dev/attest-wt/e2e/src/Attest.Api/Seeding/DemoSeederTimeline.cs",
+        "source/spectacl3/dev/attest-wt/seed2/src/Attest.Api/Seeding/DemoSeederContext.cs"
+      ]
+    },
+    {
+      "id": "m-066",
+      "query": "service that records review decisions",
+      "kind": "descriptive",
+      "rank": 4,
+      "total_matches": 11,
+      "elapsed_ms": 10.5146,
+      "top": [
+        "source/spectacl3/dev/monocle/reviewRecords.ts",
+        "source/spectacl3/dev/monocle/src/core/reviewRecords.ts",
+        ".claude/jobs/64f995e4/tmp/audit/ours/reviewRecords.test.ts",
+        "source/spectacl3/dev/attest/src/Attest.Application/Collaboration/ReviewDecisionService.cs",
+        "source/spectacl3/dev/monocle/reviewRecords.test.ts",
+        "source/spectacl3/dev/monocle/tests/reviewRecords.test.ts",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Application/Collaboration/ReviewDecisionService.cs",
+        "source/spectacl3/dev/attest-wt/seed2/src/Attest.Application/Collaboration/ReviewDecisionService.cs",
+        "source/spectacl3/dev/attest-wt/seed/src/Attest.Application/Collaboration/ReviewDecisionService.cs",
+        "source/spectacl3/dev/monocle/docs/adr/0002-keyed-review-records.md"
+      ]
+    },
+    {
+      "id": "m-067",
+      "query": "execution dtos attest application",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 193,
+      "elapsed_ms": 10.6507,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Application/Executions/Dtos.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Application/Executions/Dtos.cs",
+        "source/spectacl3/dev/attest-wt/seed2/src/Attest.Application/Executions/Dtos.cs",
+        "source/spectacl3/dev/attest-wt/seed/src/Attest.Application/Executions/Dtos.cs",
+        "source/spectacl3/dev/attest/src/Attest.Application/Executions",
+        "source/spectacl3/dev/attest/src/Attest.Application/Executions/Validation/StartExecutionRequestValidator.cs",
+        "source/spectacl3/dev/attest/src/Attest.Application/Executions/Validation",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Application",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Application.Tests",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Application/Amendments/Dtos.cs"
+      ]
+    },
+    {
+      "id": "m-070",
+      "query": "execution source card test",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 1366,
+      "elapsed_ms": 12.8908,
+      "top": [
+        "source/spectacl3/dev/attest/src/web/app/artifacts/[key]/executions/[id]/source-card.test.tsx",
+        "source/spectacl3/dev/attest/tests/Attest.Domain.Tests/ExecutionTests.cs",
+        "source/spectacl3/dev/attest-wt/landing/src/web/app/artifacts/[key]/executions/[id]/source-card.test.tsx",
+        "source/spectacl3/dev/attest-wt/quality/src/web/app/artifacts/[key]/executions/[id]/source-card.test.tsx",
+        "source/spectacl3/dev/attest/tests/Attest.Api.Tests/ExecutionEndpointsTests.cs",
+        "source/spectacl3/dev/relay-ticket-agent/src/domain/cardEvents.test.ts",
+        "source/spectacl3/dev/relay-ticket-agent/src/src/domain/cardEvents.test.ts",
+        "source/spectacl3/dev/tvb/test_cart_require_comments.js",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/CartTemplateContractTest.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/tests/cart-badge.test.mjs"
+      ]
+    },
+    {
+      "id": "m-072",
+      "query": "resource tenant guard",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 21,
+      "elapsed_ms": 10.4308,
+      "top": [
+        "source/spectacl3/dev/attest/src/Attest.Api/Tenancy/ResourceTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Api/Tenancy/ResourceTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/execution/src/Attest.Api/Tenancy/ResourceTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/github/src/Attest.Api/Tenancy/ResourceTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/quality/src/Attest.Api/Tenancy/ResourceTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/cli/src/Attest.Api/Tenancy/AgentTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/quality/src/Attest.Api/Tenancy/AgentTenantGuard.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/src/Attest.Api/Tenancy/CurrentTenant.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Api/Tenancy/CurrentTenant.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Application/Tenancy/ICurrentTenant.cs"
+      ]
+    },
+    {
+      "id": "m-077",
+      "query": "bx-addons manifest.json",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 28620,
+      "elapsed_ms": 12.0071,
+      "top": [
+        "source/spectacl3/dev/bx-addons/manifest.json",
+        "source/spectacl3/dev/bx-addons/.captures/preview/rp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/hunthouse/bp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/hunthouse/rp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/pets/bp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/pets/rp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/watcher/bp/manifest.json",
+        "source/spectacl3/dev/bx-addons/addons/watcher/rp/manifest.json",
+        "source/spectacl3/dev/bx-addons/.captures/preview/watcher/rp/manifest.json",
+        "source/spectacl3/dev/bx-addons/blocklist.json"
+      ]
+    },
+    {
+      "id": "m-079",
+      "query": "monocle DESIGN.md",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 369,
+      "elapsed_ms": 11.6253,
+      "top": [
+        "source/spectacl3/dev/monocle/DESIGN.md",
+        "source/spectacl3/dev/monocle/docs/superpowers/specs/2026-06-23-codebase-browse-mode-design.md",
+        "source/spectacl3/dev/monocle/docs/superpowers/specs/2026-06-23-whats-new-modal-design.md",
+        "source/spectacl3/dev/monocle/docs/superpowers/specs/2026-06-23-side-by-side-independent-scroll-design.md",
+        "source/spectacl3/dev/monocle/.claude/worktrees/agent-a287ffdea43a9db36/design.md",
+        "source/spectacl3/dev/monocle/.claude/worktrees/agent-af88cf123754b1bda/DESIGN.md",
+        "source/spectacl3/dev/monocle/.impeccable/design.json",
+        ".claude/projects/C--Users-Alex-source-spectacl3-dev-monocle/memory/monocle-release-checklist.md",
+        "source/spectacl3/dev/bx-addons/addons/inventory/docs/design.md",
+        "source/spectacl3/dev/monocle/guides/migrating-from-monocle.md"
+      ]
+    },
+    {
+      "id": "m-084",
+      "query": "archive-product.php",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 923,
+      "elapsed_ms": 11.499,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/woocommerce/archive-product.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/account-step10/archive-product.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/docs-agent-nav/woocommerce/archive-product.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/home-sections/woocommerce/archive-product.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/merch-step8/woocommerce/archive-product.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/woocommerce/archive-product.php",
+        "source/spectacl3/dev/fetchle/archive.php",
+        "source/spectacl3/dev/fetchle/_localscripts/migrate-products.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/archive.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/woocommerce/content-product.php"
+      ]
+    },
+    {
+      "id": "m-085",
+      "query": "sticky banner component",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 4,
+      "elapsed_ms": 10.1093,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/navbar/component-sticky-banner.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/sticky-banner.js",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/sticky-banner.js",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/elements/jumbotron-banner.php"
+      ]
+    },
+    {
+      "id": "m-086",
+      "query": "custom orders step2 signup jpeg",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 11,
+      "elapsed_ms": 12.0195,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/custom-orders-step2-signup.jpeg",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/pages-step4/inc/custom-orders/class-qs-custom-order-admin.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/pages-step4/inc/custom-orders/class-qs-custom-order-form-validator.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-pay-signer.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-rate-limit.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-upload-rest.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-upload-validator.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-upload.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-orders.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/custom-orders/class-qs-custom-order-pay-signer.php"
+      ]
+    },
+    {
+      "id": "m-087",
+      "query": "accordion script on qs-main product pages",
+      "kind": "descriptive",
+      "rank": 2,
+      "total_matches": 29,
+      "elapsed_ms": 11.4323,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/woo/product-accordion.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/product-accordion.js",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/page-product-review.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/product-page.css",
+        ".claude/projects/C--Users-Alex-source-spectacl3-webprojects-wordpress-quillstack-local-app-public-wp-content-themes-qs-main/local-woocommerce-behind-production.md",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/qs_sv_ip.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/qs-cat-widget.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/page.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/pages/page-faq.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/q.php"
+      ]
+    },
+    {
+      "id": "m-091",
+      "query": "monocle-review-hook",
+      "kind": "name",
+      "rank": 3,
+      "total_matches": 133,
+      "elapsed_ms": 10.7914,
+      "top": [
+        ".claude/plugins/cache/monocle-local/monocle-review-hook",
+        "source/spectacl3/dev/monocle/plugins/monocle-review-hook",
+        "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review-hook",
+        "source/spectacl3/dev/monocle/integrations/codex/monocle-review-hook",
+        ".claude/plugins/data/monocle-review-hook-monocle-local",
+        ".claude/plugins/cache/monocle-local/monocle-review/0.1.0/hooks",
+        ".claude/plugins/cache/monocle-local/monocle-review/0.1.1/hooks",
+        "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review-hook/hooks",
+        "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review/hooks",
+        "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review-hook/hooks/hooks.json"
+      ]
+    },
+    {
+      "id": "m-092",
+      "query": "monocle vite config",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 659,
+      "elapsed_ms": 10.4325,
+      "top": [
+        "source/spectacl3/dev/monocle/vite.config.ts",
+        "source/spectacl3/dev/monocle/vitest.config.ts",
+        "source/spectacl3/dev/amdotcom/vitest.config.ts",
+        "source/spectacl3/dev/attest/vitest.config.ts",
+        "source/spectacl3/dev/health/vitest.config.ts",
+        "source/spectacl3/dev/qs-ai-platform/vitest.config.ts",
+        "source/spectacl3/dev/relay-ticket-agent/vitest.config.ts",
+        "source/spectacl3/dev/monocle/vite-env.d.ts",
+        "source/spectacl3/dev/monocle/astro.config.mjs",
+        "source/spectacl3/dev/monocle/playwright.config.ts"
+      ]
+    },
+    {
+      "id": "m-098",
+      "query": "monocle walkthrough video",
+      "kind": "descriptive",
+      "rank": 3,
+      "total_matches": 37,
+      "elapsed_ms": 11.095,
+      "top": [
+        "source/spectacl3/dev/monocle/walkthrough.mp4",
+        "source/spectacl3/dev/monocle/walkthrough.gif",
+        "source/spectacl3/dev/monocle/demos/out/walkthrough.mp4",
+        "source/spectacl3/dev/monocle/web/public/media/walkthrough.mp4",
+        "source/spectacl3/dev/monocle/demos/out/walkthrough.gif",
+        "source/spectacl3/dev/monocle/docs/screenshots/agent-review-walkthrough.mp4",
+        "source/spectacl3/dev/monocle/out/agent-walkthrough",
+        "source/spectacl3/dev/monocle/docs/screenshots/walkthrough.gif",
+        "source/spectacl3/dev/monocle/docs/screenshots/walkthrough.mp4",
+        "source/spectacl3/dev/monocle/docs/agent-review-walkthrough.md"
+      ]
+    },
+    {
+      "id": "m-099",
+      "query": "monocle docs index mdx",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 187,
+      "elapsed_ms": 11.0679,
+      "top": [
+        "source/spectacl3/dev/monocle/web/src/content/docs/index.mdx",
+        "source/spectacl3/dev/monocle/web/src/content/docs/getting-started/installation.mdx",
+        "source/spectacl3/dev/monocle/web/src/content/docs/getting-started/quickstart.mdx",
+        "source/spectacl3/dev/monocle/web/src/content/docs/guides/agent-feedback.mdx",
+        "source/spectacl3/dev/monocle/getting-started/installation.mdx",
+        "source/spectacl3/dev/monocle/getting-started/quickstart.mdx",
+        "source/spectacl3/dev/monocle/guides/agent-feedback.mdx",
+        "source/spectacl3/dev/monocle-wt-sh/web/src/content/docs/getting-started/installation.mdx",
+        "source/spectacl3/dev/monocle/docs",
+        "source/spectacl3/dev/monocle/index.html"
+      ]
+    },
+    {
+      "id": "m-102",
+      "query": "CommentEditor.svelte",
+      "kind": "name",
+      "rank": 2,
+      "total_matches": 67,
+      "elapsed_ms": 9.8874,
+      "top": [
+        "source/spectacl3/dev/monocle/CommentEditor.svelte",
+        "source/spectacl3/dev/monocle/client/src/lib/components/comment/CommentEditor.svelte",
+        "source/spectacl3/dev/monocle/CommentEditor.test.ts",
+        "source/spectacl3/dev/monocle/src/client/commentEditor.js",
+        "source/spectacl3/dev/monocle/App.svelte",
+        "source/spectacl3/dev/monocle/CommentCard.svelte",
+        "source/spectacl3/dev/monocle/CommentReplies.svelte",
+        "source/spectacl3/dev/monocle/CommentThread.svelte",
+        "source/spectacl3/dev/monocle/ReplyComposer.svelte",
+        "source/spectacl3/dev/monocle/svelte-check.bunx"
+      ]
+    },
+    {
+      "id": "m-105",
+      "query": "monocle dist varble exe",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 40,
+      "elapsed_ms": 10.864,
+      "top": [
+        "source/spectacl3/dev/monocle/dist/varble.exe",
+        "source/spectacl3/dev/monocle/varble.exe",
+        "source/spectacl3/dev/monocle/.varble.exe.new",
+        "source/spectacl3/dev/monocle/.claude/worktrees/agent-ad8af76cd749c5262/dist/varble.exe",
+        "source/spectacl3/dev/monocle/.claude/worktrees/brand-icon/dist/varble.exe",
+        "source/spectacl3/dev/monocle/.claude/worktrees/quibble-vnext/dist/varble.exe",
+        "source/spectacl3/dev/monocle/.claude/worktrees/shiki-highlighting-23/dist/varble.exe",
+        "source/spectacl3/dev/monocle/dist/monocle.exe",
+        "source/spectacl3/dev/monocle/varble-windows-arm64.exe",
+        "source/spectacl3/dev/monocle/varble-windows-x64.exe"
+      ]
+    },
+    {
+      "id": "m-110",
+      "query": "brindlee.mdx",
+      "kind": "name",
+      "rank": 2,
+      "total_matches": 31,
+      "elapsed_ms": 10.3224,
+      "top": [
+        "source/spectacl3/dev/amdotcom/brindlee.mdx",
+        "source/spectacl3/dev/amdotcom/src/data/blogs/brindlee.mdx",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/redesign/brindlee.mdx",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ada398f02ae91eade/src/data/blogs/brindlee.mdx",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/redesign/src/data/blogs/brindlee.mdx",
+        "source/spectacl3/dev/amdotcom/src/components/mdx",
+        "source/spectacl3/dev/amdotcom/my-story.mdx",
+        "source/spectacl3/dev/monocle/getting-started/installation.mdx",
+        "source/spectacl3/dev/monocle/getting-started/quickstart.mdx",
+        "source/spectacl3/dev/amdotcom/copilot-plugin-cc.mdx"
+      ]
+    },
+    {
+      "id": "m-118",
+      "query": "amdotcom stats script",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 3522,
+      "elapsed_ms": 8.8672,
+      "top": [
+        "source/spectacl3/dev/amdotcom/scripts/stats.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats",
+        "source/spectacl3/dev/amdotcom/scripts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats/scout-loads.sql",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats/scout-report.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats/scout-report.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats/scout-scenarios.sql",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/scripts/stats/scout-sessions.sql"
+      ]
+    },
+    {
+      "id": "m-121",
+      "query": "rebuilding this site blog post",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 204,
+      "elapsed_ms": 10.8293,
+      "top": [
+        "source/spectacl3/dev/amdotcom/src/data/blogs/rebuilding-this-site-in-one-session.mdx",
+        "AppData/Local/Postman/Suite/blob_storage-locales",
+        "AppData/Local/Postman/Suite/blob_storage17",
+        "AppData/Local/Postman/Suite/blob_storage3",
+        "AppData/Local/Postman/Suite/updates-blob_storage",
+        "AppData/Local/Postman/Suite/Cache16/blob_storage-Crashpad",
+        "AppData/Local/Postman/Suite/Network-plugins/temp-Default/Dictionaries-blob_storage",
+        "AppData/Local/Postman/Suite/backups15/databases/blob_storage.7",
+        "AppData/Local/Postman/Suite/blob_storage3/state5/blob_storage39",
+        "AppData/Local/Postman/Suite/databases24/Default-ScriptCache/blob_storage.4"
+      ]
+    },
+    {
+      "id": "m-122",
+      "query": "monocle web bun.lock",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 8,
+      "elapsed_ms": 10.4266,
+      "top": [
+        "source/spectacl3/dev/monocle/web/bun.lock",
+        "source/spectacl3/dev/monocle/bun.lock",
+        "source/spectacl3/dev/monocle/bunfig.toml",
+        "source/spectacl3/dev/monocle/demos/package-lock.json",
+        "source/spectacl3/dev/monocle/svelte-check.bunx",
+        "source/spectacl3/dev/monocle/web",
+        ".bun",
+        ".monocle"
+      ]
+    },
+    {
+      "id": "m-123",
+      "query": "attest mcp docs",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 123,
+      "elapsed_ms": 11.1769,
+      "top": [
+        "source/spectacl3/dev/attest/docs/mcp.md",
+        "source/spectacl3/dev/attest-wt/e2e/docs/mcp.md",
+        "source/spectacl3/dev/attest-wt/mcp/docs/mcp.md",
+        "source/spectacl3/dev/attest-wt/mcp/docs",
+        "source/spectacl3/dev/attest/src/mcp",
+        "source/spectacl3/dev/attest-wt/agentapi/docs/decisions/0005-cli-and-mcp-implementation.md",
+        "source/spectacl3/dev/attest-wt/artifacts/docs/decisions/0005-cli-and-mcp-implementation.md",
+        "source/spectacl3/dev/attest-wt/auth/docs/decisions/0005-cli-and-mcp-implementation.md",
+        "source/spectacl3/dev/attest-wt/github/docs/decisions/0005-cli-and-mcp-implementation.md",
+        "source/spectacl3/dev/attest-wt/mcp/docs/development.md"
+      ]
+    },
+    {
+      "id": "m-127",
+      "query": "attest app template.tsx",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 290,
+      "elapsed_ms": 12.073,
+      "top": [
+        "source/spectacl3/dev/attest/src/web/app/template.tsx",
+        "source/spectacl3/dev/attest/src/web/template.tsx",
+        "source/spectacl3/dev/attest/src/web/app/layout.tsx",
+        "source/spectacl3/dev/attest/src/web/app/docs/layout.tsx",
+        "source/spectacl3/dev/attest/src/web/app/docs/page.tsx",
+        "source/spectacl3/dev/attest/src/web/app/login/page.tsx",
+        "source/spectacl3/dev/attest/src/web/app/settings/page.tsx",
+        "source/spectacl3/dev/attest/src/web/app/docs/active-marker.tsx",
+        "source/spectacl3/dev/attest/src/web/app/docs/docs-sidebar.tsx",
+        "source/spectacl3/dev/attest/src/web/app/login/page.test.tsx"
+      ]
+    },
+    {
+      "id": "m-129",
+      "query": "artifact visual snapshot win32",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 122,
+      "elapsed_ms": 11.0616,
+      "top": [
+        "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots/artifact-visual-win32.png",
+        "source/spectacl3/dev/attest/src/web/artifact-visual-win32.png",
+        "source/spectacl3/dev/attest/src/web/mobile-artifact-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/artifact-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/mobile-artifact-visual-win32.png",
+        "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots/docs-product-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/dashboard-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/execution-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/landing-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/login-visual-win32.png"
+      ]
+    },
+    {
+      "id": "m-131",
+      "query": "docs product visual snapshot",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 179,
+      "elapsed_ms": 12.0368,
+      "top": [
+        "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots/docs-product-visual-win32.png",
+        "source/spectacl3/dev/attest/src/web/docs-product-visual-win32.png",
+        "source/spectacl3/dev/attest-wt/e2e-coverage/src/web/e2e/visual/key-views.visual.ts-snapshots/docs-product-visual-win32.png",
+        "source/spectacl3/dev/attest/docs/product.md",
+        "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots",
+        "source/repos/admin-233/components3/lib39/common-docs/docs/CursorFrame.cs",
+        "source/repos/admin-233/components3/lib39/common-docs/docs/CursorReport.ts",
+        "source/repos/admin-233/components3/lib39/common-docs/docs/docs24/Graph.xml",
+        "source/repos/admin-233/components3/lib39/common-docs/docs/docs24/render_client.cs",
+        "source/repos/admin-233/components3/lib39/common-docs/docs/docs24/services.2/config-core/shared/plugins/components/scripts/Frame.cs"
+      ]
+    },
+    {
+      "id": "m-132",
+      "query": "qs-main theme index.php",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 1662,
+      "elapsed_ms": 10.9215,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/wordpress/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/wordpress/wp-admin/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/wordpress/wp-admin/network/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/wordpress/wp-admin/user/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/wordpress/wp-includes/blocks/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/block-theme-non-latin/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/block-theme/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/block_theme-[0.4.0]/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/custom-internationalized-theme/index.php"
+      ]
+    },
+    {
+      "id": "m-134",
+      "query": "qs-main compiled app css",
+      "kind": "descriptive",
+      "rank": 2,
+      "total_matches": 2915,
+      "elapsed_ms": 11.6664,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/css/app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/pr-app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/css/app.CK858xsO.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/l1436.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/long1436.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/style.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/hdr_style0.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/hdr_style1.css"
+      ]
+    },
+    {
+      "id": "m-138",
+      "query": "merch buybox component",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 15,
+      "elapsed_ms": 12.0097,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/woo/merch-buybox.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/final-fixes-12/template-parts/components/woo/merch-buybox.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/merch-step8/template-parts/components/woo/merch-buybox.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/template-parts/components/woo/merch-buybox.php",
+        "source/spectacl3/dev/amdotcom/src/components/writing/PerchHeading.astro",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/sections/shared/merch-cta.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/merch-step8/template-parts/components",
+        "source/spectacl3/merch.html",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/forms-step9/template-parts/components/woo/pickguard-buybox.php",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/template-parts/components/woo/pickguard-buybox.php"
+      ]
+    },
+    {
+      "id": "m-145",
+      "query": "account css qs-main",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 2361,
+      "elapsed_ms": 11.0888,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/account.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/home-css.txt",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/app.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/style.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/tailcss.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/l1436.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/long1436.css",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/pr-app.css"
+      ]
+    },
+    {
+      "id": "m-152",
+      "query": "modelcontextprotocol.core nuget package",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 2793,
+      "elapsed_ms": 9.8815,
+      "top": [
+        ".nuget/packages/modelcontextprotocol.core",
+        ".nuget/packages/modelcontextprotocol",
+        ".nuget/packages/core",
+        ".nuget/packages/core-compat",
+        ".nuget/packages/runtime-core",
+        ".nuget/packages/tslib-babel/core",
+        ".nuget/packages/webpack/core",
+        ".nuget/packages/glob-lib/core23",
+        ".nuget/packages/plugin.7/async-core",
+        ".nuget/packages/react-browser/shim-core"
+      ]
+    },
+    {
+      "id": "m-155",
+      "query": "fetchle fixtures Corpus.cs",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 2190,
+      "elapsed_ms": 11.6509,
+      "top": [
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/Corpus.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/HomeCorpus.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/HomeCorpusStats.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/HomeCorpusWriter.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Fixtures/Corpus.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/tests/Fetchle.Fixtures/Corpus.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Fixtures/HomeCorpus.cs",
+        "source/spectacl3/dev/fetchle/bench/Fetchle.Bench/BenchCorpus.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Fixtures/HomeCorpusStats.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Fixtures/HomeCorpusWriter.cs"
+      ]
+    },
+    {
+      "id": "m-158",
+      "query": "r333 ref crop 1440",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 26,
+      "elapsed_ms": 10.3473,
+      "top": [
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-ref-1440-crop.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-ref-1024-crop.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-ref-390-crop.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-stg-1440-crop.png",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/r334-ref-1440.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-crop.js",
+        "source/spectacl3/quill-campaign-runtime/i4-merch-ref-1440.png",
+        "source/spectacl3/quill-campaign-runtime/i4-options-ref-1440.png",
+        "source/spectacl3/quill-campaign-runtime/i5-popup-ref-1440.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-stg-1024-crop.png"
+      ]
+    },
+    {
+      "id": "m-161",
+      "query": "rts s1 review html",
+      "kind": "partial",
+      "rank": 2,
+      "total_matches": 27,
+      "elapsed_ms": 9.9762,
+      "top": [
+        "source/spectacl3/rts-s1-review.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-collection-proposal.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-collection-proposal.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+        "source/spectacl3/rts-collection-proposal.html",
+        "source/spectacl3/rts-l2-larger.html",
+        "source/repos/docs-site-548/handlers27/migrations-templates/assets34/Writer-1046.html"
+      ]
+    },
+    {
+      "id": "m-162",
+      "query": "qs-main vendor phpunit binary",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 393,
+      "elapsed_ms": 10.4957,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/bin/phpunit",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/bin/phpunit.bat",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/page-templates/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/sandbox/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/camelCase/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/default/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/default/header.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/update-uri-theme/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/block-theme/index.php",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/wp-phpunit/wp-phpunit/data/themedir1/block_theme-[0.4.0]/index.php"
+      ]
+    },
+    {
+      "id": "m-165",
+      "query": "d4-1s combo 1024",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 7,
+      "elapsed_ms": 8.9957,
+      "top": [
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-combo-1024.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-combo-1440.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-combo-390.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-brands-only-1024.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-alvarez-rts-1440.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-brands-only-1440.png",
+        "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-brands-only-390.png"
+      ]
+    },
+    {
+      "id": "m-167",
+      "query": "rts-l2-larger.html",
+      "kind": "name",
+      "rank": 2,
+      "total_matches": 10,
+      "elapsed_ms": 10.0095,
+      "top": [
+        "source/spectacl3/rts-l2-larger.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/rts-product-oct5/rts-l2-larger.html",
+        "source/spectacl3/rts-collection-proposal.html",
+        "source/spectacl3/rts-s1-review.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-collection-proposal.html",
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-collection-proposal.html",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html"
+      ]
+    },
+    {
+      "id": "m-168",
+      "query": "redesign review preview reference folder",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 127,
+      "elapsed_ms": 10.7874,
+      "top": [
+        "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference",
+        "source/spectacl3/Alex-Redesign-Review-2026-09-24/01-Preview-Reference",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-R/01-Preview-Reference",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24",
+        "source/spectacl3/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/assets",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/assets",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/trc-assets",
+        "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/03-Theme-Comparison"
+      ]
+    },
+    {
+      "id": "m-169",
+      "query": "QsDeploy DeployCommand",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 180,
+      "elapsed_ms": 10.0065,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/scripts/deploy-v2/src/QsDeploy/Features/Deploy/DeployCommand.cs",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/deploy-v2/scripts/deploy-v2/src/QsDeploy/Features/Deploy/DeployCommand.cs",
+        ".claude/projects/C--Users-Alex-source-spectacl3-webprojects-wordpress-quillstack-local-app-public-wp-content-themes-qs-main/qs-deploy-v2-testing.md",
+        ".claude/projects/C--Users-Alex-source-spectacl3-webprojects-wordpress-quillstack-local-app-public-wp-content-themes-qs-main/staging-ahead-blocks-deploy.md",
+        ".claude/projects/C--Users-Alex-source-spectacl3-webprojects-wordpress-quillstack-local-app-public-wp-content-themes-qs-main/staging-deploy-needs-local-approval.md",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/SetupCommand.cs",
+        "source/spectacl3/quill-campaign-runtime/qsc.cmd",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/ci-audit/QsDeploy.Tests",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/ci-audit/deploy.ts",
+        "source/spectacl3/webprojects/wordpress/qsc-worktrees/deploy-v2/scripts/deploy-v2/src/QsDeploy/Changelog.cs"
+      ]
+    },
+    {
+      "id": "m-170",
+      "query": "DirectoryLister",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 12,
+      "elapsed_ms": 8.9389,
+      "top": [
+        "source/spectacl3/dev/fetchle/src/Fetchle.Core/Walking/DirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Core/Walking/DirectoryListers.cs",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Core/Walking/IDirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Core/Walking/DirectoryListers.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/src/Fetchle.Core/Walking/DirectoryListers.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Core/Walking/IDirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/src/Fetchle.Core/Walking/IDirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Core/Walking/DotNetDirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Core/Walking/Windows/WindowsDirectoryLister.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/src/Fetchle.Core/Walking/DotNetDirectoryLister.cs"
+      ]
+    },
+    {
+      "id": "m-186",
+      "query": "email samples cli command",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 68,
+      "elapsed_ms": 9.7067,
+      "top": [
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/class-qs-email-samples-command.php",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.E2E/Cli/CliOutputTests.cs",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/CliEnvironment.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.E2E/Cli/CommandTests.cs",
+        "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/scripts/lib/cli-utils.ts",
+        "source/spectacl3/quill-campaign-runtime/cli.py",
+        "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/IndexCommand.cs",
+        "source/spectacl3/dev/attest/CliExceptions.cs",
+        "source/spectacl3/dev/monocle/src/utils/cli.ts"
+      ]
+    },
+    {
+      "id": "m-188",
+      "query": "monocle web astro config",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 135,
+      "elapsed_ms": 10.598,
+      "top": [
+        "source/spectacl3/dev/monocle/web/astro.config.mjs",
+        "source/spectacl3/dev/monocle/astro.config.mjs",
+        "source/spectacl3/dev/monocle/web/.astro",
+        "source/spectacl3/dev/monocle/web/src/content.config.ts",
+        "source/spectacl3/dev/monocle/web/src/components/Mark.astro",
+        "source/spectacl3/dev/monocle/web/.astro/collections",
+        "source/spectacl3/dev/monocle/web/.astro/content-assets.mjs",
+        "source/spectacl3/dev/monocle/web/.astro/content-modules.mjs",
+        "source/spectacl3/dev/monocle/web/.astro/content.d.ts",
+        "source/spectacl3/dev/monocle/web/.astro/preview.log"
+      ]
+    },
+    {
+      "id": "m-197",
+      "query": "scout events lib",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 1227,
+      "elapsed_ms": 11.3752,
+      "top": [
+        "source/spectacl3/dev/amdotcom/src/lib/scout-events.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/src/lib/scout-events.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/src/lib/scout-events.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/.claude/worktrees/agent-aeadd9064bfb9f23b/src/lib/scout-events.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/.claude/worktrees/agent-aeadd9064bfb9f23b/src/lib/scout-events.test.ts",
+        ".m2/repository/lib26/Event.cs",
+        ".conda/pkgs/lib14/EventFilter.ts",
+        ".m2/repository/lib/MetricEvent.json",
+        ".m2/repository/types-lib/event_query.css",
+        ".nuget/packages/lib-esm/EventParse.md"
+      ]
+    },
+    {
+      "id": "m-199",
+      "query": "franchise admin template",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 2138,
+      "elapsed_ms": 9.4449,
+      "top": [
+        "source/spectacl3/dev/tvb/app/static/admin/templates/franchise.html",
+        "source/spectacl3/dev/tvb/js/admin/FranchiseCtrl.js",
+        "source/repos/admin-233/templates",
+        "source/repos/admin-233/templates-api",
+        "source/repos/admin-233/handlers/templates",
+        "source/repos/admin-233/types-styles/templates",
+        "source/repos/admin-233/utils/templates",
+        "source/spectacl3/dev/tvb/app/templates/admin",
+        "source/repos/admin-233/components3/pages-templates",
+        "source/repos/admin-233/examples/templates-services"
+      ]
+    },
+    {
+      "id": "m-201",
+      "query": "event notifications scss",
+      "kind": "partial",
+      "rank": 2,
+      "total_matches": 10,
+      "elapsed_ms": 9.9541,
+      "top": [
+        "source/spectacl3/dev/tvb/css/admin/events/sections/notifications.scss",
+        "source/spectacl3/dev/tvb/app/static/admin/css/admin/events/sections/notifications.scss",
+        "source/spectacl3/dev/tvb/app/static/admin/templates/events/sections/notifications.html",
+        "source/spectacl3/dev/tvb/css/admin/events/_variables.scss",
+        "source/spectacl3/dev/tvb/css/admin/events/components/accordion.scss",
+        "source/spectacl3/dev/tvb/css/admin/events/components/autocomplete.scss",
+        "source/spectacl3/dev/tvb/css/admin/events/components/number-input.scss",
+        "source/spectacl3/dev/tvb/css/_single-image.scss",
+        "source/spectacl3/dev/tvb/css/_slideshow.scss",
+        "source/spectacl3/dev/tvb/css/style.scss"
+      ]
+    },
+    {
+      "id": "m-202",
+      "query": "mascot render test",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 927,
+      "elapsed_ms": 11.3813,
+      "top": [
+        "source/spectacl3/dev/amdotcom/src/components/mascot/render.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-a543559c04fac2b98/src/components/mascot/render.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/render.test.ts",
+        "source/spectacl3/dev/amdotcom/testing-opus-4-7-mascot-physics.mdx",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/render.test.ts",
+        "source/spectacl3/dev/amdotcom/src/components/mascot/brain.test.ts",
+        "source/spectacl3/dev/amdotcom/src/components/mascot/cameos.test.ts",
+        "source/spectacl3/dev/amdotcom/src/components/mascot/closet.test.ts",
+        "source/spectacl3/dev/amdotcom/src/components/mascot/engine.test.ts",
+        "source/spectacl3/dev/amdotcom/src/components/mascot/expressions.test.ts"
+      ]
+    },
+    {
+      "id": "m-203",
+      "query": "tvb acceptance compose file",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 132,
+      "elapsed_ms": 11.2675,
+      "top": [
+        "source/spectacl3/dev/tvb/compose.acceptance.yaml",
+        "source/spectacl3/dev/tvb/acceptance.py",
+        "source/spectacl3/dev/tvb/seed_acceptance.py",
+        "source/spectacl3/dev/tvb/local_acceptance.py",
+        "source/spectacl3/dev/tvb/check_acceptance.py",
+        "source/spectacl3/dev/tvb/start_acceptance.sh",
+        "source/spectacl3/dev/tvb/compose.yaml",
+        "source/spectacl3/dev/tvb/compose.gcp.yaml",
+        "source/spectacl3/dev/tvb/init_acceptance.py",
+        "AppData/Roaming/Opera/Launcher/temp/IndexedDB16/blob_storage12/format228.ldb"
+      ]
+    },
+    {
+      "id": "m-212",
+      "query": "ActionTracker",
+      "kind": "name",
+      "rank": 1,
+      "total_matches": 16,
+      "elapsed_ms": 9.2669,
+      "top": [
+        "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/ActionTracker.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Cli/Commands/ActionTracker.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/src/Fetchle.Cli/Commands/ActionTracker.cs",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/scout-tracker.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/scout-tracker.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/.claude/worktrees/agent-aeadd9064bfb9f23b/src/components/mascot/scout-tracker.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/.claude/worktrees/agent-aeadd9064bfb9f23b/src/components/mascot/scout-tracker.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/src/components/mascot/scout-tracker.test.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/src/components/mascot/scout-tracker.ts",
+        "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-aeadd9064bfb9f23b/src/components/writing/read-tracker.test.ts"
+      ]
+    },
+    {
+      "id": "m-215",
+      "query": "substring ranker",
+      "kind": "partial",
+      "rank": 1,
+      "total_matches": 6,
+      "elapsed_ms": 8.8755,
+      "top": [
+        "source/spectacl3/dev/fetchle/src/Fetchle.Core/Naive/SubstringRanker.cs",
+        "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/Core/SubstringRankerTests.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/src/Fetchle.Core/Naive/SubstringRanker.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/src/Fetchle.Core/Naive/SubstringRanker.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Tests/Core/SubstringRankerTests.cs",
+        "source/spectacl3/dev/fetchle/.claude/worktrees/agent-ad1e4dee7e308f783/tests/Fetchle.Tests/Core/SubstringRankerTests.cs"
+      ]
+    },
+    {
+      "id": "m-221",
+      "query": "potion embeddings spike",
+      "kind": "descriptive",
+      "rank": 2,
+      "total_matches": 21,
+      "elapsed_ms": 9.5995,
+      "top": [
+        "source/spectacl3/dev/spikes/embeddings/Spike/paths-pruned.txt",
+        "source/spectacl3/dev/spikes/embeddings/Spike",
+        "source/spectacl3/dev/spikes/embeddings",
+        "source/spectacl3/dev/spikes/embeddings/Spike/paths-all.txt",
+        "source/spectacl3/dev/spikes/embeddings/Directory.Packages.props",
+        "source/spectacl3/dev/spikes/embeddings/Model2Vec.Net.sln",
+        "source/spectacl3/dev/spikes/embeddings/README.md",
+        "source/spectacl3/dev/spikes/embeddings/THIRD-PARTY-NOTICES.md",
+        "source/spectacl3/dev/spikes/embeddings/global.json",
+        "source/spectacl3/dev/spikes/embeddings/src-ref"
+      ]
+    },
+    {
+      "id": "m-224",
+      "query": "api test factory attest",
+      "kind": "descriptive",
+      "rank": 1,
+      "total_matches": 383,
+      "elapsed_ms": 9.677,
+      "top": [
+        "source/spectacl3/dev/attest/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/agentapi/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/artifacts/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/auth/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/authfix/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/backend/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/execution/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/security/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/seed2/tests/Attest.Api.Tests/AttestApiFactory.cs",
+        "source/spectacl3/dev/attest-wt/seed/tests/Attest.Api.Tests/AttestApiFactory.cs"
+      ]
     }
   ]
 }

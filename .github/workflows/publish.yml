@@ -31,7 +31,8 @@ jobs:
         include:
           - { rid: win-x64, os: windows-latest }
           - { rid: win-arm64, os: windows-latest }
-          - { rid: linux-x64, os: ubuntu-latest }
+          # pinned: a native exe needs at least the glibc it was linked on, and ubuntu-latest moved to 2.43
+          - { rid: linux-x64, os: ubuntu-24.04 }
           - { rid: linux-arm64, os: ubuntu-24.04-arm }
           - { rid: osx-arm64, os: macos-latest }
     runs-on: ${{ matrix.os }}

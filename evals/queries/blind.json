@@ -1,0 +1,762 @@
+[
+  {
+    "id": "b-001",
+    "query": "consolehost histroy",
+    "expected": [
+      "AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/ConsoleHost_history.txt"
+    ],
+    "kind": "name",
+    "note": "typo of ConsoleHost_history; the only PSReadLine history file"
+  },
+  {
+    "id": "b-002",
+    "query": "keyboard shortcuts i set in vs code",
+    "expected": [
+      "AppData/Roaming/Code/User/keybindings.json"
+    ],
+    "kind": "descriptive",
+    "note": "vs code user keybindings; only keybindings file in corpus"
+  },
+  {
+    "id": "b-003",
+    "query": "windows terminal state json",
+    "expected": [
+      "AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/state.json"
+    ],
+    "kind": "partial",
+    "note": "terminal LocalState state.json, not settings.json and not the smoke-state.json files"
+  },
+  {
+    "id": "b-004",
+    "query": "spotify startup task",
+    "expected": [
+      "AppData/Roaming/Spotify/SpotifyStartupTask.exe"
+    ],
+    "kind": "name",
+    "note": "exact exe name"
+  },
+  {
+    "id": "b-005",
+    "query": "firefox browsing history database",
+    "expected": [
+      "AppData/Roaming/Mozilla/Firefox/Profiles/gzyvk5z5.default-release/places.sqlite",
+      "AppData/Roaming/Mozilla/Firefox/Profiles/k2x9qv1a.default-release/places.sqlite"
+    ],
+    "kind": "descriptive",
+    "note": "places.sqlite holds firefox history; two profiles"
+  },
+  {
+    "id": "b-006",
+    "query": "chrome default profile bookmarks",
+    "expected": [
+      "AppData/Local/Google/Chrome/User Data/Default/Bookmarks"
+    ],
+    "kind": "partial",
+    "note": "chrome Bookmarks file in Default profile"
+  },
+  {
+    "id": "b-007",
+    "query": "thunderbird email search index",
+    "expected": [
+      "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release/global-messages-db.sqlite",
+      "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite"
+    ],
+    "kind": "descriptive",
+    "note": "global-messages-db is thunderbird's gloda search index; two profiles"
+  },
+  {
+    "id": "b-008",
+    "query": "thunderbird profile prefs",
+    "expected": [
+      "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/prefs.js"
+    ],
+    "kind": "partial",
+    "note": "only thunderbird prefs.js; monocle src/client/prefs.js is a distractor"
+  },
+  {
+    "id": "b-009",
+    "query": "discord auto updater",
+    "expected": [
+      "AppData/Local/Discord/Update.exe"
+    ],
+    "kind": "descriptive",
+    "note": "Discord's Squirrel Update.exe, not the versioned Discord.exe copies"
+  },
+  {
+    "id": "b-010",
+    "query": "github desktop exe",
+    "expected": [
+      "AppData/Local/GitHubDesktop/GitHubDesktop.exe",
+      "AppData/Local/GitHubDesktop/app-3.5.0/GitHubDesktop.exe",
+      "AppData/Local/GitHubDesktop/app-3.5.2/GitHubDesktop.exe",
+      "AppData/Local/GitHubDesktop/app-3.4.9/GitHubDesktop.exe"
+    ],
+    "kind": "name",
+    "note": "launcher plus three versioned app copies"
+  },
+  {
+    "id": "b-011",
+    "query": "nvm settings txt",
+    "expected": [
+      "AppData/Roaming/nvm/settings.txt"
+    ],
+    "kind": "partial",
+    "note": "nvm-windows settings file"
+  },
+  {
+    "id": "b-012",
+    "query": "node 22 binray from nvm",
+    "expected": [
+      "AppData/Roaming/nvm/v22.18.0/node.exe"
+    ],
+    "kind": "descriptive",
+    "note": "typo binray; the only node 22 under nvm (other v22.18.0 hits are marker files in repos)"
+  },
+  {
+    "id": "b-013",
+    "query": "obsidian's list of vaults",
+    "expected": [
+      "AppData/Roaming/obsidian/obsidian.json"
+    ],
+    "kind": "descriptive",
+    "note": "obsidian.json stores the vault registry"
+  },
+  {
+    "id": "b-014",
+    "query": "claude desktop config",
+    "expected": [
+      "AppData/Roaming/Claude/claude_desktop_config.json"
+    ],
+    "kind": "name",
+    "note": "claude desktop mcp/server config"
+  },
+  {
+    "id": "b-015",
+    "query": "claude code 2.1.286 exe",
+    "expected": [
+      "AppData/Roaming/Claude/claude-code/2.1.286/635c1867224a/claude.exe"
+    ],
+    "kind": "partial",
+    "note": "version pins it over 2.1.284 and .local/bin/claude.exe"
+  },
+  {
+    "id": "b-016",
+    "query": "mysql command line client for local wp",
+    "expected": [
+      "AppData/Roaming/Local/lightning-services/mysql-8.0.35+4/bin/win64/bin/mysql.exe"
+    ],
+    "kind": "descriptive",
+    "note": "Local (flywheel) lightning-services bundles the only mysql.exe"
+  },
+  {
+    "id": "b-017",
+    "query": "minecraft bedrock game settings file",
+    "expected": [
+      "AppData/Roaming/Minecraft Bedrock/Users/20000000000000000001/games/com.mojang/minecraftpe/options.txt"
+    ],
+    "kind": "descriptive",
+    "note": "minecraftpe options.txt holds bedrock settings"
+  },
+  {
+    "id": "b-018",
+    "query": "my claude code user settings",
+    "expected": [
+      ".claude/settings.json"
+    ],
+    "kind": "descriptive",
+    "note": "global claude code settings; .bak/.local variants and per-repo .claude/settings.json are distractors"
+  },
+  {
+    "id": "b-019",
+    "query": "playwright headless shell exe",
+    "expected": [
+      "AppData/Local/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-win64/chrome-headless-shell.exe"
+    ],
+    "kind": "partial",
+    "note": "headless shell binary, distinct from chromium-1243 chrome.exe"
+  },
+  {
+    "id": "b-020",
+    "query": "codex config.toml",
+    "expected": [
+      ".codex/config.toml"
+    ],
+    "kind": "name",
+    "note": "only config.toml in corpus"
+  },
+  {
+    "id": "b-021",
+    "query": "transcript of my codex session",
+    "expected": [
+      ".codex/sessions/2026/10/04/rollout-2026-10-04T06-37-22-01a106b4-4ba6-7ad3-ab33-82e6c65b5067.jsonl"
+    ],
+    "kind": "descriptive",
+    "note": "codex stores sessions as rollout jsonl; only one"
+  },
+  {
+    "id": "b-022",
+    "query": "pixel agents hook that claude calls",
+    "expected": [
+      ".pixel-agents/claude-hook.js"
+    ],
+    "kind": "descriptive",
+    "note": "claude-hook.js in .pixel-agents"
+  },
+  {
+    "id": "b-023",
+    "query": "week-calendar agent",
+    "expected": [
+      ".claude/agents/week-calendar.md"
+    ],
+    "kind": "name",
+    "note": "user subagent definition"
+  },
+  {
+    "id": "b-024",
+    "query": "semble mcp python module",
+    "expected": [
+      "AppData/Roaming/uv/tools/semble/Lib/site-packages/semble/mcp.py"
+    ],
+    "kind": "partial",
+    "note": "semble's mcp.py in the uv tool env"
+  },
+  {
+    "id": "b-025",
+    "query": "downloaded potion code embedding model",
+    "expected": [
+      ".cache/huggingface/hub/models--minishlab--potion-code-16M-v2/"
+    ],
+    "kind": "descriptive",
+    "note": "huggingface hub model dir; the .locks twin is not the model"
+  },
+  {
+    "id": "b-026",
+    "query": "Npgsql.EntityFrameworkCore.PostgreSQL xml",
+    "expected": [
+      ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml",
+      ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml"
+    ],
+    "kind": "name",
+    "note": "xml doc file, two package versions"
+  },
+  {
+    "id": "b-027",
+    "query": "global claude code cli.js from npm",
+    "expected": [
+      "AppData/Roaming/npm/node_modules/claude-code/cli.js"
+    ],
+    "kind": "descriptive",
+    "note": "npm global install of claude-code"
+  },
+  {
+    "id": "b-028",
+    "query": "quill customer email design review zip",
+    "expected": [
+      "Downloads/Quill-Customer-Email-Design-Review-2026-10-06.zip",
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/Quill-Customer-Email-Design-Review-2026-10-06.zip"
+    ],
+    "kind": "name",
+    "note": "same zip in Downloads and copied into the theme"
+  },
+  {
+    "id": "b-029",
+    "query": "fetchle McpServerHost",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Mcp/McpServerHost.cs"
+    ],
+    "kind": "name",
+    "note": "fetchle mcp host class"
+  },
+  {
+    "id": "b-030",
+    "query": "fetchle receipt tests",
+    "expected": [
+      "source/spectacl3/dev/fetchle/tests/Fetchle.Tests/Install/ReceiptTests.cs",
+      "source/spectacl3/dev/fetchle/.claude/worktrees/agent-a2857ff74a8ac4a93/tests/Fetchle.Tests/Install/ReceiptTests.cs"
+    ],
+    "kind": "partial",
+    "note": "main copy plus agent worktree copy"
+  },
+  {
+    "id": "b-031",
+    "query": "saved results from the query benchmarks",
+    "expected": [
+      "source/spectacl3/dev/fetchle/bench/results/Fetchle.Bench.QueryBenchmarks.json",
+      "source/spectacl3/dev/fetchle/Fetchle.Bench.QueryBenchmarks-20261003-234324.log"
+    ],
+    "kind": "descriptive",
+    "note": "bench/results json is the saved result; the run log is also query-benchmark output"
+  },
+  {
+    "id": "b-032",
+    "query": "native aot build of the fetchle test suite",
+    "expected": [
+      "source/spectacl3/dev/fetchle/artifacts/tests-aot/Fetchle.Tests.exe"
+    ],
+    "kind": "descriptive",
+    "note": "artifacts/tests-aot holds the AOT-compiled test exe"
+  },
+  {
+    "id": "b-033",
+    "query": "monocle mcpb manifest",
+    "expected": [
+      "source/spectacl3/dev/monocle/mcpb/manifest.json"
+    ],
+    "kind": "partial",
+    "note": "mcpb bundle manifest"
+  },
+  {
+    "id": "b-034",
+    "query": "decision record for renaming varble to quibble",
+    "expected": [
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-aba5b63df94c7b8f2/0008-rename-varble-to-quibble.md",
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-af88cf123754b1bda/0008-rename-varble-to-quibble.md"
+    ],
+    "kind": "descriptive",
+    "note": "ADR 0008, only exists in two worktrees; 0004 is monocle to varble"
+  },
+  {
+    "id": "b-035",
+    "query": "quibble lanch checklist",
+    "expected": [
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-af88cf123754b1bda/docs/quibble/launch/launch-checklist.md"
+    ],
+    "kind": "name",
+    "note": "typo lanch; only launch checklist in corpus"
+  },
+  {
+    "id": "b-036",
+    "query": "monocle-review SKILL.md",
+    "expected": [
+      "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review/skills/monocle-review/SKILL.md",
+      "source/spectacl3/dev/monocle/plugins/monocle-review/skills/monocle-review/SKILL.md"
+    ],
+    "kind": "name",
+    "note": "claude-code integration and codex plugin copies of the same skill"
+  },
+  {
+    "id": "b-037",
+    "query": "how the ticket agent sends push notifications",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/notify/ntfy.ts"
+    ],
+    "kind": "descriptive",
+    "note": "ntfy.ts is the push notifier; costAlert.ts builds alerts on top"
+  },
+  {
+    "id": "b-038",
+    "query": "relay trello api client",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/trello/client.ts"
+    ],
+    "kind": "partial",
+    "note": "relay-ticket-agent trello client, not qs-ai-platform trello routes"
+  },
+  {
+    "id": "b-039",
+    "query": "sla sweep playbook",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/playbooks/slaSweep.ts"
+    ],
+    "kind": "name",
+    "note": "source file; tests are secondary"
+  },
+  {
+    "id": "b-040",
+    "query": "design spec for the triage analyst redesign",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/docs/superpowers/specs/2026-06-17-triage-analyst-redesign-design.md"
+    ],
+    "kind": "descriptive",
+    "note": "only triage-analyst spec"
+  },
+  {
+    "id": "b-041",
+    "query": "organic silver fox",
+    "expected": [
+      "source/spectacl3/dev/health/server/db/migrations/0000_organic_silver_fox.sql"
+    ],
+    "kind": "name",
+    "note": "drizzle auto-named first migration"
+  },
+  {
+    "id": "b-042",
+    "query": "offline service worker for the health pwa",
+    "expected": [
+      "source/spectacl3/dev/health/public/sw.js",
+      "source/spectacl3/dev/health/sw.js"
+    ],
+    "kind": "descriptive",
+    "note": "two copies of the health app sw.js"
+  },
+  {
+    "id": "b-043",
+    "query": "WaterTraker vue",
+    "expected": [
+      "source/spectacl3/dev/health/components/WaterTracker.vue",
+      "source/spectacl3/dev/health/WaterTracker.vue"
+    ],
+    "kind": "name",
+    "note": "typo of WaterTracker; two copies"
+  },
+  {
+    "id": "b-044",
+    "query": "endpoint that exports a user's health data",
+    "expected": [
+      "source/spectacl3/dev/health/server/api/export.get.ts"
+    ],
+    "kind": "descriptive",
+    "note": "nuxt server route export.get.ts"
+  },
+  {
+    "id": "b-045",
+    "query": "notification scheduler py",
+    "expected": [
+      "source/spectacl3/dev/tvb/notification_scheduler.py"
+    ],
+    "kind": "name",
+    "note": "scheduler, not notification_schedule.py"
+  },
+  {
+    "id": "b-046",
+    "query": "franchiseCtlr js",
+    "expected": [
+      "source/spectacl3/dev/tvb/js/admin/FranchiseCtrl.js"
+    ],
+    "kind": "name",
+    "note": "transposed typo of FranchiseCtrl"
+  },
+  {
+    "id": "b-047",
+    "query": "authorize.net payment code in tvb",
+    "expected": [
+      "source/spectacl3/dev/tvb/auth_net.py"
+    ],
+    "kind": "descriptive",
+    "note": "auth_net.py; paypal.py is the other gateway"
+  },
+  {
+    "id": "b-048",
+    "query": "tvb qr detection cloud function",
+    "expected": [
+      "source/spectacl3/dev/tvb/cloud-functions/detectQrCode.js",
+      "source/spectacl3/dev/tvb/cloud-functions-v2/detectQr/"
+    ],
+    "kind": "partial",
+    "note": "v1 single-file function and the v2 function dir"
+  },
+  {
+    "id": "b-049",
+    "query": "script that checks a database backup restores",
+    "expected": [
+      "source/spectacl3/dev/attest-wt/e2e/infra/backup/verify-restore.sh"
+    ],
+    "kind": "descriptive",
+    "note": "verify-restore.sh; restore.sh does the restore itself"
+  },
+  {
+    "id": "b-050",
+    "query": "attest postgres pg_hba",
+    "expected": [
+      "source/spectacl3/dev/attest/pg_hba.conf"
+    ],
+    "kind": "partial",
+    "note": "only pg_hba.conf"
+  },
+  {
+    "id": "b-051",
+    "query": "artifact format test data pay-184",
+    "expected": [
+      "source/spectacl3/dev/attest-wt/format/tests/Attest.ArtifactFormat.Tests/TestData/pay-184-v7.md"
+    ],
+    "kind": "partial",
+    "note": "golden markdown fixture"
+  },
+  {
+    "id": "b-052",
+    "query": "initial ef core migration for attest",
+    "expected": [
+      "source/spectacl3/dev/attest-wt/artifacts/src/Attest.Infrastructure/Persistence/Migrations/20260909231714_Initial.cs",
+      "source/spectacl3/dev/attest-wt/auth/src/Attest.Infrastructure/Persistence/Migrations/20260909231714_Initial.cs",
+      "source/spectacl3/dev/attest-wt/authfix/src/Attest.Infrastructure/Persistence/Migrations/20260909231714_Initial.cs",
+      "source/spectacl3/dev/attest-wt/domain/src/Attest.Infrastructure/Persistence/Migrations/20260909224329_Initial.cs",
+      "source/spectacl3/dev/attest-wt/domain/src/Attest.Infrastructure/Persistence/Migrations/20260909231714_Initial.cs"
+    ],
+    "kind": "descriptive",
+    "note": "every worktree copy of the Initial migration; Designer.cs and snapshot files left out"
+  },
+  {
+    "id": "b-053",
+    "query": "qs ai platform wrangler config",
+    "expected": [
+      "source/spectacl3/dev/qs-ai-platform/wrangler.jsonc"
+    ],
+    "kind": "partial",
+    "note": "amdotcom and monocle also have wrangler.jsonc"
+  },
+  {
+    "id": "b-054",
+    "query": "cron route that processes queued jobs",
+    "expected": [
+      "source/spectacl3/dev/qs-ai-platform/src/pages/api/cron/process-jobs.ts"
+    ],
+    "kind": "descriptive",
+    "note": "cron/process-jobs.ts; jobs/process-now.ts is the manual trigger, relay processJobs.ts is a daemon step"
+  },
+  {
+    "id": "b-055",
+    "query": "database schema for social posts",
+    "expected": [
+      "source/spectacl3/dev/qs-ai-platform/src/db/schema/social.ts"
+    ],
+    "kind": "descriptive",
+    "note": "drizzle schema module for social"
+  },
+  {
+    "id": "b-056",
+    "query": "watcher stalker design",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/docs/superpowers/specs/2026-09-07-watcher-stalker-design.md"
+    ],
+    "kind": "partial",
+    "note": "spec doc; stalker.js script is the implementation"
+  },
+  {
+    "id": "b-057",
+    "query": "3d model for the blueberry fox pet",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/addons/pets/rp/models/entity/blueberry_fox.geo.json",
+      "source/spectacl3/dev/bx-addons/.captures/preview/rp/models/entity/blueberry_fox.geo.json"
+    ],
+    "kind": "descriptive",
+    "note": "geo.json is bedrock geometry; preview capture copy included"
+  },
+  {
+    "id": "b-058",
+    "query": "script behind the pet whistle item",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/addons/pets/bp/scripts/whistle.js"
+    ],
+    "kind": "descriptive",
+    "note": "script, not items/whistle.json"
+  },
+  {
+    "id": "b-059",
+    "query": "keepinventroy mcaddon",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/KeepInventory v1.0.4.mcaddon"
+    ],
+    "kind": "name",
+    "note": "typo of KeepInventory"
+  },
+  {
+    "id": "b-060",
+    "query": "generates open graph images for lantern software",
+    "expected": [
+      "source/spectacl3/dev/infra/lanternsoftware/scripts/generate-og-images.ts"
+    ],
+    "kind": "descriptive",
+    "note": "og = open graph"
+  },
+  {
+    "id": "b-061",
+    "query": "lanternsoftware redirects file",
+    "expected": [
+      "source/spectacl3/dev/infra/lanternsoftware/public/_redirects"
+    ],
+    "kind": "partial",
+    "note": "cloudflare pages _redirects"
+  },
+  {
+    "id": "b-062",
+    "query": "build_calendar py",
+    "expected": [
+      "source/spectacl3/dev/orchestra/build_calendar.py"
+    ],
+    "kind": "name",
+    "note": "orchestra weekly calendar builder"
+  },
+  {
+    "id": "b-063",
+    "query": "workflow-policy orchestra",
+    "expected": [
+      "source/spectacl3/dev/orchestra/workflow-policy.md"
+    ],
+    "kind": "name",
+    "note": "only workflow-policy file"
+  },
+  {
+    "id": "b-064",
+    "query": "Model2Vec tokenizer",
+    "expected": [
+      "source/spectacl3/dev/spikes/embeddings/src-ref/src/Model2Vec.Net/Model2VecTokenizer.cs"
+    ],
+    "kind": "name",
+    "note": "exact class name"
+  },
+  {
+    "id": "b-065",
+    "query": "safetensors file cs",
+    "expected": [
+      "source/spectacl3/dev/spikes/embeddings/src-ref/src/Model2Vec.Net/SafetensorsFile.cs"
+    ],
+    "kind": "name",
+    "note": "exact class name"
+  },
+  {
+    "id": "b-066",
+    "query": "shiplog hook register",
+    "expected": [
+      "source/spectacl3/dev/claude-mods/shiplog/hooks/register.ts"
+    ],
+    "kind": "partial",
+    "note": "register.ts next to ship.ts and hooks.json"
+  },
+  {
+    "id": "b-067",
+    "query": "blog post about leaving netlfiy",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/leaving-netlify-for-cloudflare.mdx",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/redesign/leaving-netlify-for-cloudflare.mdx",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ada398f02ae91eade/src/data/blogs/leaving-netlify-for-cloudflare.mdx"
+    ],
+    "kind": "descriptive",
+    "note": "typo netlfiy; post mdx and its worktree copies (screenshots and covers-review dirs excluded)"
+  },
+  {
+    "id": "b-068",
+    "query": "mascot physics amdotcom",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/physics.ts",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-a5ca4461541ae49d0/src/components/mascot/physics.ts",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/physics.ts",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/.claude/worktrees/agent-ad4efc75424ab3452/src/components/mascot/physics.ts",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-ada398f02ae91eade/src/components/mascot/physics.ts"
+    ],
+    "kind": "partial",
+    "note": "physics.ts and its worktree copies; physics.test.ts excluded"
+  },
+  {
+    "id": "b-069",
+    "query": "amdotcom wrangler jsonc",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/wrangler.jsonc"
+    ],
+    "kind": "partial",
+    "note": "repo name disambiguates from qs-ai-platform/monocle"
+  },
+  {
+    "id": "b-070",
+    "query": "qs custom order encryption class",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/custom-orders/class-qs-custom-order-encryption.php",
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/class-qs-custom-order-encryption.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/architecture-audit/class-qs-custom-order-encryption.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/custom-orders/class-qs-custom-order-encryption.php"
+    ],
+    "kind": "name",
+    "note": "theme file plus flattened and worktree copies"
+  },
+  {
+    "id": "b-071",
+    "query": "code that runs pending theme deploy migrations",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/deployment/class-qs-migration-runner.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/architecture-audit/class-qs-migration-runner.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/deployment/class-qs-migration-runner.php"
+    ],
+    "kind": "descriptive",
+    "note": "runner, not the wp-cli migration-command wrapper"
+  },
+  {
+    "id": "b-072",
+    "query": "handbook woocommerce checkout",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/handbook/woocommerce-checkout.md",
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/woocommerce-checkout.md",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/forms-step9/docs/handbook/woocommerce-checkout.md",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/home-sections/docs/handbook/woocommerce-checkout.md"
+    ],
+    "kind": "partial",
+    "note": "handbook page and its copies"
+  },
+  {
+    "id": "b-073",
+    "query": "migration adding the truss rod cover category",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/deployment/migrations/202609271200_truss_rod_cover_category.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/arch-fixes/inc/deployment/migrations/202609271200_truss_rod_cover_category.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/architecture-audit/202609271200_truss_rod_cover_category.php",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/systems-docs/inc/deployment/migrations/202609271200_truss_rod_cover_category.php"
+    ],
+    "kind": "descriptive",
+    "note": "same migration in theme and worktrees; truss-rod-cover.html pages are distractors"
+  },
+  {
+    "id": "b-074",
+    "query": "CheckoutFieldsBlock php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/plugins/woocommerce/src/Blocks/BlockTypes/CheckoutFieldsBlock.php"
+    ],
+    "kind": "name",
+    "note": "woocommerce block type class"
+  },
+  {
+    "id": "b-075",
+    "query": "staging resync runbook",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/staging-resync-2026-10-05/RUNBOOK.md"
+    ],
+    "kind": "partial",
+    "note": "only RUNBOOK.md, lives under staging-resync dir"
+  },
+  {
+    "id": "b-076",
+    "query": "owner checklist before the quill release",
+    "expected": [
+      "AppData/Local/quill-campaign/evidence/RELEASE-owner-checklist.md"
+    ],
+    "kind": "descriptive",
+    "note": "RELEASE-owner-checklist; other *-owner-decisions files are per-area"
+  },
+  {
+    "id": "b-077",
+    "query": "mustard proposal md",
+    "expected": [
+      "source/spectacl3/MUSTARD-PROPOSAL.md",
+      "source/spectacl3/quill-campaign-runtime/MUSTARD-PROPOSAL.md",
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-05-mustard/MUSTARD-PROPOSAL.md",
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-05/MUSTARD-PROPOSAL.md"
+    ],
+    "kind": "name",
+    "note": "four copies of the same proposal"
+  },
+  {
+    "id": "b-078",
+    "query": "localwp orphan mysqld port note",
+    "expected": [
+      ".claude/projects/C--Users-Alex-source-spectacl3-webprojects-wordpress-quillstack-local-app-public-wp-content-themes-qs-main/localwp-orphan-mysqld-port-mismatch.md"
+    ],
+    "kind": "partial",
+    "note": "claude project memory note"
+  },
+  {
+    "id": "b-079",
+    "query": "monocle release checklist memory",
+    "expected": [
+      ".claude/projects/C--Users-Alex-source-spectacl3-dev-monocle/memory/monocle-release-checklist.md"
+    ],
+    "kind": "partial",
+    "note": "memory note; quibble launch-checklist is a different doc"
+  },
+  {
+    "id": "b-080",
+    "query": "e2e test project in the dotnet cli template",
+    "expected": [
+      "source/spectacl3/dev/dotnet-cli-template/templates/cli/tests/Starter.E2E/Starter.E2E.csproj",
+      "source/spectacl3/dev/dotnet-cli-template/templates/cli/tests/Starter.E2E/"
+    ],
+    "kind": "descriptive",
+    "note": "Starter.E2E csproj or its dir"
+  }
+]

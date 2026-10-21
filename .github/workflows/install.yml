@@ -46,6 +46,11 @@ jobs:
           ls -l dist
           echo "path=$archive" >> "$GITHUB_OUTPUT"
 
+      - name: a failed exe copy restores the previous exe (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: scripts/ci/install-exe-restore.ps1
+
       - name: install, query, doctor and uninstall twice (windows)
         if: runner.os == 'Windows'
         shell: pwsh

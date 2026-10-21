@@ -58,7 +58,14 @@ function Install-FetchleExe($Source, $InstallDir) {
     $old = "$target.old"
     if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue }
     if (Test-Path -LiteralPath $target) { Move-Item -LiteralPath $target -Destination $old -Force }
-    Copy-Item -LiteralPath $Source -Destination $target -Force
+    try {
+        Copy-Item -LiteralPath $Source -Destination $target -Force
+    } catch {
+        # the old exe is already aside, so put it back before reporting the failure
+        Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath $old) { Move-Item -LiteralPath $old -Destination $target -Force }
+        throw
+    }
     # the previous exe stays as .old until setup has worked, so a failed setup can put it back
     return $target
 }

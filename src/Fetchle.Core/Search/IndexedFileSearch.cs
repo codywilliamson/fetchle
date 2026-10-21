@@ -57,6 +57,8 @@ public sealed class IndexedFileSearch(PruneRules prune, IndexStore store) : IFil
         return new SearchResult(hits.ToSortedList(), total, Stopwatch.GetElapsedTime(start), completed ? null : StopReasons.BUDGET);
     }
 
+    public bool IsRebuilding() => store.IsRebuilding();
+
     public IndexStatus GetStatus(IReadOnlyList<string> roots)
     {
         using var snapshot = store.Open();

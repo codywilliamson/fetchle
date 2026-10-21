@@ -30,11 +30,11 @@ Returns text content (one path per line plus the footer) and `structuredContent`
 }
 ```
 
-`stopped_early` is `null`, `"budget"` or `"limit"`. With no `root`, `find_files` searches the configured roots, read on every call, and falls back to the server's working directory only when none are configured. A configured root that's missing on disk is skipped and named in the footer, and when all of them are missing the call fails with a tool error saying so. An explicit `root` that doesn't exist or isn't a valid path is an invalid-params error. A snapshot that fails validation is a tool error telling the agent to run `fetchle index rebuild`. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete.
+`stopped_early` is `null`, `"budget"` or `"limit"`. With no `root`, `find_files` searches the configured roots, read on every call, and falls back to the server's working directory only when none are configured. A configured root that's missing on disk is skipped and named in the footer, and when all of them are missing the call fails with a tool error saying so. An explicit `root` that doesn't exist or isn't a valid path is an invalid-params error. A snapshot that fails validation is a tool error telling the agent to run `fetchle index rebuild`. When the index is still building, results come from what's indexed so far and the footer says which roots are incomplete. While another process holds the index write lock (a `fetchle index rebuild` is running), the text footer ends with `index rebuild in progress (write lock held), results may be stale`. Queries keep answering from the previous snapshot.
 
 ### `index_status`
 
-No args. Returns roots, file counts, last full scan time, whether vectors are complete, and whether the watcher is live. Gives an agent a way to decide whether to trust a miss.
+No args. Returns roots, file counts, last full scan time, whether vectors are complete, and whether the watcher is live. Gives an agent a way to decide whether to trust a miss. The text ends with the same rebuild-in-progress line as `find_files` while the write lock is held.
 
 ## Errors
 

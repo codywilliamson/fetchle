@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Text;
+using Fetchle.Core.Search;
 
 namespace Fetchle.Core.Index;
 
@@ -10,13 +11,22 @@ static class SegmentMatcher
 {
     const int BITS = 64;
 
-    // one bit per segment. the caller returns the array to ArrayPool<ulong>.Shared
-    public static ulong[] Match(Snapshot snapshot, string query, out bool any)
+    // the vectorized scan runs in chunks of about this many bytes with a deadline check between them, so a huge
+    // blob can't blow the budget and the check stays off the per-byte path
+    const int SCAN_CHUNK_BYTES = 1 << 20;
+
+    // decoding a segment is slow enough that a check every this many of them is noise
+    const int DECODE_STRIDE = 1024;
+
+    // one bit per segment. the caller returns the array to ArrayPool<ulong>.Shared.
+    // completed is false when the deadline cut the scan short; the bits are then partial and mustn't be trusted
+    public static ulong[] Match(Snapshot snapshot, string query, Deadline deadline, out bool any, out bool completed, int chunkBytes = SCAN_CHUNK_BYTES)
     {
         var words = (snapshot.SegmentCount + BITS - 1) / BITS;
         var bits = ArrayPool<ulong>.Shared.Rent(Math.Max(words, 1));
         bits.AsSpan().Clear();
         any = false;
+        completed = true;
 
         // names never hold a NUL, and the blob's NULs are terminators that mustn't match
         if (query.Contains('\0'))
@@ -33,10 +43,16 @@ static class SegmentMatcher
 
         if (Ascii.IsValid(query))
         {
-            any = ScanAscii(snapshot, query, bits);
+            any = ScanAscii(snapshot, query, bits, deadline, chunkBytes, ref completed);
             // ascii bytes can't see a non-ascii name that folds to the query, so those get decoded either way
+            var checkedSegments = 0;
             foreach (var segment in snapshot.NonAsciiSegments)
             {
+                if (!completed || (checkedSegments++ % DECODE_STRIDE == 0 && deadline.IsExpired()))
+                {
+                    completed = false;
+                    break;
+                }
                 any |= Set(bits, segment, DecodedContains(snapshot, segment, query));
             }
             return bits;
@@ -44,6 +60,11 @@ static class SegmentMatcher
 
         for (var segment = 0u; segment < (uint)snapshot.SegmentCount; segment++)
         {
+            if (segment % DECODE_STRIDE == 0 && deadline.IsExpired())
+            {
+                completed = false;
+                break;
+            }
             any |= Set(bits, segment, DecodedContains(snapshot, segment, query));
         }
         return bits;
@@ -51,7 +72,7 @@ static class SegmentMatcher
 
     public static bool IsSet(ulong[] bits, uint segment) => (bits[segment / BITS] & (1UL << (int)(segment % BITS))) != 0;
 
-    static bool ScanAscii(Snapshot snapshot, string query, ulong[] bits)
+    static bool ScanAscii(Snapshot snapshot, string query, ulong[] bits, Deadline deadline, int chunkBytes, ref bool completed)
     {
         const int STACK_NEEDLE = 256;
         var needle = query.Length <= STACK_NEEDLE ? stackalloc byte[STACK_NEEDLE] : new byte[query.Length];
@@ -61,12 +82,28 @@ static class SegmentMatcher
         var offsets = snapshot.SegmentOffsets;
         var any = false;
         var position = 0;
+        var checkAt = 0;
+        var windowEnd = 0;
         while (position < blob.Length)
         {
-            var found = AsciiFinder.IndexOf(blob[position..], needle);
+            if (position >= checkAt)
+            {
+                if (deadline.IsExpired())
+                {
+                    completed = false;
+                    return any;
+                }
+
+                // the window ends on a segment boundary, so no hit is cut in half by the chunk edge
+                checkAt = (int)Math.Min((long)position + Math.Max(chunkBytes, 1), blob.Length);
+                windowEnd = BoundaryAtOrAfter(offsets, checkAt, blob.Length);
+            }
+
+            var found = AsciiFinder.IndexOf(blob[position..windowEnd], needle);
             if (found < 0)
             {
-                break;
+                position = windowEnd;
+                continue;
             }
 
             var segment = SegmentAt(offsets, position + found);
@@ -76,6 +113,18 @@ static class SegmentMatcher
             position = (int)offsets[(int)segment + 1];
         }
         return any;
+    }
+
+    // the first segment start at or after position, or the blob's end
+    static int BoundaryAtOrAfter(ReadOnlySpan<uint> offsets, int position, int blobLength)
+    {
+        if (position >= blobLength)
+        {
+            return blobLength;
+        }
+
+        var segment = SegmentAt(offsets, position);
+        return offsets[(int)segment] == (uint)position ? position : Math.Min((int)offsets[(int)segment + 1], blobLength);
     }
 
     // the segment whose bytes hold blob position, by binary search on the start offsets

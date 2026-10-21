@@ -45,6 +45,9 @@ sealed unsafe class Snapshot : IDisposable
 
     public ReadOnlySpan<byte> Image => new(_base, _length);
 
+    // the header's xxhash3: what a vectors file names to say which snapshot it belongs to
+    public ulong Checksum => BinaryPrimitives.ReadUInt64LittleEndian(Image[SnapshotFormat.CHECKSUM_OFFSET..]);
+
     public ReadOnlySpan<uint> Parents => MemoryMarshal.Cast<byte, uint>(Image[_layout.Parents]);
 
     public ReadOnlySpan<uint> Names => MemoryMarshal.Cast<byte, uint>(Image[_layout.Names]);

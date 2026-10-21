@@ -22,6 +22,11 @@ static class RankingWeights
     // a path matching half the terms scores a quarter
     public const float COVERAGE_POWER = 2f;
 
+    // semantic: a path centroid below this cosine isn't a candidate, so a query about nothing finds nothing
+    public const float MIN_SEMANTIC = 0.35f;
+    // the spike's centroid+depth scorer: 0.02 per segment
+    public const float SEMANTIC_DEPTH_PENALTY = 0.02f;
+
     // fusion
     public const int RRF_K = 60;
     // candidates each retriever hands to fusion

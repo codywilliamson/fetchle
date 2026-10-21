@@ -3,6 +3,7 @@ using System.Runtime.Intrinsics;
 using System.Text;
 using Fetchle.Core.Index;
 using Fetchle.Core.Ranking.Lexical;
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Search;
 
 namespace Fetchle.Core.Ranking;
@@ -22,7 +23,8 @@ static class RankedQuery
 
     public sealed record Outcome(List<RankedEntry> Ranked, int Total, bool Completed);
 
-    public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline)
+    // semantic is null when there's no model, no vectors for this snapshot, or nothing in the query the model knows
+    public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline, SemanticScores? semantic = null)
     {
         if (scopes.Count == 0 || deadline.IsExpired())
         {
@@ -34,6 +36,7 @@ static class RankedQuery
         var state = ArrayPool<byte>.Shared.Rent(count);
         var depth = ArrayPool<byte>.Shared.Rent(count);
         var carried = ArrayPool<ulong>.Shared.Rent(count);
+        var pathSums = semantic is null ? null : ArrayPool<float>.Shared.Rent(count);
         try
         {
             state.AsSpan(0, count).Clear();
@@ -45,15 +48,20 @@ static class RankedQuery
             }
             first = Math.Max(first, snapshot.RootCount);
 
-            var pass = new Pass(snapshot, request, scopes, scores, state, depth, carried);
+            var pass = new Pass(snapshot, request, scopes, scores, semantic, state, depth, carried, pathSums);
+            pass.SeedScopes();
             var completed = pass.Run(first, deadline);
-            return new Outcome(Fuse(pass.Lexical.ToSorted(), pass), pass.Total, completed);
+            return new Outcome(Fuse(pass.Lexical.ToSorted(), pass.Semantic.ToSorted(), pass), pass.Total, completed);
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(state);
             ArrayPool<byte>.Shared.Return(depth);
             ArrayPool<ulong>.Shared.Return(carried);
+            if (pathSums is not null)
+            {
+                ArrayPool<float>.Shared.Return(pathSums);
+            }
         }
     }
 
@@ -72,12 +80,17 @@ static class RankedQuery
     }
 
     // rrf over the retrievers' lists; an entry only one retriever found still ranks by that one
-    static List<RankedEntry> Fuse((float Score, int Entry)[] lexical, Pass pass)
+    static List<RankedEntry> Fuse((float Score, int Entry)[] lexical, (float Score, int Entry)[] semantic, Pass pass)
     {
-        var fused = new Dictionary<int, float>(lexical.Length);
+        var fused = new Dictionary<int, float>(lexical.Length + semantic.Length);
         for (var r = 0; r < lexical.Length; r++)
         {
             fused[lexical[r].Entry] = 1f / (RankingWeights.RRF_K + r + 1);
+        }
+
+        for (var r = 0; r < semantic.Length; r++)
+        {
+            fused[semantic[r].Entry] = fused.GetValueOrDefault(semantic[r].Entry) + 1f / (RankingWeights.RRF_K + r + 1);
         }
 
         var ranked = new List<RankedEntry>(fused.Count);
@@ -89,11 +102,33 @@ static class RankedQuery
         return ranked;
     }
 
-    sealed class Pass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, byte[] state, byte[] depth, ulong[] carried)
+    sealed class Pass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, SemanticScores? semantic,
+        byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
     {
         public EntryHeap Lexical { get; } = new(RankingWeights.CANDIDATES);
 
+        public EntryHeap Semantic { get; } = new(RankingWeights.CANDIDATES);
+
         public int Total { get; private set; }
+
+        // a scope's path sum covers the ancestors above it too: centroids run over the whole path
+        public void SeedScopes()
+        {
+            if (semantic is null)
+            {
+                return;
+            }
+
+            foreach (var scope in scopes)
+            {
+                var sum = 0f;
+                for (var at = scope.Entry; at >= snapshot.RootCount; at = (int)snapshot.Parents[at])
+                {
+                    sum += semantic.BySegment[snapshot.Names[at]];
+                }
+                pathSums![scope.Entry] = sum;
+            }
+        }
 
         public bool Run(int first, Deadline deadline)
         {
@@ -121,24 +156,63 @@ static class RankedQuery
                 var own = packed[names[i]];
                 var ancestors = atTop ? 0 : carried[parent];
                 carried[i] = MaxBytes(own, ancestors);
-                if ((own | ancestors) == 0)
+                var counted = false;
+                if ((own | ancestors) != 0)
                 {
-                    continue;
+                    var score = LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]]) - RankingWeights.DEPTH_PENALTY * depth[i];
+                    if (score > 0 && TypeAndExtensionMatch(i))
+                    {
+                        Total++;
+                        counted = true;
+                        if (Lexical.WouldKeep(score, i) && ModifiedInRange(i))
+                        {
+                            Lexical.Add(score, i);
+                        }
+                    }
                 }
 
-                var score = LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]]) - RankingWeights.DEPTH_PENALTY * depth[i];
-                if (score <= 0 || !TypeAndExtensionMatch(i))
+                if (semantic is not null)
                 {
-                    continue;
-                }
-
-                Total++;
-                if (Lexical.WouldKeep(score, i) && ModifiedInRange(i))
-                {
-                    Lexical.Add(score, i);
+                    ScoreSemantic(i, parent, counted);
                 }
             }
             return true;
+        }
+
+        // cosine of the query with the path's weighted centroid: name 2, parent 1, older ancestors 0.5. with A the
+        // running sum of segment scores down the path, the numerator is 2 s(name) + 0.5 s(parent) + 0.5 A(parent)
+        void ScoreSemantic(int i, int parent, bool counted)
+        {
+            var bySegment = semantic!.BySegment;
+            var mine = bySegment[snapshot.Names[i]];
+            var hasParent = parent >= snapshot.RootCount;
+            var parentScore = hasParent ? bySegment[snapshot.Names[parent]] : 0;
+            var parentSum = hasParent ? pathSums![parent] : 0;
+            pathSums![i] = parentSum + mine;
+
+            var norm = semantic.Vectors.Norms[i];
+            if (norm == 0)
+            {
+                return;
+            }
+
+            var cosine = (VectorBuilder.NAME_WEIGHT * mine + (VectorBuilder.PARENT_WEIGHT - VectorBuilder.ANCESTOR_WEIGHT) * parentScore
+                + VectorBuilder.ANCESTOR_WEIGHT * parentSum) / norm;
+            if (cosine < RankingWeights.MIN_SEMANTIC || (!counted && !TypeAndExtensionMatch(i)))
+            {
+                return;
+            }
+
+            if (!counted)
+            {
+                Total++;
+            }
+
+            var score = cosine - RankingWeights.SEMANTIC_DEPTH_PENALTY * depth[i];
+            if (Semantic.WouldKeep(score, i) && ModifiedInRange(i))
+            {
+                Semantic.Add(score, i);
+            }
         }
 
         // the idf-weighted best hit per term, name hits shortened by the name's length and ancestor hits discounted,

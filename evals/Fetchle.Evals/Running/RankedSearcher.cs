@@ -16,6 +16,6 @@ public sealed class RankedSearcher : IEvalSearcher
         var start = Stopwatch.GetTimestamp();
         var request = new SearchRequest(query, [corpus.Root], limit, TimeSpan.FromSeconds(30));
         var outcome = RankedQuery.Run(corpus.Snapshot, request, QueryTerms.Parse(query), [new IndexScope(0, corpus.Root)], Deadline.After(request.Budget, start));
-        return new SearchResult(RankedQuery.ToHits(corpus.Snapshot, outcome.Ranked, limit), outcome.Total, Stopwatch.GetElapsedTime(start), null);
+        return new SearchResult(Fusion.Fuse([(corpus.Snapshot, outcome)], limit), outcome.Total, Stopwatch.GetElapsedTime(start), null);
     }
 }

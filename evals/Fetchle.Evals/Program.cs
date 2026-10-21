@@ -6,7 +6,7 @@ using Fetchle.Evals.Reporting;
 using Fetchle.Evals.Running;
 using Microsoft.Extensions.Logging;
 
-// usage: Fetchle.Evals [--split dev|heldout] [--gate] [--update-baseline] [--searcher substring]
+// usage: Fetchle.Evals [--split dev|heldout] [--gate] [--update-baseline]
 //   dev is the default and the only split anyone tunes on. --gate and --update-baseline always run held-out:
 //   ci gates on held-out against evals/baseline.json, and the baseline only ever holds held-out numbers
 
@@ -23,11 +23,7 @@ var (scored, setAside) = QuerySet.Load(Path.Combine(repo, "evals", "queries"), c
 var queries = scored.Where(q => QuerySplit.Of(q) == split).ToList();
 var prunedInSplit = setAside.Count(q => QuerySplit.Of(q) == split);
 
-IEvalSearcher searcher = Arg("--searcher") switch
-{
-    "substring" => new SubstringSearcher(),
-    _ => new RankedSearcher(),
-};
+IEvalSearcher searcher = new RankedSearcher();
 
 var results = new EvalRunner(searcher, corpus, Console.Out).Run(queries);
 var splitName = split == Split.HeldOut ? "heldout" : "dev";

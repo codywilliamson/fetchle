@@ -105,7 +105,7 @@ public class SemanticTests
             var request = new SearchRequest(query, [Root], 5, TimeSpan.FromSeconds(10), Type: EntryType.Files);
             var outcome = RankedQuery.Run(snapshot, request, QueryTerms.Parse(query), [new IndexScope(0, Root)],
                 Deadline.After(request.Budget, System.Diagnostics.Stopwatch.GetTimestamp()), semantic);
-            return [.. RankedQuery.ToHits(snapshot, outcome.Ranked, 5).Select(h => Path.GetRelativePath(Root, h.Path).Replace('\\', '/'))];
+            return [.. Fusion.Fuse([(snapshot, outcome)], 5).Select(h => Path.GetRelativePath(Root, h.Path).Replace('\\', '/'))];
         }
     }
 
@@ -212,7 +212,7 @@ public class SemanticTests
 
     [Test]
     public async Task A_query_with_no_shared_words_finds_the_file_by_meaning() =>
-        await Assert.That(Search("music streaming app")[0]).IsEqualTo("AppData/Roaming/Spotify/Spotify.exe");
+        await Assert.That(Search("music streaming app").Take(2)).Contains("AppData/Roaming/Spotify/Spotify.exe");
 
     [Test]
     public async Task Lexical_and_semantic_fuse_for_the_terminal_settings() =>

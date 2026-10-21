@@ -67,8 +67,8 @@ public class SnapshotStorageTests
                 var entry = SnapshotPaths.FindDirectory(snapshot, tree.Root);
                 if (entry >= 0)
                 {
-                    var total = 0;
-                    IndexQuery.Run(snapshot, request, [new IndexScope(entry, tree.Root)], new Fetchle.Core.Naive.TopHits(50), ref total, Deadline.After(TimeSpan.FromMinutes(1), System.Diagnostics.Stopwatch.GetTimestamp()));
+                    Fetchle.Core.Ranking.RankedQuery.Run(snapshot, request, Fetchle.Core.Ranking.QueryTerms.Parse(request.Query), [new IndexScope(entry, tree.Root)],
+                        Deadline.After(TimeSpan.FromMinutes(1), System.Diagnostics.Stopwatch.GetTimestamp()));
                 }
                 _ = snapshot.Info();
             }

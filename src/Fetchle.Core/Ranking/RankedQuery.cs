@@ -13,22 +13,22 @@ readonly record struct RankedEntry(int Entry, float Score, IndexScope Scope);
 
 // answers a query from a snapshot. the expensive work is per unique segment (TermScores); then one forward pass
 // over the entries, parents before children, carries each term's best ancestor match down the tree and scores
-// every entry that matched anything into a top-k. retrievers each keep their own top-k and reciprocal rank
-// fusion merges them
+// every entry that matched anything into a top-k. retrievers each keep their own top-k; Fusion merges them
 static class RankedQuery
 {
     const byte SCOPE = 1;
     const byte INSIDE = 2;
     const int DEADLINE_STRIDE = 16 * 1024;
 
-    public sealed record Outcome(List<RankedEntry> Ranked, int Total, bool Completed);
+    // each retriever's candidates, best first
+    public sealed record Outcome(List<RankedEntry> Lexical, List<RankedEntry> Semantic, int Total, bool Completed);
 
     // semantic is null when there's no model, no vectors for this snapshot, or nothing in the query the model knows
     public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline, SemanticScores? semantic = null)
     {
         if (scopes.Count == 0 || deadline.IsExpired())
         {
-            return new Outcome([], 0, scopes.Count == 0);
+            return new Outcome([], [], 0, scopes.Count == 0);
         }
 
         using var scores = TermScores.Build(snapshot.Lexicon, snapshot.SegmentCount, terms);
@@ -51,7 +51,7 @@ static class RankedQuery
             var pass = new Pass(snapshot, request, scopes, scores, semantic, state, depth, carried, pathSums);
             pass.SeedScopes();
             var completed = pass.Run(first, deadline);
-            return new Outcome(Fuse(pass.Lexical.ToSorted(), pass.Semantic.ToSorted(), pass), pass.Total, completed);
+            return new Outcome(pass.Ranked(pass.Lexical), pass.Ranked(pass.Semantic), pass.Total, completed);
         }
         finally
         {
@@ -65,43 +65,6 @@ static class RankedQuery
         }
     }
 
-    // the first `limit` as paths, each stat'ed once
-    public static List<SearchHit> ToHits(Snapshot snapshot, List<RankedEntry> ranked, int limit)
-    {
-        var hits = new List<SearchHit>(Math.Min(limit, ranked.Count));
-        for (var r = 0; r < ranked.Count && hits.Count < limit; r++)
-        {
-            var (entry, score, scope) = ranked[r];
-            var path = SnapshotPaths.FullPath(snapshot, entry, scope.Entry, scope.Path);
-            var stat = EntryStat.Read(path, snapshot.IsDirectory(entry));
-            hits.Add(new SearchHit(path, score, stat.Size, stat.Modified));
-        }
-        return hits;
-    }
-
-    // rrf over the retrievers' lists; an entry only one retriever found still ranks by that one
-    static List<RankedEntry> Fuse((float Score, int Entry)[] lexical, (float Score, int Entry)[] semantic, Pass pass)
-    {
-        var fused = new Dictionary<int, float>(lexical.Length + semantic.Length);
-        for (var r = 0; r < lexical.Length; r++)
-        {
-            fused[lexical[r].Entry] = 1f / (RankingWeights.RRF_K + r + 1);
-        }
-
-        for (var r = 0; r < semantic.Length; r++)
-        {
-            fused[semantic[r].Entry] = fused.GetValueOrDefault(semantic[r].Entry) + 1f / (RankingWeights.RRF_K + r + 1);
-        }
-
-        var ranked = new List<RankedEntry>(fused.Count);
-        foreach (var (entry, score) in fused)
-        {
-            ranked.Add(new RankedEntry(entry, score, pass.ScopeOf(entry)));
-        }
-        ranked.Sort((a, b) => b.Score != a.Score ? b.Score.CompareTo(a.Score) : a.Entry.CompareTo(b.Entry));
-        return ranked;
-    }
-
     sealed class Pass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, SemanticScores? semantic,
         byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
     {
@@ -110,6 +73,17 @@ static class RankedQuery
         public EntryHeap Semantic { get; } = new(RankingWeights.CANDIDATES);
 
         public int Total { get; private set; }
+
+        public List<RankedEntry> Ranked(EntryHeap heap)
+        {
+            var sorted = heap.ToSorted();
+            var ranked = new List<RankedEntry>(sorted.Length);
+            foreach (var (score, entry) in sorted)
+            {
+                ranked.Add(new RankedEntry(entry, score, ScopeOf(entry)));
+            }
+            return ranked;
+        }
 
         // a scope's path sum covers the ancestors above it too: centroids run over the whole path
         public void SeedScopes()

@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using Fetchle.Core.Index;
-using Fetchle.Core.Naive;
+using Fetchle.Core.Ranking;
 using Fetchle.Core.Search;
 
 namespace Fetchle.Bench;
 
-// the snapshot side of a query: open (map + validate) and the per-query pass
+// the snapshot side of a query: open (map + validate) and the lexical ranked pass. v0.1 ran the substring pass
+// under the same name and params, so numbers compare across the change
 [MemoryDiagnoser]
 public class IndexBenchmarks
 {
@@ -45,10 +46,6 @@ public class IndexBenchmarks
     }
 
     [Benchmark]
-    public int Search()
-    {
-        var total = 0;
-        IndexQuery.Run(_snapshot, _request, _scopes, new TopHits(SearchRequest.DEFAULT_LIMIT), ref total, Deadline.After(TimeSpan.FromMinutes(5), Stopwatch.GetTimestamp()));
-        return total;
-    }
+    public int Search() =>
+        RankedQuery.Run(_snapshot, _request, QueryTerms.Parse(Query), _scopes, Deadline.After(TimeSpan.FromMinutes(5), Stopwatch.GetTimestamp())).Total;
 }

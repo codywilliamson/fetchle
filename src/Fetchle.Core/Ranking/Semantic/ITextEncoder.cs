@@ -1,7 +1,7 @@
 namespace Fetchle.Core.Ranking.Semantic;
 
 // what the semantic retriever needs from an embedding model. Embedding.StaticModel is the real one; tests use a fake
-interface ITextEncoder
+public interface ITextEncoder
 {
     // identifies the model a vector store was built with
     ulong Checksum { get; }

@@ -22,6 +22,8 @@ public sealed class IndexStore(string directory)
 
     public string LockPath => Path.Combine(Directory, LOCK_FILE);
 
+    public string VectorsPath => Path.Combine(Directory, Ranking.Semantic.VectorFormat.FILE_NAME);
+
     // how long a rebuild waits for another writer before giving up
     internal TimeSpan LockWait { get; init; } = TimeSpan.FromSeconds(3);
 
@@ -50,7 +52,7 @@ public sealed class IndexStore(string directory)
         foreach (var root in roots)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var walk = WalkRoot(root, prune);
+            var (walk, _) = WalkRoot(root, prune, Deadline.After(TimeSpan.MaxValue, Stopwatch.GetTimestamp()));
             walkTime += walk.WalkTime;
             walks.Add(walk);
         }
@@ -106,12 +108,13 @@ public sealed class IndexStore(string directory)
         }
     }
 
-    internal static RootWalk WalkRoot(string root, PruneRules prune)
+    // the walk and whether it finished before the deadline
+    internal static (RootWalk Walk, bool Completed) WalkRoot(string root, PruneRules prune, Deadline deadline)
     {
         var normalized = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
         var collectors = new List<TreeCollector>();
         var started = Stopwatch.GetTimestamp();
-        new FastWalker(prune).Walk(normalized, () =>
+        var completed = new FastWalker(prune).Walk(normalized, () =>
         {
             var collector = new TreeCollector();
             lock (collectors)
@@ -119,8 +122,8 @@ public sealed class IndexStore(string directory)
                 collectors.Add(collector);
             }
             return collector.Visit;
-        }, Deadline.After(TimeSpan.MaxValue, started));
-        return new RootWalk(normalized, collectors, Stopwatch.GetElapsedTime(started));
+        }, deadline);
+        return (new RootWalk(normalized, collectors, Stopwatch.GetElapsedTime(started)), completed);
     }
 
     // a writer that just died can hold its handle a moment past exit on windows, and a second rebuild started

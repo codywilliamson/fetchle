@@ -25,7 +25,7 @@ public class RankedQueryTests
         using var snapshot = Snapshot.FromBytes(SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch));
         var request = new SearchRequest(query, [Root], 5, TimeSpan.FromSeconds(10), Type: type);
         var outcome = RankedQuery.Run(snapshot, request, QueryTerms.Parse(query), [new IndexScope(0, Root)], Deadline.After(request.Budget, System.Diagnostics.Stopwatch.GetTimestamp()));
-        return [.. RankedQuery.ToHits(snapshot, outcome.Ranked, 5).Select(h => Path.GetRelativePath(Root, h.Path).Replace('\\', '/'))];
+        return [.. Fusion.Fuse([(snapshot, outcome)], 5).Select(h => Path.GetRelativePath(Root, h.Path).Replace('\\', '/'))];
     }
 
     [Test]

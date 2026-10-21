@@ -142,13 +142,17 @@ internal static class CleanupScript
     // nests inside it. echo is off because for loops echo into our stdout pipe, and cmd dies when that breaks
     public static string Build(IReadOnlyList<string> files, string? receipt, IReadOnlyList<string> dirs)
     {
-        var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist \"{file}\" ({SLEEP_ONE_SECOND} & del /f /q \"{file}\" 2>nul))").ToList();
+        var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist {Quote(file)} ({SLEEP_ONE_SECOND} & del /f /q {Quote(file)} 2>nul))").ToList();
         if (receipt is not null)
         {
-            var guards = string.Concat(files.Select(file => $"if not exist \"{file}\" "));
-            steps.Add($"({guards}del /f /q \"{receipt}\" 2>nul)");
+            var guards = string.Concat(files.Select(file => $"if not exist {Quote(file)} "));
+            steps.Add($"({guards}del /f /q {Quote(receipt)} 2>nul)");
         }
-        steps.AddRange(dirs.Select(dir => $"rmdir \"{dir}\" 2>nul"));
+        steps.AddRange(dirs.Select(dir => $"rmdir {Quote(dir)} 2>nul"));
         return "@echo off & " + string.Join(" & ", steps);
     }
+
+    // cmd expands %name% on the command line even inside double quotes, and %n would hit the loop variable. a caret
+    // escapes a percent only outside quotes, so each one steps out: "a%b" becomes "a"^%"b"
+    static string Quote(string path) => "\"" + path.Replace("%", "\"^%\"") + "\"";
 }

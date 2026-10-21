@@ -24,7 +24,9 @@ public static class RootsConfig
 
         try
         {
-            var roots = JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots ?? [];
+            // a top-level null deserializes to null, which is a damaged file, not an empty one
+            var roots = JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots
+                ?? throw new InvalidDataException($"can't read {path}: empty config");
             // nullable annotations don't reach list elements, and every caller compares roots as paths
             foreach (var root in roots)
             {

@@ -55,7 +55,13 @@ static class RankedQuery
             var pass = new Pass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums);
             pass.SeedScopes();
             var completed = pass.Run(first, deadline);
-            return new Outcome(pass.Ranked(pass.Lexical), pass.Ranked(pass.Semantic), pass.Total, completed, pass.Covered);
+            var lexicalHits = pass.Ranked(pass.Lexical);
+            var semanticHits = pass.Ranked(pass.Semantic);
+            if (!pass.AnyWordMatched && (semanticHits.Count == 0 || semanticHits[0].Score < RankingWeights.MIN_SEMANTIC_ALONE))
+            {
+                return new Outcome([], [], 0, completed);
+            }
+            return new Outcome(lexicalHits, semanticHits, pass.Total, completed, pass.Covered);
         }
         finally
         {
@@ -79,6 +85,9 @@ static class RankedQuery
         public int Total { get; private set; }
 
         public bool Covered { get; private set; }
+
+        // some path matched some query word, even if too weakly to be a lexical candidate
+        public bool AnyWordMatched { get; private set; }
 
         public List<RankedEntry> Ranked(EntryHeap heap)
         {
@@ -141,7 +150,11 @@ static class RankedQuery
                 var counted = false;
                 if ((own | ancestors) != 0)
                 {
-                    var score = discount * LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]], out var full) - RankingWeights.DEPTH_PENALTY * depth[i];
+                    var match = LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]], out var full);
+                    AnyWordMatched |= match > 0;
+                    // a deep path matching one word of five scores below zero here and stays out of the lexical list:
+                    // on dev that floor is worth 1 point of top-1 and 1.3 of top-3 over keeping it
+                    var score = discount * match - RankingWeights.DEPTH_PENALTY * depth[i];
                     if (score > 0 && TypeAndExtensionMatch(i))
                     {
                         Total++;

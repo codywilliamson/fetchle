@@ -27,6 +27,9 @@ static class RankingWeights
     // everything for any query sharing that word. dirs still come from lexical. no depth term: the spike's 0.02 per
     // segment cost 4 points of dev top-1 here, since it favored those same shallow names
     public const float MIN_SEMANTIC = 0.35f;
+    // when no path matched any query word, the best semantic hit must reach this or the answer is "nothing found"
+    // (exit 1). a typo'd or unrelated query shouldn't come back with its nearest neighbours as if they were hits
+    public const float MIN_SEMANTIC_ALONE = 0.5f;
 
     // a path under a dir named for worktrees is an agent's scratch copy of something that also lives elsewhere
     public const float COPY_PENALTY = 0.5f;

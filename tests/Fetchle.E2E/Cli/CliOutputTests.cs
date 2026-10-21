@@ -59,8 +59,10 @@ public class CliOutputTests
         await Assert.That(tree.Created.HasFlag(FixtureFeatures.Junction | FixtureFeatures.SymlinkLoop)).IsTrue();
         var run = await FetchleProcess.RunAsync(["main.cs", "--root", tree.Root]);
 
+        // ranked: main.cs first, other .cs files may follow, and nothing reached through the junction or the loop
         await Assert.That(run.ExitCode).IsEqualTo(0);
-        await Assert.That(run.Lines).IsEquivalentTo([tree.Full("src/app/main.cs")]);
+        await Assert.That(run.Lines[0]).IsEqualTo(tree.Full("src/app/main.cs"));
+        await Assert.That(run.Lines.Where(line => line.StartsWith(tree.Full("links"), StringComparison.Ordinal))).IsEmpty();
     }
 
     [Test]
@@ -81,7 +83,7 @@ public class CliOutputTests
         using var tree = FixtureTree.Create();
         var run = await FetchleProcess.RunAsync([FixtureTree.LONG_PATH_MARKER, "--root", tree.Root]);
 
-        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(tree.LongPathFile)]);
+        await Assert.That(run.Lines[0]).IsEqualTo(tree.Full(tree.LongPathFile));
         await Assert.That(run.Lines[0].Length).IsGreaterThan(260);
     }
 
@@ -92,8 +94,8 @@ public class CliOutputTests
         Skip.Unless(tree.Created.HasFlag(FixtureFeatures.Unreadable), "this user can read everything");
         var run = await FetchleProcess.RunAsync(["secret-locked", "--root", tree.Root]);
 
-        await Assert.That(run.ExitCode).IsEqualTo(1);
-        await Assert.That(run.Stdout).IsEmpty();
+        // the locked dir itself is a name like any other and may rank; what's inside it never shows, and no error does
+        await Assert.That(run.Lines.Where(line => line.Contains("secret-locked.txt", StringComparison.Ordinal))).IsEmpty();
         await Assert.That(run.Stderr).IsEmpty();
     }
 

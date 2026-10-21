@@ -15,6 +15,10 @@ public sealed class SearchSession : IDisposable
     readonly SegmentVectors? _vectors;
     readonly ITextEncoder? _model;
     readonly PruneRules _prune;
+    // the indexed side's semantic scores for the last text embedded. the picker's keystrokes mostly extend the word
+    // being typed, which isn't embedded (see SemanticText), so they reuse these. a session serves one search at a time
+    string? _embedded;
+    SemanticScores? _semantic;
 
     SearchSession(Snapshot? snapshot, SegmentVectors? vectors, ITextEncoder? model, PruneRules prune, string? semanticOff)
     {
@@ -76,7 +80,7 @@ public sealed class SearchSession : IDisposable
         var completed = true;
         if (scopes.Count > 0)
         {
-            using var semantic = _vectors is null ? null : SemanticScores.Build(_snapshot!, _vectors, _model!, request.Query);
+            var semantic = _vectors is null ? null : IndexedSemantic(SemanticText(request.Query, prefix));
             var outcome = RankedQuery.Run(_snapshot!, request, terms, scopes, deadline, semantic, cancellationToken);
             sources.Add((_snapshot!, outcome));
             total += outcome.Total;
@@ -93,7 +97,7 @@ public sealed class SearchSession : IDisposable
                 liveScopes.Add(new IndexScope(r, walked[r]));
             }
 
-            using var semantic = live.Vectors is null ? null : SemanticScores.Build(live.Snapshot, live.Vectors, _model!, request.Query);
+            using var semantic = live.Vectors is null ? null : SemanticScores.Build(live.Snapshot, live.Vectors, _model!, SemanticText(request.Query, prefix));
             var outcome = RankedQuery.Run(live.Snapshot, request, terms, liveScopes, deadline, semantic, cancellationToken);
             sources.Add((live.Snapshot, outcome));
             total += outcome.Total;
@@ -103,6 +107,33 @@ public sealed class SearchSession : IDisposable
 
         var hits = Fusion.Fuse(sources, request.Limit);
         return new SearchResult(hits, total, Stopwatch.GetElapsedTime(start), completed ? null : StopReasons.BUDGET);
+    }
+
+    // a word still being typed ("ter" of terminal) embeds as noise, so meaning only reads the finished words
+    static string SemanticText(string query, bool prefix)
+    {
+        if (!prefix)
+        {
+            return query;
+        }
+
+        var end = query.Length;
+        while (end > 0 && char.IsLetterOrDigit(query[end - 1]))
+        {
+            end--;
+        }
+        return query[..end];
+    }
+
+    SemanticScores? IndexedSemantic(string text)
+    {
+        if (text != _embedded)
+        {
+            _semantic?.Dispose();
+            _semantic = SemanticScores.Build(_snapshot!, _vectors!, _model!, text);
+            _embedded = text;
+        }
+        return _semantic;
     }
 
     public IndexStatus GetStatus(IReadOnlyList<string> roots)
@@ -121,6 +152,7 @@ public sealed class SearchSession : IDisposable
 
     public void Dispose()
     {
+        _semantic?.Dispose();
         _vectors?.Dispose();
         _snapshot?.Dispose();
     }

@@ -71,15 +71,17 @@ public static class RootsConfig
 
     public static string Normalize(string root) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
 
-    // true when path is root itself or somewhere under it
-    public static bool Covers(string root, string path)
+    // true when path is root itself or somewhere under it, compared the way root's volume compares paths
+    public static bool Covers(string root, string path) => Covers(root, path, PathComparison.For(root));
+
+    public static bool Covers(string root, string path, StringComparison comparison)
     {
-        if (path.Equals(root, PathComparison.Default))
+        if (path.Equals(root, comparison))
         {
             return true;
         }
 
         var prefix = Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar;
-        return path.StartsWith(prefix, PathComparison.Default);
+        return path.StartsWith(prefix, comparison);
     }
 }

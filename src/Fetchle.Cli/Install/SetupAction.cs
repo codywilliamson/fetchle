@@ -14,7 +14,8 @@ internal static class SetupAction
 
         persistence ??= PathPersistence.ForSetup(env);
         var alreadyOnPath = persistence.Count(entry) > 0;
-        var edit = persistence.Add(entry);
+        var added = persistence.Add(entry);
+        var edit = added.Edit;
         // a windows PATH entry the user had before fetchle isn't ours to record, so uninstall leaves it alone.
         // a marker block is always ours, and a previous receipt naming this entry means fetchle added it back then
         var owned = !alreadyOnPath || edit.Kind == PathEditKinds.SHELL_RC_BLOCK || SameEntry(previous?.PathEdit, edit);
@@ -30,8 +31,9 @@ internal static class SetupAction
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // put things back the way the old receipt describes them: no new entry, the old edit restored
-            // a block in the same rc file was replaced in place, so its old text goes back below instead of a removal
-            var replacedInPlace = IsSameRcFile(previous?.PathEdit, edit);
+            // a block in the same rc file was replaced in place, so its old text goes back below instead of a removal.
+            // only when Add really replaced one: if the user had deleted it, Add inserted ours and ours just goes
+            var replacedInPlace = added.ReplacedBlock && IsSameRcFile(previous?.PathEdit, edit);
             if (!alreadyOnPath && !replacedInPlace)
             {
                 persistence.Remove(entry);

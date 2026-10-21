@@ -13,7 +13,7 @@ public class SetupRollbackTests
         var oldBin = Path.Combine(sandbox.Root, "old-bin");
         File.WriteAllText(sandbox.Rc, "alias ll='ls -l'\n");
         var rc = new ShellRcBlock(sandbox.Rc);
-        var oldEdit = rc.Add(oldBin);
+        var oldEdit = rc.Add(oldBin).Edit;
         var before = File.ReadAllText(sandbox.Rc);
         ReceiptStore.Save(sandbox.Receipt, new Receipt("0.0.0", Channels.SCRIPT, oldBin, sandbox.Data, [], oldEdit));
         sandbox.BreakReceiptSave();
@@ -21,6 +21,24 @@ public class SetupRollbackTests
         await Assert.That(() => SetupAction.Run(sandbox.Env, TextWriter.Null, rc)).Throws<UnauthorizedAccessException>();
 
         await Assert.That(File.ReadAllText(sandbox.Rc)).IsEqualTo(before);
+    }
+
+    [Test]
+    public async Task A_failed_receipt_save_after_the_user_deleted_the_block_leaves_no_block()
+    {
+        using var sandbox = new Sandbox();
+        var oldBin = Path.Combine(sandbox.Root, "old-bin");
+        File.WriteAllText(sandbox.Rc, "alias ll='ls -l'\n");
+        var rc = new ShellRcBlock(sandbox.Rc);
+        var oldEdit = rc.Add(oldBin).Edit;
+        ReceiptStore.Save(sandbox.Receipt, new Receipt("0.0.0", Channels.SCRIPT, oldBin, sandbox.Data, [], oldEdit));
+        // the receipt still names this rc file, but its block is gone
+        File.WriteAllText(sandbox.Rc, "alias ll='ls -l'\n");
+        sandbox.BreakReceiptSave();
+
+        await Assert.That(() => SetupAction.Run(sandbox.Env, TextWriter.Null, rc)).Throws<UnauthorizedAccessException>();
+
+        await Assert.That(File.ReadAllText(sandbox.Rc).Trim()).IsEqualTo("alias ll='ls -l'");
     }
 
     [Test]

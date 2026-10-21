@@ -106,7 +106,8 @@ public class CliOutputTests
         Skip.Unless(tree.Created.HasFlag(FixtureFeatures.CaseCollision), "case-insensitive file system");
         var run = await FetchleProcess.RunAsync(["readme-collide", "--root", tree.Root]);
 
-        await Assert.That(run.Lines).IsEquivalentTo([tree.Full(FixtureTree.CASE_LOWER), tree.Full(FixtureTree.CASE_UPPER)]);
+        // both spellings tie on every word, so they're the top two in either order; ranked extras may follow
+        await Assert.That(run.Lines.Take(2)).IsEquivalentTo([tree.Full(FixtureTree.CASE_LOWER), tree.Full(FixtureTree.CASE_UPPER)]);
     }
 
     [Test]

@@ -1,0 +1,6 @@
+# where the embedding model comes from. convert.cs reads this, and ci.yml keys its download cache on this file.
+# to move to a new revision: change the revision, fill in both hashes from the new files, update THIRD-PARTY-NOTICES.md
+repo minishlab/potion-retrieval-32M
+revision 6fc8051fab2a1e0ee76689cf08c853792ac285e7
+file model.safetensors 07609e5bd33aad37900b3fd62f4ec96f6daec88ca4d46b9d8b928bfababf6ea0
+file tokenizer.json 7d75cbc54318138807c401b0f0c9721117c628b39de8e8e0edb6cb17e0ee7d18

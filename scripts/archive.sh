@@ -25,8 +25,19 @@ if [ ! -f "$publish_dir/$exe" ]; then
   exit 1
 fi
 
+# the embedding model ships beside the exe (StaticModel.FindBesideExe), with the notices its license asks for.
+# MODEL_DIR is where `dotnet build.cs model` wrote it
+model="${MODEL_DIR:-artifacts/model}/potion-retrieval-32M.fmodel"
+notices="$(dirname "$0")/../THIRD-PARTY-NOTICES.md"
+for required in "$model" "$notices"; do
+  if [ ! -f "$required" ]; then
+    echo "archive.sh: $required not found, run 'dotnet build.cs model' first" >&2
+    exit 1
+  fi
+done
+
 mkdir -p "$stage/$name" "$out_dir"
-cp "$publish_dir/$exe" "$stage/$name/"
+cp "$publish_dir/$exe" "$model" "$notices" "$stage/$name/"
 
 # build an absolute out path so the subshells below can cd around
 out_abs="$(cd "$out_dir" && pwd)"

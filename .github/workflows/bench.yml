@@ -43,6 +43,11 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      # the embedding model ships beside the exe; publish copies it in when it's there
+      - name: model
+        shell: bash
+        run: dotnet build.cs model
+
       - name: publish
         shell: bash
         run: dotnet build.cs publish --rid ${{ matrix.rid }}
@@ -50,7 +55,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fetchle-${{ matrix.rid }}
-          path: artifacts/publish/${{ matrix.exe }}
+          path: |
+            artifacts/publish/${{ matrix.exe }}
+            artifacts/publish/potion-retrieval-32M.fmodel
           if-no-files-found: error
 
   # both self-hosted runners are the same physical machine, so these two jobs are chained and share
@@ -162,6 +169,11 @@ jobs:
         with:
           global-json-file: global.json
 
+      # the ranked, embed and picker benches use the real model
+      - name: model
+        shell: cmd
+        run: dotnet build.cs model
+
       - name: benchmarkdotnet
         shell: cmd
         env:
@@ -194,6 +206,10 @@ jobs:
           DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
+
+      # the ranked, embed and picker benches use the real model
+      - name: model
+        run: dotnet build.cs model
 
       - name: benchmarkdotnet
         env:

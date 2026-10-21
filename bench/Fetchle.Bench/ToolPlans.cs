@@ -16,6 +16,8 @@ public static class ToolPlans
     public const string NO_MATCH_QUERY = "zzzz-no-match";
 
     const string BUDGET = "5m";
+    // StaticModel.ENV_PATH, spelled here so the bench stays a process-level outsider
+    const string MODEL_VARIABLE = "FETCHLE_MODEL";
     const int SUCCESS = 0;
     const int NO_MATCH = 1;
 
@@ -80,7 +82,8 @@ public static class ToolPlans
         string[] liveWalk = ["--root", root, "--budget", BUDGET, "--plain"];
         var liveEnv = DataDirEnvironment(indexDirs.Live);
         var queryEnv = DataDirEnvironment(indexDirs.Query);
-        var rebuildEnv = DataDirEnvironment(indexDirs.Rebuild);
+        // the cold rebuild row is v0.1's 1.2x-of-a-walk target, snapshot only: no model, so nothing embeds
+        var rebuildEnv = new Dictionary<string, string>(DataDirEnvironment(indexDirs.Rebuild)) { [MODEL_VARIABLE] = Path.Combine(indexDirs.Rebuild, "no-model") };
         var rebuildSnapshot = new IndexStore(new FetchleDirs(indexDirs.Rebuild, indexDirs.Rebuild).Index).SnapshotPath;
 
         return
@@ -100,6 +103,10 @@ public static class ToolPlans
 
             // the same index the row above built, asked in words
             Plain(new ToolCommand("fetchle ranked query", fetchle, [RANKED_QUERY, "--budget", BUDGET, "--plain"], SUCCESS, queryEnv)),
+
+            // the same rebuild plus embedding every name and every path's centroid length, against the index the
+            // query rows read
+            Plain(new ToolCommand("fetchle rebuild with vectors", fetchle, ["index", "rebuild"], SUCCESS, queryEnv)),
 
             // the snapshot goes before every run so each rebuild starts cold
             new ToolPlan(

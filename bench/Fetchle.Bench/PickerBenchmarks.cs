@@ -18,31 +18,11 @@ static class PickerBench
 {
     public const string QUERY = "windows terminal settings";
     public const int ENTRIES = HomeCorpus.DEFAULT_ENTRIES;
-    // v2: snapshot format 2 and vectors beside it
-    const string CORPUS_VERSION = "v2";
-    static readonly string Root = Path.Join(Path.GetTempPath(), "fetchle-picker-bench-root");
 
-    // the snapshot is built once per machine and mapped on later runs, like the real index
-    public static SearchSession OpenSession(int entries)
-    {
-        // the search resolves its root on disk even though the snapshot answers it, so the dir exists and stays empty
-        Directory.CreateDirectory(Root);
-        var store = new IndexStore(Path.Join(Path.GetTempPath(), $"fetchle-picker-bench-{entries}-{CORPUS_VERSION}"));
-        var model = BenchModel.Instance;
-        if (!File.Exists(store.SnapshotPath) || !File.Exists(store.VectorsPath))
-        {
-            Directory.CreateDirectory(store.Directory);
-            var tree = TreeFromPaths.Build(Root, HomeCorpus.Entries(entries));
-            var image = SnapshotWriter.ToBytes(tree, DateTimeOffset.UnixEpoch);
-            store.WriteAndSwap(image, store.TempPath, store.SnapshotPath);
-            using var snapshot = Snapshot.FromBytes(image);
-            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(snapshot, model), snapshot.Checksum, model.Checksum);
-            store.WriteAndSwap(vectors, store.VectorsPath + IndexStore.TEMP_SUFFIX, store.VectorsPath);
-        }
-        return SearchSession.Open(store, PruneRules.Default, model);
-    }
+    // the 1M-entry home index with vectors, built once per machine (see HomeIndex)
+    public static SearchSession OpenSession(int entries) => SearchSession.Open(HomeIndex.Ensure(entries), PruneRules.Default, BenchModel.Instance);
 
-    public static SearchRequest Template => new("", [Root], PickerCommand.RESULT_LIMIT, TimeSpan.FromSeconds(5));
+    public static SearchRequest Template => new("", [HomeIndex.Root], PickerCommand.RESULT_LIMIT, TimeSpan.FromSeconds(5));
 
     public static PickerDriver StartPicker(SearchSession session)
     {

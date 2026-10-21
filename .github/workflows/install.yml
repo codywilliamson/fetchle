@@ -39,6 +39,9 @@ jobs:
       - name: publish
         run: dotnet build.cs publish --rid ${{ matrix.rid }}
 
+      - name: model
+        run: dotnet build.cs model
+
       - name: archive
         id: archive
         run: |

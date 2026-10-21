@@ -76,5 +76,13 @@ public sealed class EvalCorpus : IDisposable
         return false;
     }
 
+    // one line of sizes, for docs and diagrams
+    public string Describe()
+    {
+        var lexicon = Snapshot.Lexicon;
+        return $"corpus: {Snapshot.EntryCount:N0} entries, {Snapshot.SegmentCount:N0} unique segments, {lexicon.TokenCount:N0} tokens, {lexicon.PostingCount:N0} postings, {lexicon.FuzzyKeyCount:N0} fuzzy keys, "
+            + $"snapshot {Snapshot.Image.Length / 1024.0 / 1024:F1} MB ({(double)Snapshot.Image.Length / Snapshot.EntryCount:F1} B/entry)";
+    }
+
     public void Dispose() => Snapshot.Dispose();
 }

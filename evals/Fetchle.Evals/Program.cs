@@ -19,6 +19,7 @@ var split = gate || updateBaseline || Arg("--split") == "heldout" ? Split.HeldOu
 
 var repo = RepoRoot.Find();
 using var corpus = EvalCorpus.Build(Path.Combine(repo, "evals", "corpus", "paths.txt"));
+Console.WriteLine(corpus.Describe());
 var (scored, setAside) = QuerySet.Load(Path.Combine(repo, "evals", "queries"), corpus.Paths, EvalCorpus.IsPruned);
 var queries = scored.Where(q => QuerySplit.Of(q) == split).ToList();
 var prunedInSplit = setAside.Count(q => QuerySplit.Of(q) == split);

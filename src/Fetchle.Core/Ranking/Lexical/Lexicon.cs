@@ -28,6 +28,10 @@ readonly ref struct Lexicon
 
     public int TokenCount => _tokenOffsets.Length - 1;
 
+    public int PostingCount => _postings.Length;
+
+    public int FuzzyKeyCount => _fuzzyKeys.Length;
+
     public ReadOnlySpan<byte> SegmentWordCounts { get; }
 
     public ReadOnlySpan<byte> Token(int rank) => _tokenBlob[(int)_tokenOffsets[rank]..(int)_tokenOffsets[rank + 1]];

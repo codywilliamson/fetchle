@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
 
@@ -39,8 +40,13 @@ public sealed class IndexStore(string directory)
 
     internal Snapshot? Open() => Snapshot.Open(SnapshotPath);
 
-    // walks every root and swaps in a new snapshot. throws IndexBusyException when another writer holds the lock
-    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, CancellationToken cancellationToken)
+    // walks every root and swaps in a new snapshot, then, with a model, its vectors. the snapshot lands first, so
+    // lexical search answers from the new tree while segments embed. throws IndexBusyException when another writer
+    // holds the lock
+    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, CancellationToken cancellationToken) =>
+        Rebuild(roots, prune, null, cancellationToken);
+
+    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, ITextEncoder? model, CancellationToken cancellationToken)
     {
         var start = Stopwatch.GetTimestamp();
         System.IO.Directory.CreateDirectory(Directory);
@@ -67,18 +73,30 @@ public sealed class IndexStore(string directory)
 
         var buildTime = Stopwatch.GetElapsedTime(built);
         var writing = Stopwatch.GetTimestamp();
-        WriteAndSwap(image);
+        WriteAndSwap(image, TempPath, SnapshotPath);
+        var writeTime = Stopwatch.GetElapsedTime(writing);
+
+        TimeSpan? embedTime = null;
+        long vectorBytes = 0;
+        if (model is not null)
+        {
+            var embedding = Stopwatch.GetTimestamp();
+            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(written, model, cancellationToken), written.Checksum, model.Checksum);
+            vectorBytes = WriteAndSwap(vectors, VectorsPath + TEMP_SUFFIX, VectorsPath);
+            embedTime = Stopwatch.GetElapsedTime(embedding);
+        }
+
         Step(RebuildStep.Done);
-        return new RebuildReport(written.Info(), walkTime, buildTime, Stopwatch.GetElapsedTime(writing), Stopwatch.GetElapsedTime(start));
+        return new RebuildReport(written.Info(), walkTime, buildTime, writeTime, Stopwatch.GetElapsedTime(start), embedTime, vectorBytes);
     }
 
-    // temp file, flushed, then renamed over the snapshot. returns bytes written
-    internal long WriteAndSwap(byte[] image)
+    // temp file, flushed, then renamed over the target. returns bytes written
+    internal long WriteAndSwap(byte[] image, string tempPath, string targetPath)
     {
         try
         {
             Step(RebuildStep.WriteTemp);
-            using (var temp = new FileStream(TempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
+            using (var temp = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
             {
                 temp.Write(image);
                 Step(RebuildStep.Flush);
@@ -86,13 +104,13 @@ public sealed class IndexStore(string directory)
             }
 
             Step(RebuildStep.Rename);
-            AtomicReplace.Move(TempPath, SnapshotPath);
+            AtomicReplace.Move(tempPath, targetPath);
             return image.Length;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // a snapshot-sized temp file isn't worth leaving behind; readers never look at it either way
-            TryDelete(TempPath);
+            TryDelete(tempPath);
             throw;
         }
     }

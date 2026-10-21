@@ -87,6 +87,7 @@ function Invoke-Cycle([int] $Number) {
     Assert-That ($receipt.channel -eq 'script') "receipt channel is script (found $($receipt.channel))"
     Assert-That ($receipt.install_dir -ieq $Bin) "receipt install_dir is $Bin (found $($receipt.install_dir))"
     Assert-That (@($receipt.agents).Count -eq 0) 'receipt agents is empty'
+    Assert-That (Test-Path (Join-Path $Bin 'potion-retrieval-32M.fmodel')) 'the model sits beside the exe'
 
     $where = Invoke-Fresh '(Get-Command fetchle).Source'
     Assert-That ($where.Output -ieq $Exe) "a fresh shell resolves fetchle to $Exe (found '$($where.Output)')"

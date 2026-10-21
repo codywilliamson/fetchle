@@ -21,10 +21,10 @@ public class FileSearchTests
     {
         using var tree = FixtureTree.Create(fillerFiles: 2000);
         var search = new FileSearch(PruneRules.Default);
-        // "e" matches most entries, so top-k is full of ties and merge order would show
-        var request = new SearchRequest("e", [tree.Root], 25, SearchRequest.DefaultBudget);
+        // every filler entry matches "filler" through its ancestor, so top-k is full of ties and merge order would show
+        var request = new SearchRequest("filler", [tree.Root], 25, SearchRequest.DefaultBudget);
         var expectedTotal = WalkHelpers.NaiveWalk(tree.Root)
-            .Count(p => Path.GetRelativePath(tree.Root, p).Contains('e', StringComparison.OrdinalIgnoreCase));
+            .Count(p => Path.GetRelativePath(tree.Root, p).Split(Path.DirectorySeparatorChar)[0] == "filler");
 
         var first = search.Search(request, CancellationToken.None);
         await Assert.That(first.TotalMatches).IsEqualTo(expectedTotal);

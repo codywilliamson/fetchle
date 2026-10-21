@@ -2,6 +2,90 @@
 
 Newest first. Each entry says what was decided, why, and the evidence. Superseded entries stay, marked as such.
 
+## 2026-10-21: v0.2 fusion: semantic counts 0.75, files only, and not at all once words cover the query
+
+"Cover" means some lexical candidate, file or dir, that --since keeps matched every query word; a dir counts since the held-out failure table (m-152, m-221).
+
+Plain RRF of lexical and semantic, as the spike proposed, cut dev top-1 from 74.6% (lexical alone) to 63.2%. The cause was structural, not a weight: a one-segment path like `.vscode` or `.config` is its whole centroid, so it scored cosine 0.85 for any query sharing that one word, and the spike's 0.02-per-segment depth term favored exactly those shallow paths. Semantic alone on dev was 42.5% top-1.
+
+Every variant below was measured on dev only (228 queries), all else fixed:
+
+| variant | dev top-1 / top-3 / mrr |
+|---|---|
+| plain rrf, semantic weight 1 | 63.2 / 79.4 / 0.726 |
+| semantic 0.4, ignored when a file matched every word | 72.4 / 85.1 / 0.792 |
+| + semantic candidates are files only, no semantic depth term | 75.4 / 86.4 / 0.815 |
+| + numbers in the embed text | 75.0 / 86.0 / 0.812 |
+| + lexical votes scaled by word coverage (power 1 / 2 / 3) | 76.8 / 88.6 / 0.830, 74.6 / 85.5 / 0.808, 73.7 / 84.2 / 0.795 |
+| + stopwords out of lexical terms (shipped, semantic 0.5) | 77.6 / 87.7 / 0.831 |
+| semantic 0.75 instead of 0.5 (shipped) | 77.2 / 88.2 / 0.831 |
+| a per-candidate cosine floor of 0.5 for semantic-only hits | 76.3 / 86.0 / 0.815 |
+| semantic may only add candidates, never reorder lexical ones | 76.3 / 89.9 / 0.828 |
+
+0.5 and 0.75 differ by one query each way; 0.75 won on top-3, the harder target. The coverage scaling and the add-only fusion were dropped as not better on dev. Lexical knobs (coverage power 1/1.5/2/3, ancestor weight 0.3-0.9, name length 0-0.15, depth 0-0.02) were swept the same way and the starting values held.
+
+Held-out tells a less flattering story, recorded rather than tuned on: lexical alone scores 81.5 / 93.8 / 0.875, fused 79.0 / 93.8 / 0.864. Semantic earns its keep on queries no word reaches (the spike's "music streaming app"), and costs first place on a few where lexical was already right. Raising the bar for it further on held-out's say-so would be tuning on held-out.
+
+Evidence: `dotnet run --project evals/Fetchle.Evals -c Release [-- --lexical-only | --semantic-only]`, [evals/failures.md](../evals/failures.md).
+
+## 2026-10-21: an unrelated query returns nothing
+
+When no path matches any query word, the best semantic hit must reach cosine 0.5 or the answer is empty (exit 1). Without it, any query came back with its nearest neighbours as if they were hits, and agents rely on exit 1 meaning "not here". Applied per candidate instead, the same floor cost 2 points of dev top-3, since real semantic rescues sit at 0.35-0.45; applied per query it costs nothing on dev.
+
+## 2026-10-21: segment vectors are the 512 signs of the centered vector, 64 bytes
+
+The 64-byte target ruled out 512 int8 dims (512 bytes, 216 MB at the spike's 442k segments). On the spike's 12 queries over its 567k real AppData paths, centroid+depth ranks of the target:
+
+| storage | top-3 | top-10 | the bundled claude binary |
+|---|---|---|---|
+| 512 f32 | 4 | 5 | 7 |
+| first 64 dims, int8 | 4 | 5 | 11,242 |
+| first 128 dims, int8 | 4 | 4 | 74 |
+| PCA 64, int8 | 3 | 4 | 13,772 |
+| PQ 64 x 8 bits | 3 | 4 | 18 |
+| 512 signs, asymmetric query | 2-3 | 5-6 | 5-6 |
+
+Signs keep every dim, score against a float query through 64 lookup tables of 256 partial sums (one per code byte), and a path's centroid length comes from popcount dots, so no float vector is ever stored. Centering against the model's mean turned out to be a no-op for this model (its mean is tiny); it stays because it's free.
+
+Evidence: [spikes/vector-codes](spikes/vector-codes/) over the spike's corpus; on the v0.2 eval corpus the vectors are 16.9 MB of codes plus 2.5 MB of norms for 667k entries and 277k segments.
+
+## 2026-10-21: fetchle runs Model2Vec itself; partly supersedes the Model2Vec.Net choice of 2026-10-03
+
+The model still ships beside the exe as decided on 2026-10-03, but fetchle no longer uses Model2Vec.Net or Microsoft.ML.Tokenizers. Model2Vec inference is a normalize, a WordPiece split and a mean of rows, so fetchle does it over its own memory-mapped `.fmodel` (vocab with a sorted lookup index, int8 rows with one global scale, the mean), converted once from the pinned Hugging Face revision by `tools/model/convert.cs` with both files' sha256 checked. No dictionary is built at load and nothing is deserialized.
+
+Parity with Python model2vec over 290 strings: every token id equal, cosine min 0.99754, mean 0.99941. `string.Normalize(FormD)` is a silent no-op under InvariantGlobalization on Windows, so accent stripping is a generated table over Latin, Greek and Cyrillic plus arithmetic Hangul decomposition.
+
+Search opens the model with bounds checks only and skips the full-file checksum: 33 MB per query is a real share of the latency budget, the model is read-only and sha256-checked when installed, and a corrupt row can only make a vector wrong, never a read go out of bounds. `index rebuild` and `doctor` verify the checksum. The snapshot and the vectors, which fetchle writes, keep the full check on every open.
+
+## 2026-10-21: the lexicon lives in the snapshot, format 2
+
+Sorted tokens, postings and fuzzy deletion keys are seven more sections of `snapshot.fidx`, bounds-checked on open like the rest. They're built per unique segment at rebuild and are what makes prefix and typo matching sublinear. On the 667k-entry eval corpus the whole snapshot is 19.5 MB, 30.6 bytes per entry, still under v0.1's 40. A v1 snapshot reads as another version: exit 3, rebuild.
+
+## 2026-10-21: the eval corpus is pseudonymized; raw transcripts never enter the repo
+
+The repo is public and the mined paths include client and project names. A curator subagent replaced every project and client dir name under `source/` (except fetchle and a few generic words like health or infra, which also occur inside unrelated names), dropped the Obsidian vault and anything secret-shaped, and grepped the result for every real name; the mapping stays in the session scratchpad. Public third-party names (npm, NuGet, app vendors) stay as they are. Cody can veto any of this before merge.
+
+## 2026-10-21: v0.2 ranking targets and the eval protocol
+
+Proposed before building, kept unless a measurement says no. Latency numbers come only from the quiet self-hosted runners (`bench.yml`), on the published AOT exe, process wall time, 20 runs after a warmup, nearest-rank percentiles.
+
+| target | number | why |
+|---|---|---|
+| held-out top-3 hit rate | >= 90% | the vision's headline number, and the roadmap's v0.2 exit check |
+| held-out top-1 hit rate | >= 70% | an agent mostly reads the first path; below 70% it has to read three every time |
+| held-out MRR | reported per release, no floor | tracks movement inside the top 10 that top-1/top-3 hide |
+| CI gate | fails below the committed held-out baseline on top-1, top-3 or MRR | ranking can only move up without someone deciding otherwise |
+| warm ranked query, `home-1m` | p95 <= 50 ms | the v0.1 target for the same corpus; substring measured 26.6 ms windows and 13.4 ms linux, ranking may spend the difference and no more |
+| segment vectors on disk | <= 64 bytes per unique segment | 512 int8 dims is 512 bytes, 216 MB at the spike's 442k segments. 64 bytes is 28 MB, small enough to map whole |
+| background embed, `home-1m` | <= 10 s wall, lexical answers before it finishes | the spike's single-threaded encode took 17 s for 442k segments; a rebuild must not wait on it |
+| `fetchle -i` keystroke to repaint | p95 <= 16 ms over the 1M index | one 60 Hz frame |
+
+Eval protocol. Queries come from two sources, kept apart so neither leaks into the other: real file hunts mined from Cody's Claude Code transcripts (the search command, the user's intent, and the path the agent used next), and queries a separate subagent writes from the fixture corpus alone, without ever seeing ranker output. Target 150+ judged queries. Each query gets a stable id; the split is by a hash of the id, about two thirds dev and one third held out, stratified by source. Tuning only ever reads dev results. The CI gate, the baseline and every reported number come from held-out. Raw transcripts never enter the repo: only the derived query, the expected paths and the corpus paths needed to reproduce them, with secret-looking names and `~/.ssh`-style dirs filtered out.
+
+The corpus is built from a path list straight into a snapshot in memory, with no files on disk, so the eval can be large (mined real paths, the paths seen in transcript listings as real distractors, and the seeded `HomeCorpus` filler) and still run in CI on three OSes.
+
+Every held-out miss gets a row in `evals/failures.md` saying which stage lost it: tokenizer, noise, lexical, semantic, fusion or depth. Fixes target a class of failure and must hold on dev; a fix aimed at one query is not allowed.
+
 ## 2026-10-20: v0.1 measured against its targets; two held only on one os
 
 Quiet self-hosted runners (Randy-PC1, Ryzen 5 3600: Windows 11 26300, and Ubuntu 24.04), run 39456621264 at fec3a98, process wall time over 20 runs after a warmup, nearest-rank percentiles. Raw data: `bench/results/external-*.json`, `bench/results/{windows,linux}/`.
@@ -138,9 +222,13 @@ Windows can't delete a running exe, so uninstall deletes everything else, then s
 
 Evidence: `scripts/ci/install-lifecycle.ps1` run locally on Windows, two cycles; the E2E case `Uninstall_removes_the_dir_that_holds_its_own_exe`.
 
+## 2026-10-21: the segment scan checks the deadline every 1 MiB, between chunks
+
+`SegmentMatcher` ran one vectorized pass over the whole segment blob before the entry pass could see the deadline, so a huge blob could spend the budget with nothing to show. The scan now runs in chunks of about 1 MiB that end on a segment boundary (so no hit straddles an edge) and checks the deadline between them; the non-ASCII decode loops check every 1024 segments. Each chunk is still one `AsciiFinder.IndexOf` call, so the scan stays vectorized and the check costs one timestamp read per MiB. A scan cut short returns `completed = false` and the query reports `stopped early: budget`.
+
+Evidence: `IndexBenchmarks.Search` from the quiet linux runner (JIT, `[MemoryDiagnoser]`, bench.yml run 39628557808 on main at 087bb80 before, run 39629887529 on 9870e41 after). Mean, allocated: 50k `.json` 633.2 us / 7400 B before, 631.4 us / 7400 B after; 50k `settings` 170.2 us / 1536 B, 148.1 us / 1536 B; 50k `zzz` 159.4 us / 712 B, 139.1 us / 712 B; 1M `.json` 17,054.8 us / 7400 B, 16,026.2 us / 7400 B; 1M `settings` 3,828.9 us / 10,216 B, 3,428.1 us / 10,216 B; 1M `zzz` 3,642.3 us / 712 B, 3,168.2 us / 712 B. Gen0 stayed 0. No regression and no new allocations; the small gain is within what run-to-run noise can explain, so it isn't claimed. The windows runner could not load the benchmark assemblies in either run (Application Control policy, 0x800711C7), so there are no windows numbers.
+
 ## Open
 
-- Persisted segment-vector size. 442k unique segments at 512 dims int8 is ~216 MB (arithmetic, not measured). Options: PCA to fewer dims, embed lazily for hot roots, cap per root.
-- Parallel segment encoding. The spike suspects the tokenizer dominates encode time but didn't profile it.
 - Which env vars each agent sets, for agent output mode detection.
 - A systems domain in the docs: one high-level overview per system plus a feature map, which AGENTS.md points at instead of docs full of detail that drifts. Waiting until the real systems land, since the foundation skeleton has little to map yet.

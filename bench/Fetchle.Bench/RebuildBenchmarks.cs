@@ -39,5 +39,5 @@ public class RebuildBenchmarks
     }
 
     [Benchmark]
-    public long WriteAndSwap() => _store.WriteAndSwap(_image);
+    public long WriteAndSwap() => _store.WriteAndSwap(_image, _store.TempPath, _store.SnapshotPath);
 }

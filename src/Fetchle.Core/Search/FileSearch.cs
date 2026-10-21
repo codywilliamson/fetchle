@@ -1,53 +1,31 @@
-using System.Diagnostics;
-using Fetchle.Core.Naive;
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Walking;
 
 namespace Fetchle.Core.Search;
 
-// walks with FastWalker, one HitCollector per worker, then merges the collectors into one top-k
-public sealed class FileSearch(PruneRules prune) : IFileSearch
+// walks every root live with FastWalker into an in-memory tree and ranks it, no index involved
+public sealed class FileSearch : IFileSearch
 {
+    readonly PruneRules _prune;
+    readonly ITextEncoder? _model;
+
+    public FileSearch(PruneRules prune) : this(prune, null)
+    {
+    }
+
+    public FileSearch(PruneRules prune, ITextEncoder? model)
+    {
+        _prune = prune;
+        _model = model;
+    }
+
+    // a live walk has no index to rebuild
+    public bool IsRebuilding() => false;
+
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
     {
-        var start = Stopwatch.GetTimestamp();
-        var roots = SearchRoots.Resolve(request.Roots);
-
-        var deadline = Deadline.After(request.Budget, start);
-        var completed = true;
-        var ranker = new SubstringRanker(request.Query);
-        var walker = new FastWalker(prune);
-        var merged = new TopHits(request.Limit);
-        var total = 0;
-
-        foreach (var root in roots)
-        {
-            if (!completed || cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-
-            var collectors = new List<HitCollector>();
-            completed = walker.Walk(root, () =>
-            {
-                var collector = new HitCollector(request, ranker, root, request.Limit);
-                lock (collectors)
-                {
-                    collectors.Add(collector);
-                }
-                return collector.Visit;
-            }, deadline);
-
-            // every worker is done, so collectors are safe to read. top-k order is total, so merge order can't change the result
-            foreach (var collector in collectors)
-            {
-                total += collector.Total;
-                merged.AddAll(collector.Hits);
-            }
-        }
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var stoppedEarly = completed ? null : StopReasons.BUDGET;
-        return new SearchResult(merged.ToSortedList(), total, Stopwatch.GetElapsedTime(start), stoppedEarly);
+        using var session = SearchSession.Open(null, _prune, _model);
+        return session.Search(request, cancellationToken);
     }
 
     internal static string NormalizeRoot(string root)

@@ -24,7 +24,9 @@ public static class RootsConfig
 
         try
         {
-            var roots = JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots ?? [];
+            // a top-level null deserializes to null, which is a damaged file, not an empty one
+            var roots = JsonSerializer.Deserialize(File.ReadAllText(path), StorageJson.Default.RootsFile)?.Roots
+                ?? throw new InvalidDataException($"can't read {path}: empty config");
             // nullable annotations don't reach list elements, and every caller compares roots as paths
             foreach (var root in roots)
             {
@@ -69,15 +71,25 @@ public static class RootsConfig
 
     public static string Normalize(string root) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
 
-    // true when path is root itself or somewhere under it
-    public static bool Covers(string root, string path)
+    // drops the root spelled exactly like root; with no exact spelling, the one root's volume says is the same path.
+    // on a case-sensitive volume Foo and foo are two roots, and removing one must leave the other. returns how many went
+    public static int Remove(List<string> roots, string root)
     {
-        if (path.Equals(root, PathComparison.Default))
+        var exact = roots.RemoveAll(r => r.Equals(root, StringComparison.Ordinal));
+        return exact > 0 ? exact : roots.RemoveAll(r => r.Equals(root, PathComparison.For(r)));
+    }
+
+    // true when path is root itself or somewhere under it, compared the way root's volume compares paths
+    public static bool Covers(string root, string path) => Covers(root, path, PathComparison.For(root));
+
+    public static bool Covers(string root, string path, StringComparison comparison)
+    {
+        if (path.Equals(root, comparison))
         {
             return true;
         }
 
         var prefix = Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar;
-        return path.StartsWith(prefix, PathComparison.Default);
+        return path.StartsWith(prefix, comparison);
     }
 }

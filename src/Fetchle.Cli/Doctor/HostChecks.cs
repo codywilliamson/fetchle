@@ -9,9 +9,24 @@ internal static class HostChecks
     public static List<CheckResult> NotInThisVersion() =>
     [
         new("watcher", CheckStatus.Skip, NOT_YET),
-        new("model", CheckStatus.Skip, NOT_YET),
         new("ntfs-turbo", CheckStatus.Skip, NOT_YET),
     ];
+
+    // the model is optional: without it ranking is lexical only, so a missing one warns and a broken one fails
+    public static CheckResult Model(string path, Func<string, Core.Embedding.StaticModel?> open)
+    {
+        try
+        {
+            using var model = open(path);
+            return model is null
+                ? new CheckResult("model", CheckStatus.Warn, $"no model at {path}, search ranks by name only", FixCommands.InstallScript)
+                : new CheckResult("model", CheckStatus.Pass, $"{path}, checksum ok");
+        }
+        catch (Core.Embedding.ModelUnreadableException e)
+        {
+            return new CheckResult("model", CheckStatus.Fail, e.Message, FixCommands.InstallScript);
+        }
+    }
 
     // limit is null off Linux or when the proc file can't be read
     public static CheckResult Inotify(long? limit)

@@ -9,10 +9,14 @@ internal interface IPathPersistence
     int Count(string entry);
 
     // idempotent: adds the entry, or collapses duplicates down to one
-    PathEdit Add(string entry);
+    PathAdd Add(string entry);
 
     void Remove(string entry);
 }
+
+// what Add did. ReplacedBlock is true only when an existing rc block was rewritten in place, the one case where
+// undoing the add means putting the old block back rather than removing ours
+internal readonly record struct PathAdd(PathEdit Edit, bool ReplacedBlock);
 
 internal static class PathPersistence
 {

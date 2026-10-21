@@ -97,7 +97,8 @@ static class IndexCommand
         RebuildReport report;
         try
         {
-            report = new IndexStore(dirs.Index).Rebuild(roots, PruneRules.Default, CancellationToken.None);
+            using var model = ModelLoader.ForRebuild(ctx.Error);
+            report = new IndexStore(dirs.Index).Rebuild(roots, PruneRules.Default, model, CancellationToken.None);
         }
         catch (IndexBusyException e)
         {
@@ -120,6 +121,9 @@ static class IndexCommand
         var info = report.Snapshot;
         ctx.Out.WriteLine($"indexed {info.Entries:N0} entries in {report.TotalTime.TotalMilliseconds:0} ms (walk {report.WalkTime.TotalMilliseconds:0}, build {report.BuildTime.TotalMilliseconds:0}, write {report.WriteTime.TotalMilliseconds:0})");
         ctx.Out.WriteLine($"{info.File}: {Output.Humanize.Size(info.Bytes)}, {info.BytesPerEntry:0.0} bytes per entry");
+        ctx.Out.WriteLine(report.EmbedTime is { } embed
+            ? $"vectors: {info.Segments:N0} names embedded in {embed.TotalMilliseconds:0} ms, {Output.Humanize.Size(report.VectorBytes)}"
+            : "vectors: none, no model beside the exe, so search ranks by name only");
         return ExitCode.Success;
     }
 }

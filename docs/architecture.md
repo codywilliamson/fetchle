@@ -14,25 +14,35 @@ The snapshot is that store on disk, `snapshot.fidx` in the index dir. A fixed he
 
 A rebuild takes the write lock, walks, writes the whole image to a temp file, flushes it and renames it over the old snapshot. On Windows that rename uses POSIX semantics, the only form that replaces a file another process still has mapped. A writer dying at any step leaves the old snapshot intact.
 
-A query on the snapshot works per unique segment, then per entry. An ASCII query scans the segment blob once with a vectorized byte search and marks every segment containing it; only names with non-ASCII bytes get decoded. One forward pass over the rows then carries two bits from parent to child, "inside the searched scope" and "path matches". Because parents come first, that one pass sees every parent before its children. Only the hits that make the top-k ever become strings.
+A query on the snapshot works per unique segment, then per entry, as the next sections describe. Because parents come before children, one forward pass sees every parent before its children, and only the hits that make a top-k ever become strings.
+
+## Words in names
+
+Everything a query matches is built per unique name segment, once, at rebuild. The tokenizer splits a name on anything that isn't a letter or digit, then on camelCase humps and letter/digit boundaries, and lowercases: `ConsoleHost_history.txt` is console, host, history and the extension txt, plus the whole chunk `consolehost` as a compound so a query spelled as one word still finds it. Before any of that, each chunk goes through the noise filter: hex hashes, GUIDs, random ids with many letter/digit flips, long numbers and Windows package publisher ids stay whole as one noise token. In the spike, `Microsoft.WindowsTerminal_8wekyb3d8bbwe` split into "microsoft windows terminal 8 wekyb 3 d 8 bbwe", and that junk pushed the real Windows Terminal settings past rank 7,000. Drawn in [diagrams/tokenizer.excalidraw](diagrams/tokenizer.excalidraw).
+
+The lexicon lives in the snapshot (format 2): every token sorted by its UTF-8 bytes, postings from each token to the segments holding it, and fuzzy keys, the hash of each token and of each copy with one character deleted. Exact lookup is a binary search; a prefix is two binary searches that bound a contiguous run; one typo is a handful of key lookups, because two words within one edit always share a deletion key. Nothing scans the vocabulary or the segments. On the 667,345-entry eval corpus: 277,057 unique segments, 75,094 tokens, 979,217 postings, 457,594 fuzzy keys, 30.6 bytes per entry for the whole snapshot. Drawn in [diagrams/lexical-index.excalidraw](diagrams/lexical-index.excalidraw).
 
 ## Embedding segments
 
-Each unique segment gets a vector from a static Model2Vec model, `potion-retrieval-32M` quantized to int8. Static means no transformer at query time: tokenize, look up rows, average. An encode takes about 0.05 ms under AOT.
+fetchle runs Model2Vec itself: potion-retrieval-32M converted once into `potion-retrieval-32M.fmodel` (BERT WordPiece vocabulary with a sorted lookup index, int8 embeddings, one scale, the mean vector), memory-mapped beside the exe. Encoding is normalize, WordPiece, drop unknown tokens, average the rows, L2-normalize: the same as Python's model2vec, which a parity test pins to cosine 0.9975 at worst over 290 strings. No Model2Vec.Net, no ML.Tokenizers.
 
-Segments that are hashes, GUIDs or package-family suffixes get filtered or down-weighted before embedding. `Microsoft.WindowsTerminal_8wekyb3d8bbwe` tokenizes to "microsoft windows terminal 8 wekyb 3 d 8 bbwe", and that noise pushed the real Windows Terminal settings past rank 7,000.
+A segment's embed text is its words and extension only: numbers, compounds and noise stay out, so a hash dir embeds as nothing and counts zero. Each vector is centered and stored as the signs of its 512 dims, 64 bytes, in `vectors.fvec`. Cutting to 64 dims instead lost the bundled claude binary in the spike's 12 queries (rank 7 to 11,242); signs of all 512 kept rankings close to float. Every entry also stores the length of its path's weighted centroid (name 2, parent 1, other ancestors 0.5), computed at rebuild from pairwise sign-code dots along the path, so a query needs no per-entry vector math.
 
-Vectors persist as int8. Against f32 the cosine similarity averaged 0.9995 with a minimum of 0.989, and rankings moved by a few positions at most. The full first-time embed is the slow step: 17 seconds single-threaded for 442 thousand segments. It runs in parallel in the background after the walk, so lexical search works before the vectors finish.
+The vectors file names the snapshot checksum and model checksum it was built from and is validated on open like the snapshot. A rebuild swaps the snapshot in first, so lexical search answers from the new tree while names embed; until the vectors match, search is lexical only. Drawn in [diagrams/vector-store.excalidraw](diagrams/vector-store.excalidraw).
 
 ## Ranking a query
 
-Two retrievers each produce their own top candidates.
+Query words that are stopwords drop out, `folder` and friends become a wish for a dir, and each remaining word expands through the lexicon to the tokens it hits exactly, by prefix or within one typo, each with a weight. Their postings give every segment a byte per query word, packed into one `ulong` per segment. The semantic side embeds the query the same way, centers it and scores every segment's sign code through 64 lookup tables, one per code byte.
 
-The lexical side scores tokens from each path. It splits camelCase, separators and digits, counts the filename twice, and adds prefix and fuzzy matching. The semantic side embeds the query and scores each path by cosine against a weighted centroid of its segment vectors: filename 2, parent 1, other ancestors 0.5. A small depth penalty then favors shallower paths.
+Then one pass over the entries. Rows are breadth-first, so each depth level is one contiguous run whose parents all sit in the level above; big levels split across threads. Each row carries the per-word best match of its ancestors down from its parent with one byte-wise max, and a running sum of segment scores for the semantic centroid. Lexical scores weight each word by idf, discount ancestor hits to half, shorten long names a little, square the share of words matched, and subtract a little per level; paths under worktree dirs (the agents' scratch copies) count half. Only files are semantic candidates: a one-word dir like `.vscode` is its whole centroid and would outscore everything sharing that word.
 
-Reciprocal rank fusion with k=60 merges the two lists.
+Each retriever keeps its top 100. Reciprocal rank fusion with k=60 merges them, the semantic list weighted 0.75, and not at all when some candidate already matched every query word. When nothing matched any word and the best meaning is under cosine 0.5, the answer is empty. Ties break on the path. A root nobody indexed is walked into an in-memory snapshot and ranked the same way, its lists merged with the snapshot's before fusion. Drawn in [diagrams/query-flow.excalidraw](diagrams/query-flow.excalidraw).
 
-The original plan was lexical candidates reranked by embeddings, and the spike killed it. Lexical missed the target entirely in 5 of 12 test queries, so a reranker had nothing to rescue. Running both as independent sources is what found `claude.exe` from "bundled claude binary" and `Spotify.exe` from "music streaming app". Lexical is what found Windows Terminal's config, where embeddings failed.
+The spike's plan was lexical candidates reranked by embeddings, and the spike killed it: lexical missed the target entirely in 5 of 12 queries. On the v0.2 eval the balance is different. Lexical alone scores 81.5% top-1 and 93.8% top-3 on held-out; fused, 79.0% and 93.8%. Semantic finds things words can't ("music streaming app" to Spotify.exe) and costs a couple of first places where lexical was already right. Every miss and the stage that lost it is in [evals/failures.md](../evals/failures.md).
+
+## The picker
+
+`fetchle -i` opens the index once and keeps it mapped. Every keystroke goes to one background worker that cancels the search in flight, keeps only the newest waiting query and publishes a result only if nothing newer was typed, so the screen never goes back and searches never overlap. The last word counts as still being typed, so `termi` matches `terminal`. Drawn in [diagrams/picker.excalidraw](diagrams/picker.excalidraw).
 
 ## Budgets
 
@@ -62,7 +72,7 @@ The MCP server, or `fetchle index`, is the only writer, guarded by a lock file. 
 
 ## Cross-platform from the first commit
 
-The core has no Windows dependency. What varies by OS sits behind small interfaces: path comparison (Linux is case-sensitive, Windows and default macOS are not), hidden-file rules (dotfiles vs the hidden attribute), default prune lists (`AppData\Local\Temp` vs `~/.cache` vs `~/Library/Caches`), watcher strategy, and agent config locations for `fetchle setup`.
+The core has no Windows dependency. What varies by OS sits behind small interfaces: path comparison (Linux is case-sensitive, Windows and default macOS are not; root matching asks a macOS volume which it is), hidden-file rules (dotfiles vs the hidden attribute), default prune lists (`AppData\Local\Temp` vs `~/.cache` vs `~/Library/Caches`), watcher strategy, and agent config locations for `fetchle setup`.
 
 CI runs the end-to-end suite on Windows, Linux and macOS for every change. That's what keeps cross-platform true without anyone remembering to check.
 
@@ -70,7 +80,7 @@ CI runs the end-to-end suite on Windows, Linux and macOS for every change. That'
 
 ```text
 src/
-  Fetchle.Core     walker, path store, prune rules, lexical + semantic ranking, budgets
+  Fetchle.Core     walker, path store, prune rules, tokenizer, lexicon, embedding model, ranking, budgets
   Fetchle.Watch    watcher interface, per-OS strategies
   Fetchle.Mcp      stdio server on ModelContextProtocol.Core, no hosting
   Fetchle.Cli      the executable: XenoAtom.CommandLine + XenoAtom.Terminal, all subcommands

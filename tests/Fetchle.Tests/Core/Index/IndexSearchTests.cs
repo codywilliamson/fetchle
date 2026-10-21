@@ -157,9 +157,9 @@ public class IndexSearchTests
         using var index = TempIndex.Built(tree.Root);
         File.WriteAllText(tree.Full("src/app/added-after-index.txt"), "");
 
-        var result = new IndexedFileSearch(PruneRules.Default, index.Store).Search(Request("added-after-index", [tree.Root], 10), CancellationToken.None);
+        var result = new IndexedFileSearch(PruneRules.Default, index.Store).Search(Request("added-after-index", [tree.Root], 50), CancellationToken.None);
 
-        await Assert.That(result.TotalMatches).IsEqualTo(0);
+        await Assert.That(result.Hits.Select(h => Path.GetFileName(h.Path))).DoesNotContain("added-after-index.txt");
     }
 
     [Test]
@@ -177,7 +177,7 @@ public class IndexSearchTests
     public async Task Rebuild_places_every_walked_entry()
     {
         using var tree = FixtureTree.Create(fillerFiles: 2000);
-        var walk = IndexStore.WalkRoot(tree.Root, PruneRules.Default);
+        var (walk, _) = IndexStore.WalkRoot(tree.Root, PruneRules.Default, Deadline.After(TimeSpan.FromMinutes(1), System.Diagnostics.Stopwatch.GetTimestamp()));
         var tree2 = TreeAssembler.Assemble([walk]);
         var walked = WalkHelpers.NaiveWalk(tree.Root).Count();
 

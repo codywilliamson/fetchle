@@ -33,7 +33,7 @@ public class ToolPlansTests
     {
         var plans = ToolPlans.For(Everything, ROOT, Dirs);
         var bare = plans.Single(p => p.Timed.Tool == "fetchle bare walk");
-        foreach (var plan in plans.Where(p => p != bare && p.Timed.Tool != "fetchle cold rebuild"))
+        foreach (var plan in plans.Where(p => p != bare && !p.Timed.Tool.Contains("rebuild")))
         {
             await Assert.That(plan.Timed.Arguments.Any(a => a.Contains(ToolPlans.QUERY))).IsTrue();
         }

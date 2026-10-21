@@ -94,12 +94,17 @@ static class Targets
     const string PUBLISH_DIR = "artifacts/publish";
     const string CONFIGURATION = "Release";
 
-    public static readonly string[] NAMES = ["restore", "build", "test", "e2e", "eval", "publish", "bench", "bench-external", "ci"];
+    const string MODEL_TOOL = "tools/model/convert.cs";
+    const string MODEL_SOURCE_DIR = "artifacts/model-src";
+    const string MODEL_DIR = "artifacts/model";
+
+    public static readonly string[] NAMES = ["restore", "build", "model", "test", "e2e", "eval", "publish", "bench", "bench-external", "ci"];
 
     public static Step[]? For(Options options) => options.Target switch
     {
         "restore" => [Restore(locked: false)],
         "build" => [Build(noRestore: false)],
+        "model" => [Model()],
         "test" => [UnitTests(noBuild: false), BenchTests(noBuild: false)],
         "e2e" => [E2eTests(noBuild: false, exe: null)],
         "eval" => [Evals(noBuild: false)],
@@ -114,6 +119,7 @@ static class Targets
     [
         Restore(locked: true),
         Build(noRestore: true),
+        Model(),
         Publish(rid),
         UnitTests(noBuild: true),
         BenchTests(noBuild: true),
@@ -136,6 +142,10 @@ static class Targets
         return new("bench external", ["run", "--project", BENCH, "-c", CONFIGURATION, "--", "--external"], Env("FETCHLE_EXE", string.IsNullOrEmpty(exe) ? PublishedExe(rid) : exe));
     }
 
+    // downloads the pinned model files into artifacts/model-src (sha256 checked) and converts them into artifacts/model.
+    // a no-op when the output is already made from the same sources
+    static Step Model() => new("model", ["run", "-c", CONFIGURATION, MODEL_TOOL, "--", MODEL_SOURCE_DIR, MODEL_DIR]);
+
     static Step Restore(bool locked)
     {
         string[] args = ["restore", SOLUTION];
@@ -154,7 +164,8 @@ static class Targets
         return new("e2e", args, exe is null ? null : Env("FETCHLE_EXE", exe));
     }
 
-    static Step Evals(bool noBuild) => new("evals", WithFlag(["run", "--project", EVALS, "-c", CONFIGURATION], "--no-build", noBuild));
+    // the gate reads held-out only: dev is for tuning and is never what ci judges
+    static Step Evals(bool noBuild) => new("evals", [.. WithFlag(["run", "--project", EVALS, "-c", CONFIGURATION], "--no-build", noBuild), "--", "--gate"]);
 
     static Step Publish(string? rid)
     {

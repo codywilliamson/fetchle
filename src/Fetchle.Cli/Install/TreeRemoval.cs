@@ -16,10 +16,12 @@ internal static class TreeRemoval
     const string EMPTY_PARENT_NAME = "fetchle";
 
     // every name the install scripts, setup, roots and the index write
-    static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new"];
+    static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new",
+        "potion-retrieval-32M.fmodel", "THIRD-PARTY-NOTICES.md"];
     const string RECEIPT_FILE = "receipt.json";
     static readonly string[] DataFiles = [RECEIPT_FILE, RECEIPT_FILE + ".tmp", "config.json", "config.json.tmp"];
-    static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE];
+    static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE,
+        IndexStore.VECTORS_FILE, IndexStore.VECTORS_FILE + IndexStore.TEMP_SUFFIX];
     const string INDEX_DIR = "index";
 
     public static RemovalResult Remove(string installDir, string dataDir)
@@ -142,13 +144,17 @@ internal static class CleanupScript
     // nests inside it. echo is off because for loops echo into our stdout pipe, and cmd dies when that breaks
     public static string Build(IReadOnlyList<string> files, string? receipt, IReadOnlyList<string> dirs)
     {
-        var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist \"{file}\" ({SLEEP_ONE_SECOND} & del /f /q \"{file}\" 2>nul))").ToList();
+        var steps = files.Select(file => $"(for /l %n in (1,1,{RETRIES}) do if exist {Quote(file)} ({SLEEP_ONE_SECOND} & del /f /q {Quote(file)} 2>nul))").ToList();
         if (receipt is not null)
         {
-            var guards = string.Concat(files.Select(file => $"if not exist \"{file}\" "));
-            steps.Add($"({guards}del /f /q \"{receipt}\" 2>nul)");
+            var guards = string.Concat(files.Select(file => $"if not exist {Quote(file)} "));
+            steps.Add($"({guards}del /f /q {Quote(receipt)} 2>nul)");
         }
-        steps.AddRange(dirs.Select(dir => $"rmdir \"{dir}\" 2>nul"));
+        steps.AddRange(dirs.Select(dir => $"rmdir {Quote(dir)} 2>nul"));
         return "@echo off & " + string.Join(" & ", steps);
     }
+
+    // cmd expands %name% on the command line even inside double quotes, and %n would hit the loop variable. a caret
+    // escapes a percent only outside quotes, so each one steps out: "a%b" becomes "a"^%"b"
+    static string Quote(string path) => "\"" + path.Replace("%", "\"^%\"") + "\"";
 }

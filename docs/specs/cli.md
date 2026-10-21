@@ -23,7 +23,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 
 | flag | default | meaning |
 |---|---|---|
-| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. At least 1, or exit 2. |
+| `--limit <n>` | 10 (TTY), 20 (agent), 50 (picker) | Max results. At least 1, or exit 2. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
 | `--root <path>` | all roots | Restrict to one root. Repeatable. With no roots configured, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |
@@ -49,13 +49,38 @@ Which env vars each agent actually sets must be confirmed before the agent mode 
 
 Pretty mode uses synchronized output (DEC 2026) for live regions, emits OSC 9;4 taskbar progress while indexing (rate-limited), and respects `NO_COLOR`. `NO_COLOR` drops color but keeps bold, dim and links, per no-color.org.
 
+## Picker (`-i`)
+
+`fetchle -i [query]` opens an input box, up to 10 ranked rows (fewer on a short terminal) and a footer with the match count and per-query time. Each row is the full path with the typed words highlighted, then size and age dimmed. An initial query is searched at once and the caret starts after it. An empty query shows nothing and runs no search.
+
+| key | does |
+|---|---|
+| any text, Backspace, Left/Right, Home/End | edit the query; every change re-ranks |
+| Up, Down, PageUp, PageDown | move the selection through the top 50 hits (`--limit` changes the 50) |
+| Enter | print the selected full path to stdout, exit 0. With no row to select it does nothing |
+| Esc, Ctrl+C | print nothing, exit 1 |
+
+The picker is pretty mode only, and `--root`, `--ext`, `--since`, `--type` and `--budget` apply to every keystroke. With stdout redirected, `--plain`, `--json` or an agent env var it writes `fetchle: the picker needs a terminal` to stderr and exits 2 without starting a widget. A snapshot that fails validation exits 3, as in search.
+
+Typing never waits on a search. The index is opened once when the picker starts. Every change goes to one background worker that cancels the search in flight, keeps only the newest waiting query, and drops a finished result when a newer keystroke exists, so the screen only moves forward. Searches never overlap. The last word of the query counts as still being typed, so `termi` already matches `terminal`.
+
+Target (v0.2): keystroke to the frame that shows its results, p95 under 16 ms over a 1M-entry index. `dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency` measures it on an in-memory terminal and prints p50, p95 and max. A real terminal's own paint time is not in that number.
+
+## How a query matches
+
+A query is words, not a pattern. Each run of letters and digits is a word, lowercased; `NaiveWalker.cs` is `naivewalker` and `cs`, and a camelCase word that matches nothing whole is tried as its parts. Words like `the`, `for` and `my` are dropped, and `folder`, `directory` or `dir` say a dir is wanted rather than naming one: files still match, ranked lower. A word matches a name's word exactly, as a prefix (3 letters or more, or any length for the word being typed in the picker) or within one typo (4 letters or more). A substring in the middle of a word doesn't match. Hashes, GUIDs and similar ids in names only match when typed in full.
+
+Ranking fuses two lists: names whose words match the query's, and, when the embedding model sits beside the exe, files whose path means something close to the query. Results are ranked, so a query usually returns more than the one file it was after; the best is first. When no name matches any query word and nothing comes close in meaning, the result is empty and the exit code is 1.
+
+Without the model (`potion-retrieval-32M.fmodel` beside the exe, or `FETCHLE_MODEL`), search ranks by words only and `doctor` warns. A model that fails its checks is the same plus one line on stderr.
+
 ## Roots and the index
 
 `fetchle roots add <path>` records a directory in `<data dir>/config.json`. A root nested inside another root, or containing one, is refused with exit 2, so the snapshot never holds an entry twice. `roots remove <path>` drops it, `roots list` (or bare `roots`) prints one per line.
 
-`fetchle index rebuild` walks every configured root and swaps in a new snapshot at `<data dir>/index/snapshot.fidx`. With no roots it exits 2. When another rebuild holds `index/write.lock`, it exits 3. `fetchle index status` (or bare `index`) prints the snapshot's age, entry and unique-name counts, size, bytes per entry and per-root entry counts and walk times; with no snapshot, or one that fails validation, it exits 3.
+`fetchle index rebuild` walks every configured root and swaps in a new snapshot at `<data dir>/index/snapshot.fidx`, then, with the model, embeds every unique name into `<data dir>/index/vectors.fvec` and swaps that in too. Search answers from the new snapshot by words as soon as it lands; meaning joins in once the vectors match it. Its last line says how many names were embedded and how long it took, or that there was no model. With no roots it exits 2. When another rebuild holds `index/write.lock`, it exits 3. `fetchle index status` (or bare `index`) prints the snapshot's age, entry and unique-name counts, size, bytes per entry and per-root entry counts and walk times; with no snapshot, or one that fails validation, it exits 3.
 
-Search answers every root the snapshot covers, including any directory under an indexed root, from the snapshot, and walks the rest live. Results are the same paths, scores and order a live walk of the same tree would give. The snapshot is as fresh as the last rebuild: files made since don't show up, deleted ones still do until the next rebuild. A snapshot that exists but fails validation (truncated, corrupt, another version or endianness) is exit 3 with a hint to rebuild, never a partial answer.
+Search answers every root the snapshot covers, including any directory under an indexed root, from the snapshot, and walks the rest live. Results come from the same ranking a live walk of the same tree gets, with two differences: word rarity is counted over the whole snapshot, so scores under a subdirectory scope can differ slightly from a walk of just that subdirectory, and a live walk of more than 50,000 unique names ranks by words only, since embedding them would eat the budget. The snapshot is as fresh as the last rebuild: files made since don't show up, deleted ones still do until the next rebuild. A snapshot that exists but fails validation (truncated, corrupt, another version or endianness) is exit 3 with a hint to rebuild, never a partial answer.
 
 `FETCHLE_DATA_DIR` overrides the data dir, for tests and benches.
 
@@ -73,7 +98,7 @@ PATH is judged by what a new shell will get (the user registry value on Windows,
 - index age, size and bytes per entry, and root health: every configured root exists and is in the snapshot
 - watcher running (MCP server): skip until v0.4
 - inotify `max_user_watches` on Linux, warns below 65,536
-- model file present and checksum matches: skip until embeddings ship
+- model file present and checksum matches: warns when it's missing (search then ranks by words only), fails when it's broken
 - each agent registration from the receipt still in place (skip while the list is empty)
 - NTFS turbo availability on Windows: skip until v0.5
 - terminal capabilities detected

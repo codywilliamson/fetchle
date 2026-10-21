@@ -16,7 +16,6 @@ public class CommandTests
     [Arguments("update")]
     [Arguments("cleanup", "--yes")]
     [Arguments("savings")]
-    [Arguments("-i")]
     public async Task Unimplemented_commands_say_so_and_exit_2(params string[] args)
     {
         var run = await FetchleProcess.RunAsync(args);

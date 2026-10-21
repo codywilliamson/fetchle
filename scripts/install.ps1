@@ -58,7 +58,14 @@ function Install-FetchleExe($Source, $InstallDir) {
     $old = "$target.old"
     if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue }
     if (Test-Path -LiteralPath $target) { Move-Item -LiteralPath $target -Destination $old -Force }
-    Copy-Item -LiteralPath $Source -Destination $target -Force
+    try {
+        Copy-Item -LiteralPath $Source -Destination $target -Force
+    } catch {
+        # the old exe is already aside, so put it back before reporting the failure
+        Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
+        if (Test-Path -LiteralPath $old) { Move-Item -LiteralPath $old -Destination $target -Force }
+        throw
+    }
     # the previous exe stays as .old until setup has worked, so a failed setup can put it back
     return $target
 }
@@ -97,6 +104,10 @@ function Install-Fetchle {
         # fully qualified because modules like Pscx ship their own Expand-Archive
         Microsoft.PowerShell.Archive\Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'unpacked') -Force
         $exe = Install-FetchleExe (Join-Path $work "unpacked\$name\fetchle.exe") $installDir
+        # the embedding model and its notices sit beside the exe; without the model search ranks by words only
+        foreach ($companion in 'potion-retrieval-32M.fmodel', 'THIRD-PARTY-NOTICES.md') {
+            Copy-Item -LiteralPath (Join-Path $work "unpacked\$name\$companion") -Destination (Join-Path $installDir $companion) -Force
+        }
     } finally {
         Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
     }

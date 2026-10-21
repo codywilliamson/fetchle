@@ -22,6 +22,7 @@ internal static class DoctorChecks
             ReceiptChecks.Receipt(receipt, receiptError, dirs.Receipt),
         };
         results.AddRange(IndexCheck.Evaluate(new IndexStore(dirs.Index).ReadInfo, RootsConfig.Load(dirs.Config), env.Clock.GetUtcNow()));
+        results.Add(HostChecks.Model(Core.Embedding.StaticModel.PathBesideExe(), path => Core.Embedding.StaticModel.Open(path)));
         results.AddRange(HostChecks.NotInThisVersion());
         results.Add(HostChecks.Inotify(HostChecks.ReadInotifyLimit()));
         results.Add(ReceiptChecks.Agents(receipt, File.Exists));

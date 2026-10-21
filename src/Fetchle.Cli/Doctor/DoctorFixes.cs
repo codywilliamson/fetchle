@@ -42,7 +42,8 @@ internal static class DoctorFixes
             return false;
         }
 
-        var report = new IndexStore(dirs.Index).Rebuild(roots, PruneRules.Default, CancellationToken.None);
+        using var model = Commands.ModelLoader.ForRebuild(output);
+        var report = new IndexStore(dirs.Index).Rebuild(roots, PruneRules.Default, model, CancellationToken.None);
         output.WriteLine($"  indexed {report.Snapshot.Entries:N0} entries in {report.TotalTime.TotalMilliseconds:0} ms");
         return true;
     }

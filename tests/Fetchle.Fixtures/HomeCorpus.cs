@@ -15,6 +15,25 @@ public static class HomeCorpus
     public static HomeCorpusStats Describe(int entries = DEFAULT_ENTRIES, int seed = Corpus.DEFAULT_SEED) =>
         HomePlanner.Build(entries, seed).Stats();
 
+    // every entry Ensure would write, as (relative path with '/', is dir), without touching disk
+    public static IEnumerable<(string Path, bool IsDirectory)> Entries(int entries = DEFAULT_ENTRIES, int seed = Corpus.DEFAULT_SEED)
+    {
+        var plan = HomePlanner.Build(entries, seed);
+        for (var i = 0; i < plan.Paths.Count; i++)
+        {
+            var dir = plan.Paths[i];
+            if (i > 0)
+            {
+                yield return (dir, true);
+            }
+
+            foreach (var name in HomeCorpusWriter.FileNames(plan, seed, i))
+            {
+                yield return (dir.Length == 0 ? name : $"{dir}/{name}", false);
+            }
+        }
+    }
+
     public static string DefaultRoot(int entries = DEFAULT_ENTRIES, int seed = Corpus.DEFAULT_SEED)
     {
         var parent = Environment.GetEnvironmentVariable(CORPUS_DIR_VARIABLE);

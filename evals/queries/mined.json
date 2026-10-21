@@ -1,0 +1,2054 @@
+[
+  {
+    "id": "m-001",
+    "query": "ticket agent daemon live context",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/daemon/liveContext.ts"
+    ],
+    "kind": "partial",
+    "note": "daemon module that builds per-cycle live context in the ticket triage agent"
+  },
+  {
+    "id": "m-002",
+    "query": "runsRepo ticket agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/repo/runsRepo.ts"
+    ],
+    "kind": "name",
+    "note": "runs repository module in the ticket triage agent"
+  },
+  {
+    "id": "m-003",
+    "query": "jobs repo relay-ticket-agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/repo/jobsRepo.ts"
+    ],
+    "kind": "partial",
+    "note": "jobs repository in the ticket triage agent"
+  },
+  {
+    "id": "m-004",
+    "query": "relay-ticket-agent daemon entry point",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/index.ts"
+    ],
+    "kind": "descriptive",
+    "note": "main entry file of the ticket triage daemon"
+  },
+  {
+    "id": "m-005",
+    "query": "tests for the triage playbook in ticket agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/playbooks/triage.test.ts"
+    ],
+    "kind": "descriptive",
+    "note": "tests for the triage playbook"
+  },
+  {
+    "id": "m-006",
+    "query": "ticket agent runner types",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/runner/types.ts"
+    ],
+    "kind": "partial",
+    "note": "type definitions for the job runner"
+  },
+  {
+    "id": "m-007",
+    "query": "status.test.ts ticket agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/domain/status.test.ts"
+    ],
+    "kind": "name",
+    "note": "domain status tests for adding a workflow column"
+  },
+  {
+    "id": "m-008",
+    "query": "qs-main tailwind.config.js",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/tailwind.config.js"
+    ],
+    "kind": "name",
+    "note": "tailwind config of the main WordPress theme"
+  },
+  {
+    "id": "m-009",
+    "query": "assets.php qs-main inc",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/assets.php"
+    ],
+    "kind": "name",
+    "note": "theme asset enqueue include"
+  },
+  {
+    "id": "m-010",
+    "query": "repos.test.ts relay-ticket-agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/repo/repos.test.ts"
+    ],
+    "kind": "name",
+    "note": "repository layer tests"
+  },
+  {
+    "id": "m-011",
+    "query": "vitest config in the ticket agent repo",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/vitest.config.ts"
+    ],
+    "kind": "descriptive",
+    "note": "test runner config for the ticket agent"
+  },
+  {
+    "id": "m-012",
+    "query": "database schema for the ticket agent",
+    "expected": [
+      "source/spectacl3/dev/relay-ticket-agent/src/db/schema.ts"
+    ],
+    "kind": "descriptive",
+    "note": "database schema definition"
+  },
+  {
+    "id": "m-013",
+    "query": "semble.exe",
+    "expected": [
+      ".local/bin/semble.exe"
+    ],
+    "kind": "name",
+    "note": "installed semble code search binary"
+  },
+  {
+    "id": "m-014",
+    "query": "elements-btn.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/elements/elements-btn.php"
+    ],
+    "kind": "name",
+    "note": "button element template part in the theme"
+  },
+  {
+    "id": "m-015",
+    "query": "qs-main resources css app",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/app.css"
+    ],
+    "kind": "partial",
+    "note": "source tailwind stylesheet (not the built one)"
+  },
+  {
+    "id": "m-016",
+    "query": "front-page.php qs-main",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/front-page.php"
+    ],
+    "kind": "name",
+    "note": "WordPress front page template"
+  },
+  {
+    "id": "m-017",
+    "query": "ticket-prep skill qs-main",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.claude/skills/ticket-prep/SKILL.md",
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.agents/skills/ticket-prep/SKILL.md"
+    ],
+    "kind": "partial",
+    "note": "agent skill for preparing tickets in the theme repo"
+  },
+  {
+    "id": "m-018",
+    "query": "front page hero section template",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/sections/frontpage/section-jumbotron.php"
+    ],
+    "kind": "descriptive",
+    "note": "hero/jumbotron section on the front page"
+  },
+  {
+    "id": "m-019",
+    "query": "content-product.php woocommerce",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/woocommerce/content-product.php"
+    ],
+    "kind": "name",
+    "note": "theme override of the WooCommerce product card"
+  },
+  {
+    "id": "m-020",
+    "query": "monocle review plugin data folder",
+    "expected": [
+      ".claude/plugins/data/monocle-review-monocle-local/"
+    ],
+    "kind": "descriptive",
+    "note": "claude plugin data dir for the monocle review plugin"
+  },
+  {
+    "id": "m-021",
+    "query": "mojang-item.d.ts vanilla data",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/addons/hunthouse/node_modules/@minecraft/vanilla-data/lib/mojang-item.d.ts"
+    ],
+    "kind": "name",
+    "note": "minecraft vanilla-data item typings the addon imports"
+  },
+  {
+    "id": "m-022",
+    "query": "watcher chest supplies loot table",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/addons/watcher/bp/loot_tables/watcher/chest_supplies.json"
+    ],
+    "kind": "descriptive",
+    "note": "loot table json for the watcher addon"
+  },
+  {
+    "id": "m-023",
+    "query": "watcher full capture png",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/.captures/watcher.full.png"
+    ],
+    "kind": "partial",
+    "note": "full-size render capture of the watcher mob"
+  },
+  {
+    "id": "m-024",
+    "query": "codex cli runtime skill",
+    "expected": [
+      ".claude/plugins/cache/openai-codex/codex/1.0.3/skills/codex-cli-runtime/SKILL.md"
+    ],
+    "kind": "partial",
+    "note": "SKILL.md of the codex plugin runtime skill"
+  },
+  {
+    "id": "m-025",
+    "query": "attest dotnet-tools.json",
+    "expected": [
+      "source/spectacl3/dev/attest/dotnet-tools.json"
+    ],
+    "kind": "name",
+    "note": "dotnet local tool manifest"
+  },
+  {
+    "id": "m-026",
+    "query": "attest Directory.Build.props",
+    "expected": [
+      "source/spectacl3/dev/attest/Directory.Build.props"
+    ],
+    "kind": "name",
+    "note": "shared msbuild props"
+  },
+  {
+    "id": "m-027",
+    "query": "Attest.Api.csproj",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Attest.Api.csproj"
+    ],
+    "kind": "name",
+    "note": "api project file"
+  },
+  {
+    "id": "m-028",
+    "query": "attest web proxy.ts",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/proxy.ts"
+    ],
+    "kind": "name",
+    "note": "next.js proxy/middleware in the web app"
+  },
+  {
+    "id": "m-029",
+    "query": "npgsql efcore postgresql xml docs",
+    "expected": [
+      ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.3/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml",
+      ".nuget/packages/npgsql.entityframeworkcore.postgresql/10.0.1/lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml"
+    ],
+    "kind": "descriptive",
+    "note": "xml doc file shipped in the npgsql EF Core nuget package"
+  },
+  {
+    "id": "m-030",
+    "query": "attest development docs",
+    "expected": [
+      "source/spectacl3/dev/attest/docs/development.md"
+    ],
+    "kind": "descriptive",
+    "note": "developer setup guide"
+  },
+  {
+    "id": "m-031",
+    "query": "attest wiki conventions",
+    "expected": [
+      "source/spectacl3/dev/attest/docs/wiki/Conventions.md"
+    ],
+    "kind": "partial",
+    "note": "coding conventions wiki page"
+  },
+  {
+    "id": "m-032",
+    "query": "Artifact.cs attest domain",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Artifacts/Artifact.cs"
+    ],
+    "kind": "name",
+    "note": "artifact aggregate in the domain layer"
+  },
+  {
+    "id": "m-033",
+    "query": "AttestApiFactory",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Api.Tests/AttestApiFactory.cs"
+    ],
+    "kind": "name",
+    "note": "WebApplicationFactory used by api tests"
+  },
+  {
+    "id": "m-034",
+    "query": "attest docker compose file",
+    "expected": [
+      "source/spectacl3/dev/attest/compose.yml"
+    ],
+    "kind": "descriptive",
+    "note": "compose file for local services"
+  },
+  {
+    "id": "m-035",
+    "query": "artifact format csproj",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.ArtifactFormat/Attest.ArtifactFormat.csproj"
+    ],
+    "kind": "partial",
+    "note": "project file of the artifact format library"
+  },
+  {
+    "id": "m-036",
+    "query": "attest web api client",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/lib/api.ts"
+    ],
+    "kind": "descriptive",
+    "note": "typed fetch client in the web app"
+  },
+  {
+    "id": "m-037",
+    "query": "TestSeeding attest tests",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Api.Tests/TestSeeding.cs"
+    ],
+    "kind": "name",
+    "note": "test data seeding helper"
+  },
+  {
+    "id": "m-038",
+    "query": "ArtifactEndpoints",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/ArtifactEndpoints.cs"
+    ],
+    "kind": "name",
+    "note": "minimal api endpoints for artifacts"
+  },
+  {
+    "id": "m-039",
+    "query": "artifact detail dto",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Artifacts/ArtifactDetailDto.cs"
+    ],
+    "kind": "partial",
+    "note": "detail dto for artifacts"
+  },
+  {
+    "id": "m-040",
+    "query": "revision domain tests attest",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Domain.Tests/RevisionTests.cs"
+    ],
+    "kind": "partial",
+    "note": "domain tests for revisions"
+  },
+  {
+    "id": "m-041",
+    "query": "ItemKind enum",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Artifacts/ItemKind.cs"
+    ],
+    "kind": "name",
+    "note": "item kind enum in the domain"
+  },
+  {
+    "id": "m-042",
+    "query": "activity service registration attest",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Activity/ActivityServiceCollectionExtensions.cs"
+    ],
+    "kind": "descriptive",
+    "note": "DI registration for the activity module"
+  },
+  {
+    "id": "m-043",
+    "query": "ActivityEventTypes",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Activity/ActivityEventTypes.cs"
+    ],
+    "kind": "name",
+    "note": "constants for activity event types"
+  },
+  {
+    "id": "m-044",
+    "query": "items query test attest web",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/lib/queries/items.test.tsx"
+    ],
+    "kind": "partial",
+    "note": "react-query items hook test"
+  },
+  {
+    "id": "m-045",
+    "query": "attest domain executions folder",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Executions/"
+    ],
+    "kind": "descriptive",
+    "note": "domain folder holding execution entities"
+  },
+  {
+    "id": "m-046",
+    "query": "auth test helpers",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Api.Tests/Support/AuthTestHelpers.cs"
+    ],
+    "kind": "partial",
+    "note": "api test auth helper class"
+  },
+  {
+    "id": "m-047",
+    "query": "attest domain ErrorCodes",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Errors/ErrorCodes.cs"
+    ],
+    "kind": "name",
+    "note": "domain error code constants"
+  },
+  {
+    "id": "m-048",
+    "query": "ExecutionTests attest",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Domain.Tests/ExecutionTests.cs"
+    ],
+    "kind": "name",
+    "note": "domain tests for executions"
+  },
+  {
+    "id": "m-049",
+    "query": "workspace endpoints attest api",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/WorkspaceEndpoints.cs"
+    ],
+    "kind": "partial",
+    "note": "api endpoints for workspaces"
+  },
+  {
+    "id": "m-050",
+    "query": "IActivityRecorder",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Activity/IActivityRecorder.cs"
+    ],
+    "kind": "name",
+    "note": "activity recorder interface"
+  },
+  {
+    "id": "m-051",
+    "query": "domain model for amendment requests",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Amendments/AmendmentRequest.cs"
+    ],
+    "kind": "descriptive",
+    "note": "domain entity for amendment requests"
+  },
+  {
+    "id": "m-052",
+    "query": "attest workspace detail page",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/app/orgs/[org]/workspaces/[ws]/page.tsx"
+    ],
+    "kind": "descriptive",
+    "note": "next.js page for a workspace under an org"
+  },
+  {
+    "id": "m-053",
+    "query": "execution endpoints tests",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Api.Tests/ExecutionEndpointsTests.cs"
+    ],
+    "kind": "partial",
+    "note": "api tests for execution endpoints"
+  },
+  {
+    "id": "m-054",
+    "query": "DevSeeder",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Seeding/DevSeeder.cs"
+    ],
+    "kind": "name",
+    "note": "development data seeder"
+  },
+  {
+    "id": "m-055",
+    "query": "start execution request validator",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Executions/Validation/StartExecutionRequestValidator.cs"
+    ],
+    "kind": "partial",
+    "note": "validator for starting an execution"
+  },
+  {
+    "id": "m-056",
+    "query": "revision EF configuration attest",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Infrastructure/Persistence/Configurations/RevisionConfiguration.cs"
+    ],
+    "kind": "descriptive",
+    "note": "EF Core entity configuration for revisions"
+  },
+  {
+    "id": "m-057",
+    "query": "WorkspaceLookup.cs",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Workspaces/WorkspaceLookup.cs"
+    ],
+    "kind": "name",
+    "note": "workspace lookup helper"
+  },
+  {
+    "id": "m-058",
+    "query": "activity recorder infrastructure",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Infrastructure/Activity/ActivityRecorder.cs"
+    ],
+    "kind": "partial",
+    "note": "infrastructure implementation of the activity recorder"
+  },
+  {
+    "id": "m-059",
+    "query": "evidence request dtos attest",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Evidence/Requests.cs"
+    ],
+    "kind": "descriptive",
+    "note": "request records for evidence endpoints"
+  },
+  {
+    "id": "m-060",
+    "query": "evidence endpoints",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Endpoints/EvidenceEndpoints.cs"
+    ],
+    "kind": "partial",
+    "note": "api endpoints for evidence"
+  },
+  {
+    "id": "m-061",
+    "query": "attest demo seeder",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Seeding/DemoSeeder.cs"
+    ],
+    "kind": "partial",
+    "note": "demo data seeder"
+  },
+  {
+    "id": "m-062",
+    "query": "attest api docs markdown",
+    "expected": [
+      "source/spectacl3/dev/attest/docs/api.md"
+    ],
+    "kind": "descriptive",
+    "note": "api reference doc"
+  },
+  {
+    "id": "m-063",
+    "query": "mcp sdk server mcp.d.ts",
+    "expected": [
+      "source/spectacl3/dev/attest/src/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.d.ts",
+      "source/spectacl3/dev/attest-wt/mcp/src/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.d.ts"
+    ],
+    "kind": "name",
+    "note": "type defs for the MCP SDK server class"
+  },
+  {
+    "id": "m-064",
+    "query": "modelcontextprotocol sdk inMemory transport",
+    "expected": [
+      "source/spectacl3/dev/attest/src/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.d.ts",
+      "source/spectacl3/dev/attest-wt/mcp/src/mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.d.ts"
+    ],
+    "kind": "partial",
+    "note": "in-memory transport typings in the MCP SDK"
+  },
+  {
+    "id": "m-065",
+    "query": "Revision.cs domain",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Domain/Artifacts/Revision.cs"
+    ],
+    "kind": "name",
+    "note": "revision entity"
+  },
+  {
+    "id": "m-066",
+    "query": "service that records review decisions",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Collaboration/ReviewDecisionService.cs"
+    ],
+    "kind": "descriptive",
+    "note": "application service recording review decisions"
+  },
+  {
+    "id": "m-067",
+    "query": "execution dtos attest application",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Executions/Dtos.cs"
+    ],
+    "kind": "descriptive",
+    "note": "dto file for executions"
+  },
+  {
+    "id": "m-068",
+    "query": "attest appsettings.Development.json",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/appsettings.Development.json"
+    ],
+    "kind": "name",
+    "note": "development app settings for the api"
+  },
+  {
+    "id": "m-069",
+    "query": "revisions query test",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/lib/queries/revisions.test.tsx"
+    ],
+    "kind": "partial",
+    "note": "web query hook test for revisions"
+  },
+  {
+    "id": "m-070",
+    "query": "execution source card test",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/app/artifacts/[key]/executions/[id]/source-card.test.tsx"
+    ],
+    "kind": "partial",
+    "note": "test for the source card on the execution page"
+  },
+  {
+    "id": "m-071",
+    "query": "ApiTokenCrypto",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Application/Security/ApiTokenCrypto.cs"
+    ],
+    "kind": "name",
+    "note": "hashing/crypto for api tokens"
+  },
+  {
+    "id": "m-072",
+    "query": "resource tenant guard",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Api/Tenancy/ResourceTenantGuard.cs"
+    ],
+    "kind": "partial",
+    "note": "tenancy guard for resources"
+  },
+  {
+    "id": "m-073",
+    "query": "attest ef core migrations folder",
+    "expected": [
+      "source/spectacl3/dev/attest/src/Attest.Infrastructure/Persistence/Migrations/"
+    ],
+    "kind": "descriptive",
+    "note": "persistence migrations directory"
+  },
+  {
+    "id": "m-074",
+    "query": "attest ui badge component",
+    "expected": [
+      "source/spectacl3/dev/attest-wt/quality/src/web/components/ui/badge.tsx",
+      "source/spectacl3/dev/attest-wt/landing/src/web/components/ui/badge.tsx",
+      "source/spectacl3/dev/attest-wt/web16/src/web/components/ui/badge.tsx",
+      "source/spectacl3/dev/attest-wt/web17/src/web/components/ui/badge.tsx",
+      "source/spectacl3/dev/attest-wt/web18/src/web/components/ui/badge.tsx"
+    ],
+    "kind": "descriptive",
+    "note": "shadcn badge component in the web app"
+  },
+  {
+    "id": "m-075",
+    "query": "attest release workflow",
+    "expected": [
+      "source/spectacl3/dev/attest/.github/workflows/release.yml"
+    ],
+    "kind": "descriptive",
+    "note": "github actions release workflow"
+  },
+  {
+    "id": "m-076",
+    "query": "qs-main phpunit config",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/phpunit.xml",
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/phpunit.xml.dist"
+    ],
+    "kind": "descriptive",
+    "note": "phpunit config for the theme"
+  },
+  {
+    "id": "m-077",
+    "query": "bx-addons manifest.json",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/manifest.json"
+    ],
+    "kind": "name",
+    "note": "root pack manifest of the minecraft addons repo"
+  },
+  {
+    "id": "m-078",
+    "query": "global_resource_packs.json",
+    "expected": [
+      "source/spectacl3/dev/bx-addons/global_resource_packs.json"
+    ],
+    "kind": "name",
+    "note": "minecraft global resource pack list"
+  },
+  {
+    "id": "m-079",
+    "query": "monocle DESIGN.md",
+    "expected": [
+      "source/spectacl3/dev/monocle/DESIGN.md"
+    ],
+    "kind": "name",
+    "note": "design doc of the diff review tool"
+  },
+  {
+    "id": "m-080",
+    "query": "custom order template parts",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/custom-order/"
+    ],
+    "kind": "descriptive",
+    "note": "template-parts folder for the custom order flow"
+  },
+  {
+    "id": "m-081",
+    "query": "theme handbook page about checkout",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/handbook/woocommerce-checkout.md"
+    ],
+    "kind": "descriptive",
+    "note": "theme handbook page on checkout"
+  },
+  {
+    "id": "m-082",
+    "query": "image lightbox element",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/elements/element-image-lightbox.php"
+    ],
+    "kind": "partial",
+    "note": "lightbox element template part"
+  },
+  {
+    "id": "m-083",
+    "query": "flowbite dist js",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/node_modules/flowbite/dist/flowbite.js"
+    ],
+    "kind": "partial",
+    "note": "vendored flowbite bundle in node_modules"
+  },
+  {
+    "id": "m-084",
+    "query": "archive-product.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/woocommerce/archive-product.php"
+    ],
+    "kind": "name",
+    "note": "WooCommerce shop archive override"
+  },
+  {
+    "id": "m-085",
+    "query": "sticky banner component",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/navbar/component-sticky-banner.php"
+    ],
+    "kind": "descriptive",
+    "note": "navbar sticky banner template part"
+  },
+  {
+    "id": "m-086",
+    "query": "custom orders step2 signup jpeg",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/custom-orders-step2-signup.jpeg"
+    ],
+    "kind": "partial",
+    "note": "screenshot of custom orders signup step"
+  },
+  {
+    "id": "m-087",
+    "query": "accordion script on qs-main product pages",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/product-accordion.js"
+    ],
+    "kind": "descriptive",
+    "note": "accordion behavior on the product page"
+  },
+  {
+    "id": "m-088",
+    "query": "chatterly web icon 512",
+    "expected": [
+      "source/spectacl3/dev/pinecrest/services/chatterly/web/icon-512.png"
+    ],
+    "kind": "partial",
+    "note": "PWA icon for the chatterly web app"
+  },
+  {
+    "id": "m-089",
+    "query": "monocle radar source folder",
+    "expected": [
+      "source/spectacl3/dev/monocle/src/radar/"
+    ],
+    "kind": "descriptive",
+    "note": "radar module in the review tool"
+  },
+  {
+    "id": "m-090",
+    "query": "pinecrest",
+    "expected": [
+      "source/spectacl3/dev/pinecrest/"
+    ],
+    "kind": "name",
+    "note": "the pinecrest project folder"
+  },
+  {
+    "id": "m-091",
+    "query": "monocle-review-hook",
+    "expected": [
+      "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review-hook/"
+    ],
+    "kind": "name",
+    "note": "claude code hook integration for monocle review"
+  },
+  {
+    "id": "m-092",
+    "query": "monocle vite config",
+    "expected": [
+      "source/spectacl3/dev/monocle/vite.config.ts"
+    ],
+    "kind": "name",
+    "note": "vite config of the review tool"
+  },
+  {
+    "id": "m-093",
+    "query": "svelte ambient.d.ts",
+    "expected": [
+      "source/spectacl3/dev/monocle/node_modules/svelte/ambient.d.ts"
+    ],
+    "kind": "name",
+    "note": "svelte ambient type declarations"
+  },
+  {
+    "id": "m-094",
+    "query": "monocle vitest.config.ts",
+    "expected": [
+      "source/spectacl3/dev/monocle/vitest.config.ts"
+    ],
+    "kind": "name",
+    "note": "test config of the review tool"
+  },
+  {
+    "id": "m-095",
+    "query": "playwright test for monocle review comments",
+    "expected": [
+      "source/spectacl3/dev/monocle/e2e/comments.pw.ts"
+    ],
+    "kind": "descriptive",
+    "note": "playwright spec for review comments"
+  },
+  {
+    "id": "m-096",
+    "query": "monocle docs installation page",
+    "expected": [
+      "source/spectacl3/dev/monocle/web/src/content/docs/getting-started/installation.mdx"
+    ],
+    "kind": "descriptive",
+    "note": "docs site installation page"
+  },
+  {
+    "id": "m-097",
+    "query": "comment zoom demo video",
+    "expected": [
+      "source/spectacl3/dev/monocle/demos/out/comment-zoom.mp4"
+    ],
+    "kind": "partial",
+    "note": "demo clip of comment zoom"
+  },
+  {
+    "id": "m-098",
+    "query": "monocle walkthrough video",
+    "expected": [
+      "source/spectacl3/dev/monocle/docs/screenshots/walkthrough.mp4",
+      "source/spectacl3/dev/monocle/demos/out/walkthrough.mp4",
+      "source/spectacl3/dev/monocle/web/public/media/walkthrough.mp4"
+    ],
+    "kind": "descriptive",
+    "note": "walkthrough mp4 used in docs and site"
+  },
+  {
+    "id": "m-099",
+    "query": "monocle docs index mdx",
+    "expected": [
+      "source/spectacl3/dev/monocle/web/src/content/docs/index.mdx"
+    ],
+    "kind": "partial",
+    "note": "docs site landing page"
+  },
+  {
+    "id": "m-100",
+    "query": "monocle logo mark component",
+    "expected": [
+      "source/spectacl3/dev/monocle/web/src/components/Mark.astro"
+    ],
+    "kind": "descriptive",
+    "note": "astro component rendering the brand mark"
+  },
+  {
+    "id": "m-101",
+    "query": "monocle-review plugin.json",
+    "expected": [
+      "source/spectacl3/dev/monocle/integrations/claude-code/monocle-review/.claude-plugin/plugin.json"
+    ],
+    "kind": "name",
+    "note": "claude plugin manifest for the review integration"
+  },
+  {
+    "id": "m-102",
+    "query": "CommentEditor.svelte",
+    "expected": [
+      "source/spectacl3/dev/monocle/client/src/lib/components/comment/CommentEditor.svelte"
+    ],
+    "kind": "name",
+    "note": "comment editor component"
+  },
+  {
+    "id": "m-103",
+    "query": "monocle AGENTS.md",
+    "expected": [
+      "source/spectacl3/dev/monocle/AGENTS.md"
+    ],
+    "kind": "name",
+    "note": "agent guide of the review tool"
+  },
+  {
+    "id": "m-104",
+    "query": "varble review mcp json",
+    "expected": [
+      "source/spectacl3/dev/monocle/integrations/claude-code/varble-review/.mcp.json"
+    ],
+    "kind": "partial",
+    "note": "mcp server config of the varble review plugin"
+  },
+  {
+    "id": "m-105",
+    "query": "monocle dist varble exe",
+    "expected": [
+      "source/spectacl3/dev/monocle/dist/varble.exe"
+    ],
+    "kind": "descriptive",
+    "note": "built varble binary in the repo dist folder"
+  },
+  {
+    "id": "m-106",
+    "query": "BlogCard component",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/redesign/src/components/blog/BlogCard.vue"
+    ],
+    "kind": "name",
+    "note": "blog card vue component"
+  },
+  {
+    "id": "m-107",
+    "query": "personal site about markdown",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/data/site/about.md"
+    ],
+    "kind": "descriptive",
+    "note": "about page content for the portfolio site"
+  },
+  {
+    "id": "m-108",
+    "query": "author.json site data",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/data/site/author.json"
+    ],
+    "kind": "name",
+    "note": "author metadata for the portfolio site"
+  },
+  {
+    "id": "m-109",
+    "query": "fontsource kalam latin 400",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/node_modules/@fontsource/kalam/latin-400.css",
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-a82e55ce4c3701482/node_modules/@fontsource/kalam/latin-400.css"
+    ],
+    "kind": "partial",
+    "note": "kalam font css from @fontsource"
+  },
+  {
+    "id": "m-110",
+    "query": "brindlee.mdx",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/data/blogs/brindlee.mdx"
+    ],
+    "kind": "name",
+    "note": "blog post source"
+  },
+  {
+    "id": "m-111",
+    "query": "amdotcom astro.d.ts",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/astro.d.ts"
+    ],
+    "kind": "name",
+    "note": "astro ambient types for the site"
+  },
+  {
+    "id": "m-112",
+    "query": "about page Vent component",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/.claude/worktrees/agent-a5ca4461541ae49d0/src/components/about/Vent.astro"
+    ],
+    "kind": "partial",
+    "note": "astro component on the about page"
+  },
+  {
+    "id": "m-113",
+    "query": "tests for blog read event tracking",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/lib/read-events.test.ts"
+    ],
+    "kind": "descriptive",
+    "note": "tests for read event tracking"
+  },
+  {
+    "id": "m-114",
+    "query": "amdotcom projects data folder",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/data/projects/"
+    ],
+    "kind": "descriptive",
+    "note": "content folder with project entries"
+  },
+  {
+    "id": "m-115",
+    "query": "amdotcom astro config",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/astro.config.mjs"
+    ],
+    "kind": "name",
+    "note": "astro config of the portfolio site"
+  },
+  {
+    "id": "m-116",
+    "query": "mascot thoughts",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/thoughts.ts"
+    ],
+    "kind": "partial",
+    "note": "mascot thought lines module"
+  },
+  {
+    "id": "m-117",
+    "query": "amdotcom vitest config",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/vitest.config.ts"
+    ],
+    "kind": "name",
+    "note": "vitest config of the portfolio site"
+  },
+  {
+    "id": "m-118",
+    "query": "amdotcom stats script",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/scripts/stats.ts"
+    ],
+    "kind": "partial",
+    "note": "site stats script"
+  },
+  {
+    "id": "m-119",
+    "query": "mascot noticing module",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/noticing.ts"
+    ],
+    "kind": "partial",
+    "note": "mascot noticing behavior"
+  },
+  {
+    "id": "m-120",
+    "query": "Mascot.vue",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/Mascot.vue"
+    ],
+    "kind": "name",
+    "note": "mascot vue component"
+  },
+  {
+    "id": "m-121",
+    "query": "rebuilding this site blog post",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/data/blogs/rebuilding-this-site-in-one-session.mdx"
+    ],
+    "kind": "partial",
+    "note": "blog post about rebuilding the site in one session"
+  },
+  {
+    "id": "m-122",
+    "query": "monocle web bun.lock",
+    "expected": [
+      "source/spectacl3/dev/monocle/web/bun.lock"
+    ],
+    "kind": "name",
+    "note": "docs site lockfile"
+  },
+  {
+    "id": "m-123",
+    "query": "attest mcp docs",
+    "expected": [
+      "source/spectacl3/dev/attest/docs/mcp.md"
+    ],
+    "kind": "descriptive",
+    "note": "doc describing the MCP server"
+  },
+  {
+    "id": "m-124",
+    "query": "shadcn tailwind.css",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/node_modules/shadcn/dist/tailwind.css",
+      "source/spectacl3/dev/attest-wt/web/src/web/node_modules/.pnpm/shadcn@4.21.0_typescript@5.9.3/node_modules/shadcn/dist/tailwind.css"
+    ],
+    "kind": "name",
+    "note": "tailwind css shipped in the shadcn package"
+  },
+  {
+    "id": "m-125",
+    "query": "landing and docs e2e spec",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/e2e/landing-and-docs.spec.ts"
+    ],
+    "kind": "partial",
+    "note": "playwright spec for landing and docs pages"
+  },
+  {
+    "id": "m-126",
+    "query": "attention section component",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/components/attention-section.tsx"
+    ],
+    "kind": "partial",
+    "note": "dashboard attention section"
+  },
+  {
+    "id": "m-127",
+    "query": "attest app template.tsx",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/app/template.tsx"
+    ],
+    "kind": "name",
+    "note": "next.js app template file"
+  },
+  {
+    "id": "m-128",
+    "query": "attest PRODUCT.md",
+    "expected": [
+      "source/spectacl3/dev/attest/docs/product.md"
+    ],
+    "kind": "name",
+    "note": "product description doc"
+  },
+  {
+    "id": "m-129",
+    "query": "artifact visual snapshot win32",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots/artifact-visual-win32.png"
+    ],
+    "kind": "partial",
+    "note": "visual regression baseline for artifact view"
+  },
+  {
+    "id": "m-130",
+    "query": "attest ad video mp4",
+    "expected": [
+      "source/spectacl3/dev/attest/video/out/attest-ad.mp4"
+    ],
+    "kind": "name",
+    "note": "rendered promo video"
+  },
+  {
+    "id": "m-131",
+    "query": "docs product visual snapshot",
+    "expected": [
+      "source/spectacl3/dev/attest/src/web/e2e/visual/key-views.visual.ts-snapshots/docs-product-visual-win32.png"
+    ],
+    "kind": "partial",
+    "note": "visual baseline for docs product page"
+  },
+  {
+    "id": "m-132",
+    "query": "qs-main theme index.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/index.php"
+    ],
+    "kind": "name",
+    "note": "fallback index template of the theme"
+  },
+  {
+    "id": "m-133",
+    "query": "qs-main footer.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/footer.php"
+    ],
+    "kind": "name",
+    "note": "theme footer template"
+  },
+  {
+    "id": "m-134",
+    "query": "qs-main compiled app css",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/css/app.css"
+    ],
+    "kind": "descriptive",
+    "note": "built stylesheet output of the theme"
+  },
+  {
+    "id": "m-135",
+    "query": "editor-style.css",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/css/editor-style.css"
+    ],
+    "kind": "name",
+    "note": "block editor stylesheet of the theme"
+  },
+  {
+    "id": "m-136",
+    "query": "SHOP-06 shop 390 screenshot",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.playwright-mcp/SHOP-06/shop-390.png"
+    ],
+    "kind": "partial",
+    "note": "mobile shop page evidence screenshot"
+  },
+  {
+    "id": "m-137",
+    "query": "SHOP-06-scope.md",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/SHOP-06-scope.md"
+    ],
+    "kind": "name",
+    "note": "scope doc for the shop ticket"
+  },
+  {
+    "id": "m-138",
+    "query": "merch buybox component",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/woo/merch-buybox.php"
+    ],
+    "kind": "partial",
+    "note": "buy box template part for merch products"
+  },
+  {
+    "id": "m-139",
+    "query": "qs-main logos folder",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/assets/logos/"
+    ],
+    "kind": "descriptive",
+    "note": "theme assets folder with logos"
+  },
+  {
+    "id": "m-140",
+    "query": "redesign-menu.php ops script",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/ops/redesign-menu.php",
+      "source/spectacl3/quill-campaign-runtime/ops/redesign-menu.php"
+    ],
+    "kind": "name",
+    "note": "ops script that sets up the redesign menu"
+  },
+  {
+    "id": "m-141",
+    "query": "varble.exe",
+    "expected": [
+      ".varble/bin/varble.exe"
+    ],
+    "kind": "name",
+    "note": "installed varble binary"
+  },
+  {
+    "id": "m-142",
+    "query": "whats new monocle client",
+    "expected": [
+      "source/spectacl3/dev/monocle/client/src/lib/whatsNew.ts"
+    ],
+    "kind": "partial",
+    "note": "whats-new panel data in the client"
+  },
+  {
+    "id": "m-143",
+    "query": "qsc-worktrees",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/"
+    ],
+    "kind": "name",
+    "note": "folder of theme worktrees"
+  },
+  {
+    "id": "m-144",
+    "query": "faq page template",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/pages/page-faq.php"
+    ],
+    "kind": "descriptive",
+    "note": "faq page template part"
+  },
+  {
+    "id": "m-145",
+    "query": "account css qs-main",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/account.css"
+    ],
+    "kind": "partial",
+    "note": "account page stylesheet"
+  },
+  {
+    "id": "m-146",
+    "query": "lost link recovery page for custom orders",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/custom-order/recovery.php"
+    ],
+    "kind": "descriptive",
+    "note": "lost-link recovery template for custom orders"
+  },
+  {
+    "id": "m-147",
+    "query": "custom order form js",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/custom-order-form.js"
+    ],
+    "kind": "partial",
+    "note": "custom order form module"
+  },
+  {
+    "id": "m-148",
+    "query": "checkout interactions test",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/tests/checkout-interactions.test.mjs"
+    ],
+    "kind": "partial",
+    "note": "node test for checkout interactions"
+  },
+  {
+    "id": "m-149",
+    "query": "newsletter-n2.html",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/2026-10-jordan-approvals/n2-checkout-c/newsletter-n2.html"
+    ],
+    "kind": "name",
+    "note": "newsletter design mockup"
+  },
+  {
+    "id": "m-150",
+    "query": "woocommerce checkout-frontend.js",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/plugins/woocommerce/assets/client/blocks/checkout-frontend.js"
+    ],
+    "kind": "name",
+    "note": "WooCommerce blocks checkout frontend bundle"
+  },
+  {
+    "id": "m-151",
+    "query": "product page css",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/css/product-page.css"
+    ],
+    "kind": "partial",
+    "note": "product page stylesheet"
+  },
+  {
+    "id": "m-152",
+    "query": "modelcontextprotocol.core nuget package",
+    "expected": [
+      ".nuget/packages/modelcontextprotocol.core/"
+    ],
+    "kind": "name",
+    "note": "nuget package folder for MCP core"
+  },
+  {
+    "id": "m-153",
+    "query": "Model2VecModel",
+    "expected": [
+      "source/spectacl3/dev/spikes/embeddings/src-ref/src/Model2Vec.Net/Model2VecModel.cs"
+    ],
+    "kind": "name",
+    "note": "Model2Vec model class in the embeddings spike"
+  },
+  {
+    "id": "m-154",
+    "query": "xenoatom commandline readme",
+    "expected": [
+      ".nuget/packages/xenoatom.commandline/2.0.3/readme.md"
+    ],
+    "kind": "partial",
+    "note": "readme of the XenoAtom.CommandLine package"
+  },
+  {
+    "id": "m-155",
+    "query": "fetchle fixtures Corpus.cs",
+    "expected": [
+      "source/spectacl3/dev/fetchle/tests/Fetchle.Fixtures/Corpus.cs"
+    ],
+    "kind": "name",
+    "note": "test fixture corpus builder"
+  },
+  {
+    "id": "m-156",
+    "query": "claude-config repo",
+    "expected": [
+      "source/spectacl3/dev/claude-config/"
+    ],
+    "kind": "name",
+    "note": "claude config repo folder"
+  },
+  {
+    "id": "m-157",
+    "query": "b2-lib.js",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/b2-lib.js"
+    ],
+    "kind": "name",
+    "note": "verify helper library for feedback round"
+  },
+  {
+    "id": "m-158",
+    "query": "r333 ref crop 1440",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/r333-ref-1440-crop.png"
+    ],
+    "kind": "partial",
+    "note": "reference crop screenshot"
+  },
+  {
+    "id": "m-159",
+    "query": "c3-3 sbs page 390",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/c3-3-sbspage-390.png"
+    ],
+    "kind": "partial",
+    "note": "side-by-side page screenshot at 390"
+  },
+  {
+    "id": "m-160",
+    "query": "NaiveWalker",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Naive/NaiveWalker.cs"
+    ],
+    "kind": "name",
+    "note": "naive directory walker"
+  },
+  {
+    "id": "m-161",
+    "query": "rts s1 review html",
+    "expected": [
+      "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html",
+      "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-s1-review.html"
+    ],
+    "kind": "partial",
+    "note": "ready-to-ship review mockup"
+  },
+  {
+    "id": "m-162",
+    "query": "qs-main vendor phpunit binary",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/vendor/bin/phpunit"
+    ],
+    "kind": "descriptive",
+    "note": "composer phpunit binary"
+  },
+  {
+    "id": "m-163",
+    "query": "favorites js module",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/favorites.js"
+    ],
+    "kind": "partial",
+    "note": "favorites feature module"
+  },
+  {
+    "id": "m-164",
+    "query": "d4-5 sbs faq screenshot",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-5-sbs-faq-1440.png"
+    ],
+    "kind": "partial",
+    "note": "faq side-by-side screenshot"
+  },
+  {
+    "id": "m-165",
+    "query": "d4-1s combo 1024",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-01/verify/d4-1s-combo-1024.png"
+    ],
+    "kind": "name",
+    "note": "combo screenshot at 1024"
+  },
+  {
+    "id": "m-166",
+    "query": "page-cart.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/page-cart.php"
+    ],
+    "kind": "name",
+    "note": "cart page template"
+  },
+  {
+    "id": "m-167",
+    "query": "rts-l2-larger.html",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+      "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/rts-l2-larger.html",
+      "source/spectacl3/webprojects/wordpress/qsc-worktrees/rts-product-oct5/rts-l2-larger.html"
+    ],
+    "kind": "name",
+    "note": "ready-to-ship larger layout mockup"
+  },
+  {
+    "id": "m-168",
+    "query": "redesign review preview reference folder",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-redesign-reference/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/",
+      "Downloads/Alex-Review-Package/Alex-Redesign-Review-2026-09-24/01-Preview-Reference/"
+    ],
+    "kind": "descriptive",
+    "note": "folder of preview reference html from the redesign review"
+  },
+  {
+    "id": "m-169",
+    "query": "QsDeploy DeployCommand",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/scripts/deploy-v2/src/QsDeploy/Features/Deploy/DeployCommand.cs"
+    ],
+    "kind": "name",
+    "note": "deploy command in the deploy cli"
+  },
+  {
+    "id": "m-170",
+    "query": "DirectoryLister",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Walking/DirectoryLister.cs"
+    ],
+    "kind": "name",
+    "note": "directory lister in the walker"
+  },
+  {
+    "id": "m-171",
+    "query": "QsDeployApp.cs",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/scripts/deploy-v2/src/QsDeploy/Cli/QsDeployApp.cs"
+    ],
+    "kind": "name",
+    "note": "deploy cli app entry"
+  },
+  {
+    "id": "m-172",
+    "query": "quillstack client folder",
+    "expected": [
+      "source/spectacl3/webprojects/clients/quillstack/"
+    ],
+    "kind": "descriptive",
+    "note": "client folder for the store"
+  },
+  {
+    "id": "m-173",
+    "query": "ridgefield home desktop mockup",
+    "expected": [
+      "source/spectacl3/dev/ridgefield/pm/revamp/build/home-desktop.png"
+    ],
+    "kind": "partial",
+    "note": "desktop home page render for the revamp"
+  },
+  {
+    "id": "m-174",
+    "query": "qs-ai-platform",
+    "expected": [
+      "source/spectacl3/dev/qs-ai-platform/"
+    ],
+    "kind": "name",
+    "note": "the ai platform project folder"
+  },
+  {
+    "id": "m-175",
+    "query": "customer email design review zip",
+    "expected": [
+      "Downloads/Quill-Customer-Email-Design-Review-2026-10-06.zip"
+    ],
+    "kind": "descriptive",
+    "note": "zip of customer email designs for review"
+  },
+  {
+    "id": "m-176",
+    "query": "mustard feedback capture script",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-05-mustard/capture.js"
+    ],
+    "kind": "descriptive",
+    "note": "screenshot capture script for the mustard feedback round"
+  },
+  {
+    "id": "m-177",
+    "query": "cmp-material-1440-dpr2",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-06/audit-c/cmp-material-1440-dpr2.png"
+    ],
+    "kind": "name",
+    "note": "material comparison screenshot"
+  },
+  {
+    "id": "m-178",
+    "query": "c-co grid 1440",
+    "expected": [
+      "source/spectacl3/quill-campaign-runtime/jordan-feedback-2026-10-06/audit-c/c-co-grid-1440-dpr2.png"
+    ],
+    "kind": "partial",
+    "note": "grid comparison screenshot"
+  },
+  {
+    "id": "m-179",
+    "query": "shiplog claude mod",
+    "expected": [
+      "source/spectacl3/dev/claude-mods/shiplog/"
+    ],
+    "kind": "name",
+    "note": "shiplog mod folder"
+  },
+  {
+    "id": "m-180",
+    "query": "remote script portability tests",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/scripts/deploy-v2/tests/QsDeploy.Tests/Unit/RemoteScriptPortabilityTests.cs"
+    ],
+    "kind": "partial",
+    "note": "deploy cli tests for remote script portability"
+  },
+  {
+    "id": "m-181",
+    "query": "qs-main functions.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/functions.php"
+    ],
+    "kind": "name",
+    "note": "theme functions file"
+  },
+  {
+    "id": "m-182",
+    "query": "qs-main docs handbook readme",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/docs/handbook/README.md"
+    ],
+    "kind": "descriptive",
+    "note": "index of the theme handbook docs"
+  },
+  {
+    "id": "m-183",
+    "query": "github workflow that runs qs-main security scans",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/.github/workflows/security-scan.yml"
+    ],
+    "kind": "descriptive",
+    "note": "github workflow running security scans"
+  },
+  {
+    "id": "m-184",
+    "query": "contact submit label migration test",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/tests/unit/ContactSubmitLabelMigrationTest.php"
+    ],
+    "kind": "partial",
+    "note": "unit test for the contact submit label migration"
+  },
+  {
+    "id": "m-185",
+    "query": "shiplog inline plugin store json",
+    "expected": [
+      ".claude/plugins/store/shiplog_inline-95ba30e0ba15.json"
+    ],
+    "kind": "partial",
+    "note": "plugin store state file for shiplog"
+  },
+  {
+    "id": "m-186",
+    "query": "email samples cli command",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/inc/class-qs-email-samples-command.php"
+    ],
+    "kind": "descriptive",
+    "note": "wp-cli command that renders sample emails"
+  },
+  {
+    "id": "m-187",
+    "query": "custom order rules module",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/resources/js/modules/custom-order-rules.js"
+    ],
+    "kind": "partial",
+    "note": "custom order validation rules js"
+  },
+  {
+    "id": "m-188",
+    "query": "monocle web astro config",
+    "expected": [
+      "source/spectacl3/dev/monocle/web/astro.config.mjs"
+    ],
+    "kind": "name",
+    "note": "astro config of the docs site"
+  },
+  {
+    "id": "m-189",
+    "query": "analyzeDiff",
+    "expected": [
+      "source/spectacl3/dev/monocle/src/core/analysis/analyzeDiff.ts"
+    ],
+    "kind": "name",
+    "note": "diff analysis core module"
+  },
+  {
+    "id": "m-190",
+    "query": "codex models cache",
+    "expected": [
+      ".codex/models_cache.json"
+    ],
+    "kind": "partial",
+    "note": "codex cli model cache json"
+  },
+  {
+    "id": "m-191",
+    "query": "EventCtrl.js",
+    "expected": [
+      "source/spectacl3/dev/tvb/js/admin/events/EventCtrl.js"
+    ],
+    "kind": "name",
+    "note": "events admin controller"
+  },
+  {
+    "id": "m-192",
+    "query": "price list controller js",
+    "expected": [
+      "source/spectacl3/dev/tvb/js/admin/PriceListCtrl.js"
+    ],
+    "kind": "descriptive",
+    "note": "admin controller for price lists"
+  },
+  {
+    "id": "m-193",
+    "query": "tvb static admin.css",
+    "expected": [
+      "source/spectacl3/dev/tvb/app/static/admin.css"
+    ],
+    "kind": "name",
+    "note": "admin stylesheet served from static"
+  },
+  {
+    "id": "m-194",
+    "query": "tvb admin.js",
+    "expected": [
+      "source/spectacl3/dev/tvb/app/static/admin.js"
+    ],
+    "kind": "name",
+    "note": "admin script served from static"
+  },
+  {
+    "id": "m-195",
+    "query": "tvb app models folder",
+    "expected": [
+      "source/spectacl3/dev/tvb/app/models/"
+    ],
+    "kind": "descriptive",
+    "note": "python models package"
+  },
+  {
+    "id": "m-196",
+    "query": "merge item hidden user certifications migration",
+    "expected": [
+      "source/spectacl3/dev/tvb-card-412/migrations/versions/20261017_merge_item_hidden_user_certifications.py"
+    ],
+    "kind": "descriptive",
+    "note": "alembic merge migration on the card-412 branch"
+  },
+  {
+    "id": "m-197",
+    "query": "scout events lib",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/lib/scout-events.ts"
+    ],
+    "kind": "partial",
+    "note": "scout analytics events module"
+  },
+  {
+    "id": "m-198",
+    "query": "installDir migration",
+    "expected": [
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-a640ad97db1adfb4d/src/core/migration/installDir.ts"
+    ],
+    "kind": "partial",
+    "note": "install dir migration module in core"
+  },
+  {
+    "id": "m-199",
+    "query": "franchise admin template",
+    "expected": [
+      "source/spectacl3/dev/tvb/app/static/admin/templates/franchise.html"
+    ],
+    "kind": "descriptive",
+    "note": "admin template for franchise settings"
+  },
+  {
+    "id": "m-200",
+    "query": "TimeInput component",
+    "expected": [
+      "source/spectacl3/dev/tvb/js/admin/events/components/TimeInput.js"
+    ],
+    "kind": "name",
+    "note": "time input admin component"
+  },
+  {
+    "id": "m-201",
+    "query": "event notifications scss",
+    "expected": [
+      "source/spectacl3/dev/tvb/app/static/admin/css/admin/events/sections/notifications.scss"
+    ],
+    "kind": "partial",
+    "note": "styles for the event notifications section"
+  },
+  {
+    "id": "m-202",
+    "query": "mascot render test",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/render.test.ts"
+    ],
+    "kind": "partial",
+    "note": "tests for mascot rendering"
+  },
+  {
+    "id": "m-203",
+    "query": "tvb acceptance compose file",
+    "expected": [
+      "source/spectacl3/dev/tvb/compose.acceptance.yaml"
+    ],
+    "kind": "descriptive",
+    "note": "compose file for the acceptance environment"
+  },
+  {
+    "id": "m-204",
+    "query": "343b-invalid-0745.png",
+    "expected": [
+      "source/spectacl3/dev/tvb/docs/screenshots/343b-invalid-0745.png"
+    ],
+    "kind": "name",
+    "note": "ticket 343 evidence screenshot"
+  },
+  {
+    "id": "m-205",
+    "query": "monocle adr folder",
+    "expected": [
+      "source/spectacl3/dev/monocle/docs/adr/"
+    ],
+    "kind": "descriptive",
+    "note": "architecture decision records folder"
+  },
+  {
+    "id": "m-206",
+    "query": "quibble docs folder",
+    "expected": [
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-a287ffdea43a9db36/docs/quibble/"
+    ],
+    "kind": "descriptive",
+    "note": "docs folder for the renamed tool"
+  },
+  {
+    "id": "m-207",
+    "query": "ui state svelte store",
+    "expected": [
+      "source/spectacl3/dev/monocle/client/src/lib/state/ui.svelte.ts"
+    ],
+    "kind": "descriptive",
+    "note": "client ui state store"
+  },
+  {
+    "id": "m-208",
+    "query": "quibble launch checklist",
+    "expected": [
+      "source/spectacl3/dev/monocle/.claude/worktrees/agent-af88cf123754b1bda/docs/quibble/launch/launch-checklist.md"
+    ],
+    "kind": "partial",
+    "note": "launch checklist doc"
+  },
+  {
+    "id": "m-209",
+    "query": "lanternsoftware redirects file",
+    "expected": [
+      "source/spectacl3/dev/infra/lanternsoftware/public/_redirects"
+    ],
+    "kind": "descriptive",
+    "note": "cloudflare _redirects of the company site"
+  },
+  {
+    "id": "m-210",
+    "query": "mascot invite",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/invite.ts"
+    ],
+    "kind": "partial",
+    "note": "mascot invite behavior"
+  },
+  {
+    "id": "m-211",
+    "query": "mascot fidget behavior",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/fidget.ts"
+    ],
+    "kind": "descriptive",
+    "note": "mascot idle fidget module"
+  },
+  {
+    "id": "m-212",
+    "query": "ActionTracker",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/ActionTracker.cs"
+    ],
+    "kind": "name",
+    "note": "cli action tracker"
+  },
+  {
+    "id": "m-213",
+    "query": "fetchle index Snapshot",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Index/Snapshot.cs"
+    ],
+    "kind": "name",
+    "note": "memory-mapped index snapshot"
+  },
+  {
+    "id": "m-214",
+    "query": "IndexedFileSearch",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Search/IndexedFileSearch.cs"
+    ],
+    "kind": "name",
+    "note": "search over the index"
+  },
+  {
+    "id": "m-215",
+    "query": "substring ranker",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Naive/SubstringRanker.cs"
+    ],
+    "kind": "partial",
+    "note": "placeholder substring ranker"
+  },
+  {
+    "id": "m-216",
+    "query": "rules for skipping folders during the fetchle walk",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Walking/PruneRules.cs"
+    ],
+    "kind": "descriptive",
+    "note": "rules for pruning directories during walk"
+  },
+  {
+    "id": "m-217",
+    "query": "RootsConfig",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Core/Storage/RootsConfig.cs"
+    ],
+    "kind": "name",
+    "note": "roots config storage"
+  },
+  {
+    "id": "m-218",
+    "query": "fetchle uninstall command",
+    "expected": [
+      "source/spectacl3/dev/fetchle/src/Fetchle.Cli/Commands/UninstallCommand.cs"
+    ],
+    "kind": "partial",
+    "note": "cli uninstall command"
+  },
+  {
+    "id": "m-219",
+    "query": "tvb admin typography scss",
+    "expected": [
+      "source/spectacl3/dev/tvb/css/admin/_typography.scss"
+    ],
+    "kind": "partial",
+    "note": "admin typography partial"
+  },
+  {
+    "id": "m-220",
+    "query": "infra repo CLAUDE.md",
+    "expected": [
+      "source/spectacl3/dev/infra/CLAUDE.md"
+    ],
+    "kind": "name",
+    "note": "agent instructions of the infra repo"
+  },
+  {
+    "id": "m-221",
+    "query": "potion embeddings spike",
+    "expected": [
+      "source/spectacl3/dev/spikes/embeddings/Spike/"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike project folder"
+  },
+  {
+    "id": "m-222",
+    "query": "events controller js tvb admin",
+    "expected": [
+      "source/spectacl3/dev/tvb/js/admin/events/EventCtrl.js"
+    ],
+    "kind": "descriptive",
+    "note": "same EventCtrl target, descriptive phrasing"
+  },
+  {
+    "id": "m-223",
+    "query": "component-sticky-banner.php",
+    "expected": [
+      "source/spectacl3/webprojects/wordpress/quillstack-local/app/public/wp-content/themes/qs-main/template-parts/components/navbar/component-sticky-banner.php"
+    ],
+    "kind": "name",
+    "note": "sticky banner template part by name"
+  },
+  {
+    "id": "m-224",
+    "query": "api test factory attest",
+    "expected": [
+      "source/spectacl3/dev/attest/tests/Attest.Api.Tests/AttestApiFactory.cs"
+    ],
+    "kind": "descriptive",
+    "note": "WebApplicationFactory for api tests, descriptive"
+  },
+  {
+    "id": "m-225",
+    "query": "portfolio site mascot component",
+    "expected": [
+      "source/spectacl3/dev/amdotcom/src/components/mascot/Mascot.vue"
+    ],
+    "kind": "descriptive",
+    "note": "mascot vue component, descriptive"
+  },
+  {
+    "id": "m-226",
+    "query": "comment editor svelte monocle",
+    "expected": [
+      "source/spectacl3/dev/monocle/client/src/lib/components/comment/CommentEditor.svelte"
+    ],
+    "kind": "partial",
+    "note": "comment editor, partial phrasing"
+  }
+]

@@ -97,6 +97,9 @@ cycle() {
   grep -q '"agents": \[\]' "$receipt" || fail "receipt agents is not empty: $(cat "$receipt")"
   ok "receipt exists with channel script and no agents"
 
+  [ -f "$(dirname "$exe")/potion-retrieval-32M.fmodel" ] || fail "the model isn't beside $exe"
+  ok "the model sits beside the exe"
+
   local found
   found="$(fresh 'command -v fetchle')" || true
   [ "$found" = "$exe" ] || fail "a fresh shell should resolve fetchle to $exe (found '$found')"

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Search;
 using Fetchle.Core.Walking;
 
@@ -12,6 +13,7 @@ public sealed class IndexStore(string directory)
     public const string SNAPSHOT_FILE = "snapshot.fidx";
     public const string TEMP_SUFFIX = ".tmp";
     public const string LOCK_FILE = "write.lock";
+    public const string VECTORS_FILE = Ranking.Semantic.VectorFormat.FILE_NAME;
     const int LOCK_RETRY_MS = 50;
 
     public string Directory { get; } = directory;
@@ -21,6 +23,8 @@ public sealed class IndexStore(string directory)
     public string TempPath => SnapshotPath + TEMP_SUFFIX;
 
     public string LockPath => Path.Combine(Directory, LOCK_FILE);
+
+    public string VectorsPath => Path.Combine(Directory, VECTORS_FILE);
 
     // how long a rebuild waits for another writer before giving up
     internal TimeSpan LockWait { get; init; } = TimeSpan.FromSeconds(3);
@@ -37,8 +41,32 @@ public sealed class IndexStore(string directory)
 
     internal Snapshot? Open() => Snapshot.Open(SnapshotPath);
 
-    // walks every root and swaps in a new snapshot. throws IndexBusyException when another writer holds the lock
-    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, CancellationToken cancellationToken)
+    // true while another process holds the writer lock. probes with the same exclusive open the writer uses and lets go
+    // at once, so it never creates the lock file and a writer starting right now only waits a few milliseconds
+    public bool IsRebuilding()
+    {
+        try
+        {
+            using var probe = new FileStream(LockPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, bufferSize: 1);
+            return false;
+        }
+        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return true;
+        }
+    }
+
+    // walks every root and swaps in a new snapshot, then, with a model, its vectors. the snapshot lands first, so
+    // lexical search answers from the new tree while segments embed. throws IndexBusyException when another writer
+    // holds the lock
+    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, CancellationToken cancellationToken) =>
+        Rebuild(roots, prune, null, cancellationToken);
+
+    public RebuildReport Rebuild(IReadOnlyList<string> roots, PruneRules prune, ITextEncoder? model, CancellationToken cancellationToken)
     {
         var start = Stopwatch.GetTimestamp();
         System.IO.Directory.CreateDirectory(Directory);
@@ -50,7 +78,7 @@ public sealed class IndexStore(string directory)
         foreach (var root in roots)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var walk = WalkRoot(root, prune);
+            var (walk, _) = WalkRoot(root, prune, Deadline.After(TimeSpan.MaxValue, Stopwatch.GetTimestamp()));
             walkTime += walk.WalkTime;
             walks.Add(walk);
         }
@@ -65,18 +93,30 @@ public sealed class IndexStore(string directory)
 
         var buildTime = Stopwatch.GetElapsedTime(built);
         var writing = Stopwatch.GetTimestamp();
-        WriteAndSwap(image);
+        WriteAndSwap(image, TempPath, SnapshotPath);
+        var writeTime = Stopwatch.GetElapsedTime(writing);
+
+        TimeSpan? embedTime = null;
+        long vectorBytes = 0;
+        if (SignCodes.Fits(model))
+        {
+            var embedding = Stopwatch.GetTimestamp();
+            var vectors = VectorWriter.ToBytes(VectorBuilder.Build(written, model!, cancellationToken), written.Checksum, model!.Checksum);
+            vectorBytes = WriteAndSwap(vectors, VectorsPath + TEMP_SUFFIX, VectorsPath);
+            embedTime = Stopwatch.GetElapsedTime(embedding);
+        }
+
         Step(RebuildStep.Done);
-        return new RebuildReport(written.Info(), walkTime, buildTime, Stopwatch.GetElapsedTime(writing), Stopwatch.GetElapsedTime(start));
+        return new RebuildReport(written.Info(), walkTime, buildTime, writeTime, Stopwatch.GetElapsedTime(start), embedTime, vectorBytes);
     }
 
-    // temp file, flushed, then renamed over the snapshot. returns bytes written
-    internal long WriteAndSwap(byte[] image)
+    // temp file, flushed, then renamed over the target. returns bytes written
+    internal long WriteAndSwap(byte[] image, string tempPath, string targetPath)
     {
         try
         {
             Step(RebuildStep.WriteTemp);
-            using (var temp = new FileStream(TempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
+            using (var temp = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1))
             {
                 temp.Write(image);
                 Step(RebuildStep.Flush);
@@ -84,13 +124,13 @@ public sealed class IndexStore(string directory)
             }
 
             Step(RebuildStep.Rename);
-            AtomicReplace.Move(TempPath, SnapshotPath);
+            AtomicReplace.Move(tempPath, targetPath);
             return image.Length;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // a snapshot-sized temp file isn't worth leaving behind; readers never look at it either way
-            TryDelete(TempPath);
+            TryDelete(tempPath);
             throw;
         }
     }
@@ -106,12 +146,13 @@ public sealed class IndexStore(string directory)
         }
     }
 
-    internal static RootWalk WalkRoot(string root, PruneRules prune)
+    // the walk and whether it finished before the deadline
+    internal static (RootWalk Walk, bool Completed) WalkRoot(string root, PruneRules prune, Deadline deadline)
     {
         var normalized = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
         var collectors = new List<TreeCollector>();
         var started = Stopwatch.GetTimestamp();
-        new FastWalker(prune).Walk(normalized, () =>
+        var completed = new FastWalker(prune).Walk(normalized, () =>
         {
             var collector = new TreeCollector();
             lock (collectors)
@@ -119,8 +160,8 @@ public sealed class IndexStore(string directory)
                 collectors.Add(collector);
             }
             return collector.Visit;
-        }, Deadline.After(TimeSpan.MaxValue, started));
-        return new RootWalk(normalized, collectors, Stopwatch.GetElapsedTime(started));
+        }, deadline);
+        return (new RootWalk(normalized, collectors, Stopwatch.GetElapsedTime(started)), completed);
     }
 
     // a writer that just died can hold its handle a moment past exit on windows, and a second rebuild started

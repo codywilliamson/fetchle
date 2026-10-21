@@ -1,3 +1,4 @@
+using Fetchle.Core.Ranking.Semantic;
 using Fetchle.Core.Search;
 using Fetchle.Core.Storage;
 using Fetchle.Mcp;
@@ -7,7 +8,7 @@ namespace Fetchle.Cli.Commands;
 
 sealed record CommandInfo(string Name, string Description);
 
-sealed class FetchleApp(IFileSearch search, CliEnvironment env)
+sealed class FetchleApp(IFileSearch search, CliEnvironment env, ITextEncoder? model = null)
 {
     const string BLANK_LINE = "";
 
@@ -82,7 +83,7 @@ sealed class FetchleApp(IFileSearch search, CliEnvironment env)
             app.Add($"  {command.Name,-27}{command.Description}");
         }
 
-        app.Add((ctx, _) => _tracker.Done(args.Interactive ? NotImplemented(ctx, "-i") : new SearchCommand(search, env).Run(ctx, args)));
+        app.Add((ctx, _) => _tracker.Done(args.Interactive ? new PickerCommand(env, model).Run(ctx, args) : new SearchCommand(search, env).Run(ctx, args)));
         return app;
     }
 

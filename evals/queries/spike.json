@@ -1,0 +1,114 @@
+[
+  {
+    "id": "s-01",
+    "query": "desktop app bundled claude binary",
+    "expected": [
+      "AppData/Roaming/Claude/claude-code/2.1.286/635c1867224a/claude.exe",
+      "AppData/Roaming/Claude/claude-code/2.1.284/3f4bed3e44ad/claude.exe"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-02",
+    "query": "powershell command history",
+    "expected": [
+      "AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/ConsoleHost_history.txt"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-03",
+    "query": "vscode user settings",
+    "expected": [
+      "AppData/Roaming/Code/User/settings.json"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-04",
+    "query": "windows terminal config",
+    "expected": [
+      "AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-05",
+    "query": "chrome browsing history",
+    "expected": [
+      "AppData/Local/Google/Chrome/User Data/Default/History"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-06",
+    "query": "firefox bookmarks database",
+    "expected": [
+      "AppData/Roaming/Mozilla/Firefox/Profiles/k2x9qv1a.default-release/places.sqlite",
+      "AppData/Roaming/Mozilla/Firefox/Profiles/gzyvk5z5.default-release/places.sqlite"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-07",
+    "query": "node version manager settings",
+    "expected": [
+      "AppData/Roaming/nvm/settings.txt"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-08",
+    "query": "github desktop executable",
+    "expected": [
+      "AppData/Local/GitHubDesktop/GitHubDesktop.exe",
+      "AppData/Local/GitHubDesktop/app-3.4.9/GitHubDesktop.exe"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-09",
+    "query": "discord app executable",
+    "expected": [
+      "AppData/Local/Discord/app-1.0.9163/Discord.exe"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-10",
+    "query": "obsidian vault list",
+    "expected": [
+      "AppData/Roaming/obsidian/obsidian.json"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-11",
+    "query": "thunderbird mail search index",
+    "expected": [
+      "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite",
+      "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release/global-messages-db.sqlite"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  },
+  {
+    "id": "s-12",
+    "query": "music streaming app",
+    "expected": [
+      "AppData/Roaming/Spotify/Spotify.exe"
+    ],
+    "kind": "descriptive",
+    "note": "embeddings spike query, rewritten against the home corpus landmarks"
+  }
+]

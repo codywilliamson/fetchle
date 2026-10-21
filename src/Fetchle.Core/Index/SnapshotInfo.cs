@@ -9,4 +9,5 @@ public sealed record SnapshotInfo(string File, DateTimeOffset BuiltAt, int Entri
 }
 
 // walk: listing the roots. build: rows, interning, the image and its checks. write: temp file, flush, rename
-public sealed record RebuildReport(SnapshotInfo Snapshot, TimeSpan WalkTime, TimeSpan BuildTime, TimeSpan WriteTime, TimeSpan TotalTime);
+// EmbedTime is null when there was no model, so the rebuild wrote no vectors
+public sealed record RebuildReport(SnapshotInfo Snapshot, TimeSpan WalkTime, TimeSpan BuildTime, TimeSpan WriteTime, TimeSpan TotalTime, TimeSpan? EmbedTime = null, long VectorBytes = 0);

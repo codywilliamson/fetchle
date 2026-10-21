@@ -21,6 +21,6 @@ public static partial class EvalsLog
     [LoggerMessage(Level = LogLevel.Information, Message = "updated {Path}")]
     public static partial void UpdatedBaseline(this ILogger logger, string path);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "ranking regressed: top-1 {Top1:P0} top-3 {Top3:P0}, baseline top-1 {BaselineTop1:P0} top-3 {BaselineTop3:P0}")]
-    public static partial void RankingRegressed(this ILogger logger, double top1, double top3, double baselineTop1, double baselineTop3);
+    [LoggerMessage(Level = LogLevel.Error, Message = "ranking regressed on held-out: top-1 {Top1:P1} top-3 {Top3:P1} mrr {Mrr:F3}, baseline top-1 {BaselineTop1:P1} top-3 {BaselineTop3:P1} mrr {BaselineMrr:F3}")]
+    public static partial void RankingRegressed(this ILogger logger, double top1, double top3, double mrr, double baselineTop1, double baselineTop3, double baselineMrr);
 }

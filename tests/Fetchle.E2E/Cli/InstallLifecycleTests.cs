@@ -132,6 +132,28 @@ public class InstallLifecycleTests
     }
 
     [Test]
+    public async Task Uninstall_removes_an_index_with_vectors_and_the_model()
+    {
+        using var sandbox = new InstallSandbox();
+        var exe = sandbox.InstallExe();
+        sandbox.WriteReceipt("script");
+        // everything a rebuild with the model writes, and the model the installer puts beside the exe
+        var index = Path.Combine(sandbox.Data, "index");
+        Directory.CreateDirectory(index);
+        foreach (var name in new[] { "snapshot.fidx", "vectors.fvec", "vectors.fvec.tmp", "write.lock" })
+        {
+            await File.WriteAllTextAsync(Path.Combine(index, name), "");
+        }
+        await File.WriteAllTextAsync(Path.Combine(sandbox.Bin, "potion-retrieval-32M.fmodel"), "");
+
+        var run = await sandbox.RunAsync(exe, "uninstall", "--yes");
+
+        await Assert.That(run.ExitCode).IsEqualTo(0);
+        await Assert.That(await sandbox.WaitUntilGoneAsync(sandbox.Data, CleanupWait)).IsTrue();
+        await Assert.That(await sandbox.WaitUntilGoneAsync(sandbox.Bin, CleanupWait)).IsTrue();
+    }
+
+    [Test]
     public async Task Uninstall_refuses_a_receipt_that_points_at_the_home_dir()
     {
         using var sandbox = new InstallSandbox();

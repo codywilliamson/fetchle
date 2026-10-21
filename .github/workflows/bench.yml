@@ -32,7 +32,8 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, rid: win-x64, exe: fetchle.exe }
-          - { os: ubuntu-latest, rid: linux-x64, exe: fetchle }
+          # pinned to the quiet linux runner's glibc (24.04); ubuntu-latest links against 2.43 and the exe won't start there
+          - { os: ubuntu-24.04, rid: linux-x64, exe: fetchle }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,11 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      # the embedding model ships beside the exe; publish copies it in when it's there
+      - name: model
+        shell: bash
+        run: dotnet build.cs model
+
       - name: publish
         shell: bash
         run: dotnet build.cs publish --rid ${{ matrix.rid }}
@@ -50,7 +56,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fetchle-${{ matrix.rid }}
-          path: artifacts/publish/${{ matrix.exe }}
+          path: |
+            artifacts/publish/${{ matrix.exe }}
+            artifacts/publish/potion-retrieval-32M.fmodel
           if-no-files-found: error
 
   # both self-hosted runners are the same physical machine, so these two jobs are chained and share
@@ -162,6 +170,11 @@ jobs:
         with:
           global-json-file: global.json
 
+      # the ranked, embed and picker benches use the real model
+      - name: model
+        shell: cmd
+        run: dotnet build.cs model
+
       - name: benchmarkdotnet
         shell: cmd
         env:
@@ -170,11 +183,18 @@ jobs:
         # unquoted so several space-separated patterns stay several filters; cmd doesn't glob
         run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter %BENCH_FILTER%
 
+      # keystroke to repaint p50/p95, the picker's target; benchmarkdotnet only reports means
+      - name: picker latency
+        shell: cmd
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-windows
-          path: bench/results/Fetchle.Bench.*.json
+          path: |
+            bench/results/Fetchle.Bench.*.json
+            bench/results/picker-latency-*.json
           if-no-files-found: error
 
   bench-dotnet-linux:
@@ -195,6 +215,10 @@ jobs:
         with:
           global-json-file: global.json
 
+      # the ranked, embed and picker benches use the real model
+      - name: model
+        run: dotnet build.cs model
+
       - name: benchmarkdotnet
         env:
           BENCH_FILTER: ${{ inputs.filter || '*' }}
@@ -203,9 +227,15 @@ jobs:
           set -f
           dotnet run --project bench/Fetchle.Bench -c Release -- --filter $BENCH_FILTER
 
+      # keystroke to repaint p50/p95, the picker's target; benchmarkdotnet only reports means
+      - name: picker latency
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-linux
-          path: bench/results/Fetchle.Bench.*.json
+          path: |
+            bench/results/Fetchle.Bench.*.json
+            bench/results/picker-latency-*.json
           if-no-files-found: error

@@ -6,6 +6,10 @@ namespace Fetchle.Core.Ranking;
 public sealed class QueryTerms
 {
     public const int MAX_TERMS = 8;
+    // a query past this is cut: nobody types more, and an mcp caller could otherwise send megabytes
+    public const int MAX_QUERY_CHARS = 1024;
+    // longer than any token the lexicon matches (TermScores skips terms over 256 bytes), so it isn't split either
+    const int MAX_SPLIT_CHARS = 256;
 
     // words that say what kind of entry is wanted rather than what it's called: "the migrations folder"
     static readonly string[] DirectoryWords = ["folder", "folders", "directory", "directories", "dir", "dirs"];
@@ -31,7 +35,13 @@ public sealed class QueryTerms
 
     public static QueryTerms Parse(string query, bool lastIsPrefix = false)
     {
+        if (query.Length > MAX_QUERY_CHARS)
+        {
+            query = query[..MAX_QUERY_CHARS];
+        }
+
         var terms = new List<string>(MAX_TERMS);
+        string? lastWord = null;
         var parts = new List<string[]>(MAX_TERMS);
         var i = 0;
         while (i < query.Length && terms.Count < MAX_TERMS)
@@ -51,10 +61,11 @@ public sealed class QueryTerms
             {
                 var chunk = query.AsSpan(start, i - start);
                 var term = chunk.ToString().ToLowerInvariant();
+                lastWord = i == query.Length ? term : null;
                 if (!terms.Contains(term))
                 {
                     terms.Add(term);
-                    parts.Add(SplitParts(chunk));
+                    parts.Add(chunk.Length <= MAX_SPLIT_CHARS ? SplitParts(chunk) : []);
                 }
             }
         }
@@ -63,7 +74,9 @@ public sealed class QueryTerms
         var endsInWord = query.Length > 0 && char.IsLetterOrDigit(query[^1]);
         DropStopwords(terms, parts, keepLast: lastIsPrefix && endsInWord);
         var wantsDirectory = DropDirectoryWords(terms, parts, keepLast: lastIsPrefix && endsInWord);
-        return new QueryTerms([.. terms], [.. parts], lastIsPrefix && endsInWord, wantsDirectory);
+        // only the word at the very end is being typed; the term cap or a repeat can leave a different word last
+        var typing = lastIsPrefix && endsInWord && terms.Count > 0 && terms[^1] == lastWord;
+        return new QueryTerms([.. terms], [.. parts], typing, wantsDirectory);
     }
 
     // a query of nothing but stopwords keeps them, it's all there is to go on. the word still being typed stays too:

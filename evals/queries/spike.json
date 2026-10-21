@@ -49,7 +49,8 @@
     "id": "s-06",
     "query": "firefox bookmarks database",
     "expected": [
-      "AppData/Roaming/Mozilla/Firefox/Profiles/k2x9qv1a.default-release/places.sqlite"
+      "AppData/Roaming/Mozilla/Firefox/Profiles/k2x9qv1a.default-release/places.sqlite",
+      "AppData/Roaming/Mozilla/Firefox/Profiles/gzyvk5z5.default-release/places.sqlite"
     ],
     "kind": "descriptive",
     "note": "embeddings spike query, rewritten against the home corpus landmarks"
@@ -95,7 +96,8 @@
     "id": "s-11",
     "query": "thunderbird mail search index",
     "expected": [
-      "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite"
+      "AppData/Roaming/Thunderbird/Profiles/x7m2p0qd.default-release/global-messages-db.sqlite",
+      "AppData/Roaming/Thunderbird/Profiles/5cku7dkr.default-release/global-messages-db.sqlite"
     ],
     "kind": "descriptive",
     "note": "embeddings spike query, rewritten against the home corpus landmarks"

@@ -23,7 +23,8 @@ static class RankedQuery
     const int DEADLINE_STRIDE = 16 * 1024;
 
     // each retriever's candidates, best first
-    public sealed record Outcome(List<RankedEntry> Lexical, List<RankedEntry> Semantic, int Total, bool Completed);
+    // LexicalCovered: some candidate matched every query word the lexicon knows
+    public sealed record Outcome(List<RankedEntry> Lexical, List<RankedEntry> Semantic, int Total, bool Completed, bool LexicalCovered = false);
 
     // semantic is null when there's no model, no vectors for this snapshot, or nothing in the query the model knows
     public static Outcome Run(Snapshot snapshot, SearchRequest request, QueryTerms terms, IReadOnlyList<IndexScope> scopes, Deadline deadline, SemanticScores? semantic = null)
@@ -54,7 +55,7 @@ static class RankedQuery
             var pass = new Pass(snapshot, request, scopes, scores, semantic, copies, state, depth, carried, pathSums);
             pass.SeedScopes();
             var completed = pass.Run(first, deadline);
-            return new Outcome(pass.Ranked(pass.Lexical), pass.Ranked(pass.Semantic), pass.Total, completed);
+            return new Outcome(pass.Ranked(pass.Lexical), pass.Ranked(pass.Semantic), pass.Total, completed, pass.Covered);
         }
         finally
         {
@@ -76,6 +77,8 @@ static class RankedQuery
         public EntryHeap Semantic { get; } = new(RankingWeights.CANDIDATES);
 
         public int Total { get; private set; }
+
+        public bool Covered { get; private set; }
 
         public List<RankedEntry> Ranked(EntryHeap heap)
         {
@@ -138,11 +141,13 @@ static class RankedQuery
                 var counted = false;
                 if ((own | ancestors) != 0)
                 {
-                    var score = discount * LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]]) - RankingWeights.DEPTH_PENALTY * depth[i];
+                    var score = discount * LexicalScore(own, ancestors, snapshot.Lexicon.SegmentWordCounts[(int)names[i]], out var full) - RankingWeights.DEPTH_PENALTY * depth[i];
                     if (score > 0 && TypeAndExtensionMatch(i))
                     {
                         Total++;
                         counted = true;
+                        // a dir that names every word is often the folder the wanted file sits in, so it doesn't count
+                        Covered |= full && !snapshot.IsDirectory(i);
                         if (Lexical.WouldKeep(score, i) && ModifiedInRange(i))
                         {
                             Lexical.Add(score, i);
@@ -170,7 +175,7 @@ static class RankedQuery
             pathSums![i] = parentSum + mine;
 
             var norm = semantic.Vectors.Norms[i];
-            if (norm == 0)
+            if (norm == 0 || snapshot.IsDirectory(i))
             {
                 return;
             }
@@ -187,7 +192,7 @@ static class RankedQuery
                 Total++;
             }
 
-            var score = discount * cosine - RankingWeights.SEMANTIC_DEPTH_PENALTY * depth[i];
+            var score = discount * cosine;
             if (Semantic.WouldKeep(score, i) && ModifiedInRange(i))
             {
                 Semantic.Add(score, i);
@@ -196,8 +201,9 @@ static class RankedQuery
 
         // the idf-weighted best hit per term, name hits shortened by the name's length and ancestor hits discounted,
         // times how many of the terms matched at all
-        float LexicalScore(ulong own, ulong ancestors, byte nameWords)
+        float LexicalScore(ulong own, ulong ancestors, byte nameWords, out bool full)
         {
+            full = false;
             var lengthNorm = 1f / (1 + RankingWeights.NAME_LENGTH_PENALTY * Math.Max(nameWords - 1, 0));
             var sum = 0f;
             var matched = 0;
@@ -226,6 +232,7 @@ static class RankedQuery
                 return 0;
             }
 
+            full = matched == matchable;
             var coverage = (float)matched / matchable;
             return sum * MathF.Pow(coverage, RankingWeights.COVERAGE_POWER);
         }

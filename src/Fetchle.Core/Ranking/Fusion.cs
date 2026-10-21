@@ -12,8 +12,14 @@ static class Fusion
     public static List<SearchHit> Fuse(IReadOnlyList<(Snapshot Snapshot, RankedQuery.Outcome Outcome)> sources, int limit)
     {
         var fused = new Dictionary<(int Source, int Entry), (float Score, IndexScope Scope)>();
-        AddRetriever(sources, fused, lexical: true);
-        AddRetriever(sources, fused, lexical: false);
+        var covered = false;
+        foreach (var (_, outcome) in sources)
+        {
+            covered |= outcome.LexicalCovered;
+        }
+
+        AddRetriever(sources, fused, lexical: true, 1f);
+        AddRetriever(sources, fused, lexical: false, covered ? RankingWeights.SEMANTIC_WEIGHT_COVERED : RankingWeights.SEMANTIC_WEIGHT);
 
         var candidates = new List<(float Score, string Path, int Source, int Entry)>(fused.Count);
         foreach (var ((source, entry), (score, scope)) in fused)
@@ -34,7 +40,7 @@ static class Fusion
     }
 
     static void AddRetriever(IReadOnlyList<(Snapshot Snapshot, RankedQuery.Outcome Outcome)> sources,
-        Dictionary<(int, int), (float Score, IndexScope Scope)> fused, bool lexical)
+        Dictionary<(int, int), (float Score, IndexScope Scope)> fused, bool lexical, float weight)
     {
         var merged = new List<(RankedEntry Ranked, int Source)>();
         for (var s = 0; s < sources.Count; s++)
@@ -58,7 +64,7 @@ static class Fusion
 
             var (ranked, source) = merged[i];
             var key = (source, ranked.Entry);
-            var contribution = 1f / (RankingWeights.RRF_K + rank);
+            var contribution = weight / (RankingWeights.RRF_K + rank);
             fused[key] = fused.TryGetValue(key, out var existing) ? (existing.Score + contribution, ranked.Scope) : (contribution, ranked.Scope);
         }
     }

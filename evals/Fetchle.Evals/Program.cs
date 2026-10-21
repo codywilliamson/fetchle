@@ -6,7 +6,7 @@ using Fetchle.Evals.Reporting;
 using Fetchle.Evals.Running;
 using Microsoft.Extensions.Logging;
 
-// usage: Fetchle.Evals [--split dev|heldout] [--gate] [--update-baseline]
+// usage: Fetchle.Evals [--split dev|heldout] [--gate] [--update-baseline] [--lexical-only | --semantic-only]
 //   dev is the default and the only split anyone tunes on. --gate and --update-baseline always run held-out:
 //   ci gates on held-out against evals/baseline.json, and the baseline only ever holds held-out numbers
 
@@ -18,13 +18,17 @@ var updateBaseline = args.Contains("--update-baseline");
 var split = gate || updateBaseline || Arg("--split") == "heldout" ? Split.HeldOut : Split.Dev;
 
 var repo = RepoRoot.Find();
-using var corpus = EvalCorpus.Build(Path.Combine(repo, "evals", "corpus", "paths.txt"));
+var modelPath = Environment.GetEnvironmentVariable(Fetchle.Core.Embedding.StaticModel.ENV_PATH) is { Length: > 0 } fromEnv
+    ? (Directory.Exists(fromEnv) ? Path.Combine(fromEnv, Fetchle.Core.Embedding.StaticModel.FILE_NAME) : fromEnv)
+    : Path.Combine(repo, "artifacts", "model", Fetchle.Core.Embedding.StaticModel.FILE_NAME);
+using var corpus = EvalCorpus.Build(Path.Combine(repo, "evals", "corpus", "paths.txt"), modelPath);
 Console.WriteLine(corpus.Describe());
 var (scored, setAside) = QuerySet.Load(Path.Combine(repo, "evals", "queries"), corpus.Paths, EvalCorpus.IsPruned);
 var queries = scored.Where(q => QuerySplit.Of(q) == split).ToList();
 var prunedInSplit = setAside.Count(q => QuerySplit.Of(q) == split);
 
-IEvalSearcher searcher = new RankedSearcher();
+// --lexical-only and --semantic-only are for diagnosis: which retriever lost a query
+IEvalSearcher searcher = new RankedSearcher(lexicalOnly: args.Contains("--lexical-only"), semanticOnly: args.Contains("--semantic-only"));
 
 var results = new EvalRunner(searcher, corpus, Console.Out).Run(queries);
 var splitName = split == Split.HeldOut ? "heldout" : "dev";

@@ -7,7 +7,7 @@ namespace Fetchle.Core.Embedding;
 // a Model2Vec static embedding model, memory-mapped from one .fmodel file (see ModelFormat) and used in place.
 // the file is validated on open and then never deserialized: lookups binary-search the mapped bytes, encoding
 // sums mapped int8 rows. opened with FileShare.Delete so an updater can swap a new file in while this one stays mapped
-public sealed unsafe class StaticModel : IDisposable
+public sealed unsafe class StaticModel : IDisposable, Fetchle.Core.Ranking.Semantic.ITextEncoder
 {
     public const string FILE_NAME = "potion-retrieval-32M.fmodel";
     public const string ENV_PATH = "FETCHLE_MODEL";

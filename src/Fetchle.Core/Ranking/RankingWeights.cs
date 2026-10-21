@@ -22,16 +22,21 @@ static class RankingWeights
     // a path matching half the terms scores a quarter
     public const float COVERAGE_POWER = 2f;
 
-    // semantic: a path centroid below this cosine isn't a candidate, so a query about nothing finds nothing
+    // semantic: a path centroid below this cosine isn't a candidate, so a query about nothing finds nothing.
+    // only files are semantic candidates: a one-word dir like .vscode or .config is its whole centroid and outscores
+    // everything for any query sharing that word. dirs still come from lexical. no depth term: the spike's 0.02 per
+    // segment cost 4 points of dev top-1 here, since it favored those same shallow names
     public const float MIN_SEMANTIC = 0.35f;
-    // the spike's centroid+depth scorer: 0.02 per segment
-    public const float SEMANTIC_DEPTH_PENALTY = 0.02f;
 
     // a path under a dir named for worktrees is an agent's scratch copy of something that also lives elsewhere
     public const float COPY_PENALTY = 0.5f;
 
     // fusion
     public const int RRF_K = 60;
+    // how much a semantic rank counts against a lexical one. when some file matched every query word, lexical
+    // holds a confident answer and semantic only adds noise, so it counts for nothing
+    public const float SEMANTIC_WEIGHT = 0.75f;
+    public const float SEMANTIC_WEIGHT_COVERED = 0f;
     // candidates each retriever hands to fusion
     public const int CANDIDATES = 100;
     // per path segment below the search root

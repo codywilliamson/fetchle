@@ -24,7 +24,9 @@ readonly record struct ModelLayout(
 // offsets and the lookup order once, which is a few ms at 63k tokens
 static class ModelChecks
 {
-    public static string? Validate(ReadOnlySpan<byte> image, out ModelLayout layout)
+    // verifyChecksum false keeps every bounds check and skips the one pass over 33 MB: search opens the model per
+    // process and the file is fetchle's read-only asset, sha256-checked when it was installed. rebuild and doctor verify
+    public static string? Validate(ReadOnlySpan<byte> image, out ModelLayout layout, bool verifyChecksum = true)
     {
         layout = default;
         if (image.Length < ModelFormat.HEADER_SIZE)
@@ -53,7 +55,7 @@ static class ModelChecks
             return "length mismatch, truncated or extended";
         }
 
-        if (BinaryPrimitives.ReadUInt64LittleEndian(image[ModelFormat.CHECKSUM_OFFSET..]) != Checksum(image))
+        if (verifyChecksum && BinaryPrimitives.ReadUInt64LittleEndian(image[ModelFormat.CHECKSUM_OFFSET..]) != Checksum(image))
         {
             return "checksum mismatch";
         }

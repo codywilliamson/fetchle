@@ -58,7 +58,7 @@ public sealed unsafe class StaticModel : IDisposable, Fetchle.Core.Ranking.Seman
     ReadOnlySpan<sbyte> Rows => MemoryMarshal.Cast<byte, sbyte>(Image[_layout.Embeddings]);
 
     // null when there's no file. any other failure is ModelUnreadableException
-    public static StaticModel? Open(string path)
+    public static StaticModel? Open(string path, bool verifyChecksum = true)
     {
         FileStream stream;
         try
@@ -91,7 +91,7 @@ public sealed unsafe class StaticModel : IDisposable, Fetchle.Core.Ranking.Seman
             view.SafeMemoryMappedViewHandle.AcquirePointer(ref start);
             acquired = true;
             start += view.PointerOffset;
-            var reason = ModelChecks.Validate(new ReadOnlySpan<byte>(start, (int)length), out var layout);
+            var reason = ModelChecks.Validate(new ReadOnlySpan<byte>(start, (int)length), out var layout, verifyChecksum);
             if (reason is not null)
             {
                 throw new ModelUnreadableException(path, reason);
@@ -123,17 +123,17 @@ public sealed unsafe class StaticModel : IDisposable, Fetchle.Core.Ranking.Seman
     }
 
     // the env var wins when set (a file, or a directory that holds FILE_NAME), otherwise the file beside the exe
-    public static StaticModel? FindBesideExe() => Find(Environment.GetEnvironmentVariable(ENV_PATH), AppContext.BaseDirectory);
+    public static StaticModel? FindBesideExe(bool verifyChecksum = true) => Open(PathBesideExe(), verifyChecksum);
 
-    internal static StaticModel? Find(string? envPath, string exeDirectory)
-    {
-        if (!string.IsNullOrEmpty(envPath))
-        {
-            return Open(Directory.Exists(envPath) ? Path.Combine(envPath, FILE_NAME) : envPath);
-        }
+    // where FindBesideExe looks: the env var when set (a file, or a directory that holds FILE_NAME), otherwise beside the exe
+    public static string PathBesideExe() => Locate(Environment.GetEnvironmentVariable(ENV_PATH), AppContext.BaseDirectory);
 
-        return Open(Path.Combine(exeDirectory, FILE_NAME));
-    }
+    internal static StaticModel? Find(string? envPath, string exeDirectory) => Open(Locate(envPath, exeDirectory));
+
+    static string Locate(string? envPath, string exeDirectory) =>
+        !string.IsNullOrEmpty(envPath)
+            ? (Directory.Exists(envPath) ? Path.Combine(envPath, FILE_NAME) : envPath)
+            : Path.Combine(exeDirectory, FILE_NAME);
 
     // tests skip the disk. the array stays pinned until Dispose
     internal static StaticModel FromBytes(byte[] image, string source = "memory")

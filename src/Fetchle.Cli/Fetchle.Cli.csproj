@@ -16,6 +16,14 @@
     <PackageReference Include="XenoAtom.Terminal" />
     <PackageReference Include="XenoAtom.Terminal.UI" />
   </ItemGroup>
+  <!-- the embedding model lives beside the exe (StaticModel.FindBesideExe). `dotnet build.cs model` makes it; without it
+       the exe still runs and ranks by name only -->
+  <PropertyGroup>
+    <ModelFile>$(MSBuildThisFileDirectory)..\..\artifacts\model\potion-retrieval-32M.fmodel</ModelFile>
+  </PropertyGroup>
+  <ItemGroup Condition="Exists('$(ModelFile)')">
+    <None Include="$(ModelFile)" Link="potion-retrieval-32M.fmodel" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fetchle.Core\Fetchle.Core.csproj" />
     <ProjectReference Include="..\Fetchle.Mcp\Fetchle.Mcp.csproj" />

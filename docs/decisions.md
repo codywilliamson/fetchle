@@ -45,7 +45,7 @@ The 64-byte target ruled out 512 int8 dims (512 bytes, 216 MB at the spike's 442
 
 Signs keep every dim, score against a float query through 64 lookup tables of 256 partial sums (one per code byte), and a path's centroid length comes from popcount dots, so no float vector is ever stored. Centering against the model's mean turned out to be a no-op for this model (its mean is tiny); it stays because it's free.
 
-Evidence: scratch experiment scripts (`dims.py`, `codes.py`) over the spike's corpus; on the v0.2 eval corpus the vectors are 16.9 MB of codes plus 2.5 MB of norms for 667k entries and 277k segments.
+Evidence: [spikes/vector-codes](spikes/vector-codes/) over the spike's corpus; on the v0.2 eval corpus the vectors are 16.9 MB of codes plus 2.5 MB of norms for 667k entries and 277k segments.
 
 ## 2026-10-21: fetchle runs Model2Vec itself; partly supersedes the Model2Vec.Net choice of 2026-10-03
 

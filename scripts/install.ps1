@@ -97,6 +97,10 @@ function Install-Fetchle {
         # fully qualified because modules like Pscx ship their own Expand-Archive
         Microsoft.PowerShell.Archive\Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'unpacked') -Force
         $exe = Install-FetchleExe (Join-Path $work "unpacked\$name\fetchle.exe") $installDir
+        # the embedding model and its notices sit beside the exe; without the model search ranks by words only
+        foreach ($companion in 'potion-retrieval-32M.fmodel', 'THIRD-PARTY-NOTICES.md') {
+            Copy-Item -LiteralPath (Join-Path $work "unpacked\$name\$companion") -Destination (Join-Path $installDir $companion) -Force
+        }
     } finally {
         Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
     }

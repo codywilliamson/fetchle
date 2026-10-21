@@ -143,6 +143,10 @@ main() {
   tar -xzf "$work/$name.tar.gz" -C "$work/unpacked" || fail "couldn't unpack $name.tar.gz"
   [ -f "$work/unpacked/$name/fetchle" ] || fail "$name.tar.gz doesn't contain $name/fetchle"
   install_exe "$work/unpacked/$name/fetchle" "$install_dir"
+  # the embedding model and its notices sit beside the exe; without the model search ranks by words only
+  for companion in potion-retrieval-32M.fmodel THIRD-PARTY-NOTICES.md; do
+    cp "$work/unpacked/$name/$companion" "$install_dir/$companion" || fail "can't copy $companion"
+  done
 
   if ! "$install_dir/fetchle" setup --yes; then
     roll_back_exe "$install_dir"

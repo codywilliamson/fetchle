@@ -16,7 +16,8 @@ internal static class TreeRemoval
     const string EMPTY_PARENT_NAME = "fetchle";
 
     // every name the install scripts, setup, roots and the index write
-    static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new"];
+    static readonly string[] InstallFiles = ["fetchle.exe", "fetchle", "fetchle.exe.old", "fetchle.old", "fetchle.new", "fetchle.exe.new",
+        "potion-retrieval-32M.fmodel", "THIRD-PARTY-NOTICES.md"];
     const string RECEIPT_FILE = "receipt.json";
     static readonly string[] DataFiles = [RECEIPT_FILE, RECEIPT_FILE + ".tmp", "config.json", "config.json.tmp"];
     static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE];

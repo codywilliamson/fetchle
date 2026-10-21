@@ -182,11 +182,18 @@ jobs:
         # unquoted so several space-separated patterns stay several filters; cmd doesn't glob
         run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter %BENCH_FILTER%
 
+      # keystroke to repaint p50/p95, the picker's target; benchmarkdotnet only reports means
+      - name: picker latency
+        shell: cmd
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-windows
-          path: bench/results/Fetchle.Bench.*.json
+          path: |
+            bench/results/Fetchle.Bench.*.json
+            bench/results/picker-latency-*.json
           if-no-files-found: error
 
   bench-dotnet-linux:
@@ -219,9 +226,15 @@ jobs:
           set -f
           dotnet run --project bench/Fetchle.Bench -c Release -- --filter $BENCH_FILTER
 
+      # keystroke to repaint p50/p95, the picker's target; benchmarkdotnet only reports means
+      - name: picker latency
+        run: dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-linux
-          path: bench/results/Fetchle.Bench.*.json
+          path: |
+            bench/results/Fetchle.Bench.*.json
+            bench/results/picker-latency-*.json
           if-no-files-found: error

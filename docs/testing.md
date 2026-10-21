@@ -37,7 +37,11 @@ The suites, all in `tests/Fetchle.E2E`:
 
 Tests check that fetchle is correct. Evals check that it's good.
 
-`evals/` holds query to expected-path sets over a fixture corpus big enough to be realistic. It includes the 12 queries from the embeddings spike, rewritten against fixtures. CI computes top-1 and top-3 hit rates and fails the build when either drops below the committed baseline.
+`evals/` holds 318 judged queries over a 1M-entry corpus built straight into an in-memory snapshot, so nothing touches disk and the whole run takes seconds. The corpus is the seeded `HomeCorpus` plus `evals/corpus/paths.txt`: 15,386 real paths behind the queries and the listings around them, from Cody's Claude Code transcripts, with project and client names pseudonymized because the repo is public. Default prune rules apply the way the walker applies them.
+
+The queries come from three places: `mined.json` (226, real file hunts from the transcripts: the search command, the user's intent and the path the agent used next), `blind.json` (80, written by a subagent from the corpus alone, never seeing ranker output) and `spike.json` (the embeddings spike's 12). A hash of each id puts it in dev or held out; the spike's are always dev. Tuning reads dev only (`dotnet run --project evals/Fetchle.Evals -c Release`). CI runs `--gate`: held-out only, failing when top-1, top-3 or MRR drops below `evals/baseline.json`. `--lexical-only` and `--semantic-only` say which retriever lost a query, and [evals/failures.md](../evals/failures.md) records why every held-out miss missed.
+
+The eval needs the model: `dotnet build.cs model` downloads the pinned potion-retrieval-32M files, checks their sha256 and converts them, and CI caches the download.
 
 A failing eval means ranking got worse. A failing test means something broke. Keeping them separate keeps the signal readable.
 

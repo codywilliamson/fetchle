@@ -4,7 +4,7 @@ fetchle is a ranked file finder for agents and humans: one NativeAOT .NET 10 bin
 
 ## Status
 
-Pre-alpha, finishing v0.1. Search reads a memory-mapped snapshot of the configured roots (`src/Fetchle.Core/Index/`) and walks anything it doesn't cover with the parallel `FastWalker`, ranked by a placeholder substring ranker. `roots` and `index` work; commands not built yet exit 2 with "not implemented yet". Rankers, embeddings and the watcher are next; [docs/roadmap.md](docs/roadmap.md) orders them.
+Pre-alpha, finishing v0.2. Search ranks a memory-mapped snapshot of the configured roots (`src/Fetchle.Core/Index/`, `src/Fetchle.Core/Ranking/`) by words and, with the model beside the exe, by meaning, fused by RRF; roots it doesn't cover are walked and ranked the same way. `fetchle -i` is the live picker. Commands not built yet exit 2 with "not implemented yet". The MCP agent mode and the watcher are next; [docs/roadmap.md](docs/roadmap.md) orders them.
 
 ## Where things are specified
 

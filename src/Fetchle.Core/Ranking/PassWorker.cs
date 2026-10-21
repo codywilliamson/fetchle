@@ -186,7 +186,9 @@ sealed class PassWorker(EntryPass pass)
             return 0;
         }
 
-        full = matched == matchable;
+        // full means every query word, including one the index has never seen: that word is exactly what the
+        // semantic side is for, so a path can't cover the query without it
+        full = matched == scores.TermCount;
         var coverage = (float)matched / matchable;
         return sum * MathF.Pow(coverage, RankingWeights.COVERAGE_POWER);
     }

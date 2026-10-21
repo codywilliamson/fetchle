@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.IO.Hashing;
 using System.Runtime.InteropServices;
 using System.Text;
+using Fetchle.Core.Ranking.Lexical;
 
 namespace Fetchle.Core.Index;
 
@@ -12,6 +13,7 @@ static class SnapshotWriter
     {
         var (offsets, blob, nonAscii) = EncodeSegments(tree.Segments);
         var (rootRecords, rootPaths) = EncodeRoots(tree.Roots);
+        var lexicon = LexiconBuilder.Build(tree.Segments, SegmentsUsedByFiles(tree));
 
         var lengths = new long[SnapshotFormat.SECTION_COUNT];
         lengths[SnapshotFormat.PARENTS] = (long)tree.EntryCount * sizeof(uint);
@@ -22,6 +24,13 @@ static class SnapshotWriter
         lengths[SnapshotFormat.NON_ASCII] = (long)nonAscii.Count * sizeof(uint);
         lengths[SnapshotFormat.ROOTS] = rootRecords.Length;
         lengths[SnapshotFormat.ROOT_PATHS] = rootPaths.Length;
+        lengths[SnapshotFormat.TOKEN_OFFSETS] = (long)lexicon.TokenOffsets.Length * sizeof(uint);
+        lengths[SnapshotFormat.TOKEN_BLOB] = lexicon.TokenBlob.Length;
+        lengths[SnapshotFormat.POSTING_OFFSETS] = (long)lexicon.PostingOffsets.Length * sizeof(uint);
+        lengths[SnapshotFormat.POSTINGS] = (long)lexicon.Postings.Length * sizeof(uint);
+        lengths[SnapshotFormat.FUZZY_KEYS] = (long)lexicon.FuzzyKeys.Length * sizeof(uint);
+        lengths[SnapshotFormat.FUZZY_TOKENS] = (long)lexicon.FuzzyTokens.Length * sizeof(uint);
+        lengths[SnapshotFormat.SEGMENT_WORD_COUNTS] = lexicon.SegmentWordCounts.Length;
 
         var starts = new long[SnapshotFormat.SECTION_COUNT];
         long end = SnapshotFormat.HEADER_SIZE;
@@ -40,6 +49,13 @@ static class SnapshotWriter
         Copy(image, starts[SnapshotFormat.NON_ASCII], MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(nonAscii)));
         Copy(image, starts[SnapshotFormat.ROOTS], rootRecords);
         Copy(image, starts[SnapshotFormat.ROOT_PATHS], rootPaths);
+        Copy(image, starts[SnapshotFormat.TOKEN_OFFSETS], MemoryMarshal.AsBytes(lexicon.TokenOffsets.AsSpan()));
+        Copy(image, starts[SnapshotFormat.TOKEN_BLOB], lexicon.TokenBlob);
+        Copy(image, starts[SnapshotFormat.POSTING_OFFSETS], MemoryMarshal.AsBytes(lexicon.PostingOffsets.AsSpan()));
+        Copy(image, starts[SnapshotFormat.POSTINGS], MemoryMarshal.AsBytes(lexicon.Postings.AsSpan()));
+        Copy(image, starts[SnapshotFormat.FUZZY_KEYS], MemoryMarshal.AsBytes(lexicon.FuzzyKeys.AsSpan()));
+        Copy(image, starts[SnapshotFormat.FUZZY_TOKENS], MemoryMarshal.AsBytes(lexicon.FuzzyTokens.AsSpan()));
+        Copy(image, starts[SnapshotFormat.SEGMENT_WORD_COUNTS], lexicon.SegmentWordCounts);
 
         var header = image.AsSpan();
         BinaryPrimitives.WriteUInt64LittleEndian(header[SnapshotFormat.MAGIC_OFFSET..], SnapshotFormat.MAGIC);
@@ -53,6 +69,9 @@ static class SnapshotWriter
         BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.ROOT_COUNT_OFFSET..], (uint)tree.Roots.Count);
         BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.NON_ASCII_COUNT_OFFSET..], (uint)nonAscii.Count);
         BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.SECTION_COUNT_OFFSET..], SnapshotFormat.SECTION_COUNT);
+        BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.TOKEN_COUNT_OFFSET..], (uint)(lexicon.TokenOffsets.Length - 1));
+        BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.POSTING_COUNT_OFFSET..], (uint)lexicon.Postings.Length);
+        BinaryPrimitives.WriteUInt32LittleEndian(header[SnapshotFormat.FUZZY_COUNT_OFFSET..], (uint)lexicon.FuzzyKeys.Length);
         for (var s = 0; s < starts.Length; s++)
         {
             var entry = header[(SnapshotFormat.SECTION_TABLE_OFFSET + s * SnapshotFormat.SECTION_ENTRY_SIZE)..];
@@ -65,6 +84,20 @@ static class SnapshotWriter
     }
 
     public static ulong Checksum(ReadOnlySpan<byte> image) => XxHash3.HashToUInt64(image[SnapshotFormat.CHECKSUMMED_FROM..]);
+
+    // a segment that names any file gets its extension split off; dirs like Fetchle.Core keep "core" a word
+    static bool[] SegmentsUsedByFiles(PathTree tree)
+    {
+        var usedByFiles = new bool[tree.Segments.Count];
+        for (var i = tree.Roots.Count; i < tree.EntryCount; i++)
+        {
+            if ((tree.Flags[i] & SnapshotFormat.FLAG_DIRECTORY) == 0)
+            {
+                usedByFiles[tree.Names[i]] = true;
+            }
+        }
+        return usedByFiles;
+    }
 
     static (uint[] Offsets, byte[] Blob, List<uint> NonAscii) EncodeSegments(SegmentTable segments)
     {

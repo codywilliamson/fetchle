@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Text;
+using Fetchle.Core.Ranking.Lexical;
 
 namespace Fetchle.Core.Index;
 
@@ -56,6 +57,12 @@ sealed unsafe class Snapshot : IDisposable
     public ReadOnlySpan<byte> SegmentBlob => Image[_layout.SegmentBlob];
 
     public ReadOnlySpan<uint> NonAsciiSegments => MemoryMarshal.Cast<byte, uint>(Image[_layout.NonAscii]);
+
+    public Lexicon Lexicon => new(
+        MemoryMarshal.Cast<byte, uint>(Image[_layout.TokenOffsets]), Image[_layout.TokenBlob],
+        MemoryMarshal.Cast<byte, uint>(Image[_layout.PostingOffsets]), MemoryMarshal.Cast<byte, uint>(Image[_layout.Postings]),
+        MemoryMarshal.Cast<byte, uint>(Image[_layout.FuzzyKeys]), MemoryMarshal.Cast<byte, uint>(Image[_layout.FuzzyTokens]),
+        Image[_layout.SegmentWordCounts]);
 
     public string RootPath(int root) => _rootPaths[root];
 

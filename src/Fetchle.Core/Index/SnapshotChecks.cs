@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Unicode;
+using Fetchle.Core.Ranking.Lexical;
 
 namespace Fetchle.Core.Index;
 
@@ -18,7 +19,14 @@ readonly record struct SnapshotLayout(
     Range SegmentBlob,
     Range NonAscii,
     Range Roots,
-    Range RootPaths);
+    Range RootPaths,
+    Range TokenOffsets,
+    Range TokenBlob,
+    Range PostingOffsets,
+    Range Postings,
+    Range FuzzyKeys,
+    Range FuzzyTokens,
+    Range SegmentWordCounts);
 
 // every check a reader needs before it can index into the image without surprises. returns why the image
 // can't be trusted, or null. the checksum is one pass over the file; the structure checks only walk the
@@ -72,6 +80,9 @@ static class SnapshotChecks
         var segments = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.SEGMENT_COUNT_OFFSET..]);
         var roots = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.ROOT_COUNT_OFFSET..]);
         var nonAscii = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.NON_ASCII_COUNT_OFFSET..]);
+        var tokens = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.TOKEN_COUNT_OFFSET..]);
+        var postings = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.POSTING_COUNT_OFFSET..]);
+        var fuzzy = BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.FUZZY_COUNT_OFFSET..]);
         if (BinaryPrimitives.ReadUInt32LittleEndian(image[SnapshotFormat.SECTION_COUNT_OFFSET..]) != SnapshotFormat.SECTION_COUNT)
         {
             return "unexpected section count";
@@ -83,7 +94,9 @@ static class SnapshotChecks
             return "build time out of range";
         }
 
-        if (entries > int.MaxValue / sizeof(uint) || segments >= int.MaxValue / sizeof(uint) || nonAscii > segments || roots > entries)
+        if (entries > int.MaxValue / sizeof(uint) || segments >= int.MaxValue / sizeof(uint) || nonAscii > segments || roots > entries
+            || segments > Posting.MAX_SEGMENTS || tokens >= int.MaxValue / sizeof(uint) || postings > int.MaxValue / sizeof(uint)
+            || fuzzy > int.MaxValue / sizeof(uint))
         {
             return "counts out of range";
         }
@@ -99,6 +112,13 @@ static class SnapshotChecks
             nonAscii * (long)sizeof(uint),
             roots * (long)SnapshotFormat.ROOT_RECORD_SIZE,
             ANY,
+            (tokens + 1L) * sizeof(uint),
+            ANY,
+            (tokens + 1L) * sizeof(uint),
+            postings * (long)sizeof(uint),
+            fuzzy * (long)sizeof(uint),
+            fuzzy * (long)sizeof(uint),
+            segments,
         ];
 
         Span<Range> ranges = stackalloc Range[SnapshotFormat.SECTION_COUNT];
@@ -126,9 +146,12 @@ static class SnapshotChecks
             (int)entries, (int)segments, (int)roots,
             ranges[SnapshotFormat.PARENTS], ranges[SnapshotFormat.NAMES], ranges[SnapshotFormat.FLAGS],
             ranges[SnapshotFormat.SEGMENT_OFFSETS], ranges[SnapshotFormat.SEGMENT_BLOB], ranges[SnapshotFormat.NON_ASCII],
-            ranges[SnapshotFormat.ROOTS], ranges[SnapshotFormat.ROOT_PATHS]);
+            ranges[SnapshotFormat.ROOTS], ranges[SnapshotFormat.ROOT_PATHS],
+            ranges[SnapshotFormat.TOKEN_OFFSETS], ranges[SnapshotFormat.TOKEN_BLOB],
+            ranges[SnapshotFormat.POSTING_OFFSETS], ranges[SnapshotFormat.POSTINGS],
+            ranges[SnapshotFormat.FUZZY_KEYS], ranges[SnapshotFormat.FUZZY_TOKENS], ranges[SnapshotFormat.SEGMENT_WORD_COUNTS]);
 
-        return ValidateSegments(image, layout) ?? ValidateEntries(image, layout) ?? ValidateRoots(image, layout);
+        return ValidateSegments(image, layout) ?? ValidateEntries(image, layout) ?? ValidateRoots(image, layout) ?? ValidateLexicon(image, layout);
     }
 
     static string? ValidateSegments(ReadOnlySpan<byte> image, SnapshotLayout layout)
@@ -215,5 +238,63 @@ static class SnapshotChecks
         }
 
         return entries == layout.EntryCount ? null : "root entry counts don't add up";
+    }
+
+    // offsets that span their columns in order, postings that name real segments, fuzzy entries that name real
+    // tokens with their keys sorted. token order isn't checked: a misordered vocabulary answers wrongly, but
+    // every lookup stays inside its spans
+    static string? ValidateLexicon(ReadOnlySpan<byte> image, SnapshotLayout layout)
+    {
+        var tokenOffsets = MemoryMarshal.Cast<byte, uint>(image[layout.TokenOffsets]);
+        if (!SpansInOrder(tokenOffsets, (uint)image[layout.TokenBlob].Length))
+        {
+            return "token offsets out of order";
+        }
+
+        var postingOffsets = MemoryMarshal.Cast<byte, uint>(image[layout.PostingOffsets]);
+        var postings = MemoryMarshal.Cast<byte, uint>(image[layout.Postings]);
+        if (!SpansInOrder(postingOffsets, (uint)postings.Length))
+        {
+            return "posting offsets out of order";
+        }
+
+        var segments = (uint)layout.SegmentCount;
+        foreach (var posting in postings)
+        {
+            if (Posting.Segment(posting) >= segments)
+            {
+                return "posting names a missing segment";
+            }
+        }
+
+        var keys = MemoryMarshal.Cast<byte, uint>(image[layout.FuzzyKeys]);
+        var fuzzyTokens = MemoryMarshal.Cast<byte, uint>(image[layout.FuzzyTokens]);
+        var tokens = (uint)(tokenOffsets.Length - 1);
+        for (var i = 0; i < keys.Length; i++)
+        {
+            if (fuzzyTokens[i] >= tokens || (i > 0 && keys[i] < keys[i - 1]))
+            {
+                return "fuzzy keys out of order";
+            }
+        }
+        return null;
+    }
+
+    // starts at 0, never decreases, ends at the column's length
+    static bool SpansInOrder(ReadOnlySpan<uint> offsets, uint columnLength)
+    {
+        if (offsets[0] != 0 || offsets[^1] != columnLength)
+        {
+            return false;
+        }
+
+        for (var i = 1; i < offsets.Length; i++)
+        {
+            if (offsets[i] < offsets[i - 1])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

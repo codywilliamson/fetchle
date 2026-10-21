@@ -86,7 +86,7 @@ public class SnapshotStorageTests
 
         await AssertUnreadable([], index.Store.SnapshotPath);
         var version = (byte[])image.Clone();
-        version[SnapshotFormat.VERSION_OFFSET] = 2;
+        version[SnapshotFormat.VERSION_OFFSET] = (byte)(SnapshotFormat.VERSION + 1);
         await AssertUnreadable(version, index.Store.SnapshotPath, "version");
         var endian = (byte[])image.Clone();
         Array.Reverse(endian, SnapshotFormat.ENDIAN_OFFSET, sizeof(uint));

@@ -2,7 +2,7 @@ namespace Fetchle.Core.Index;
 
 // on-disk layout of snapshot.fidx, see docs/diagrams/path-store.excalidraw
 //
-//   header (192 bytes)
+//   header (320 bytes)
 //     0  u64 magic "fetchidx"
 //     8  u32 version
 //    12  u32 endian marker 0x01020304, written native-endian
@@ -10,15 +10,17 @@ namespace Fetchle.Core.Index;
 //    24  u64 xxhash3 of bytes [32, file length)
 //    32  i64 built at, unix ms
 //    40  u32 entries, u32 segments, u32 roots, u32 non-ascii segments
-//    56  u32 section count, u32 reserved
-//    64  8 x (u64 offset, u64 length)
+//    56  u32 section count, u32 tokens
+//    64  u32 postings, u32 fuzzy keys, u64 reserved
+//    80  15 x (u64 offset, u64 length)
 //   sections, each 8-byte aligned, zero padded
 //
 // bytes [0, 32) are each checked exactly, everything after by the checksum
 static class SnapshotFormat
 {
     public const ulong MAGIC = 0x7864_6968_6374_6566; // "fetchidx" read little-endian
-    public const uint VERSION = 1;
+    // 2 added the lexicon
+    public const uint VERSION = 2;
     public const uint ENDIAN_MARKER = 0x0102_0304;
 
     public const int MAGIC_OFFSET = 0;
@@ -33,7 +35,10 @@ static class SnapshotFormat
     public const int ROOT_COUNT_OFFSET = 48;
     public const int NON_ASCII_COUNT_OFFSET = 52;
     public const int SECTION_COUNT_OFFSET = 56;
-    public const int SECTION_TABLE_OFFSET = 64;
+    public const int TOKEN_COUNT_OFFSET = 60;
+    public const int POSTING_COUNT_OFFSET = 64;
+    public const int FUZZY_COUNT_OFFSET = 68;
+    public const int SECTION_TABLE_OFFSET = 80;
     public const int SECTION_ENTRY_SIZE = 16;
 
     public const int SECTION_ALIGNMENT = 8;
@@ -51,7 +56,15 @@ static class SnapshotFormat
     // per root: u32 entry id, u32 path offset, u32 path length, u32 entries, u32 files, u32 reserved, i64 walk time ticks
     public const int ROOTS = 6;
     public const int ROOT_PATHS = 7;
-    public const int SECTION_COUNT = 8;
+    // the lexicon, see Ranking/Lexical/Lexicon.cs: sorted tokens, their postings, fuzzy keys, words per segment
+    public const int TOKEN_OFFSETS = 8;
+    public const int TOKEN_BLOB = 9;
+    public const int POSTING_OFFSETS = 10;
+    public const int POSTINGS = 11;
+    public const int FUZZY_KEYS = 12;
+    public const int FUZZY_TOKENS = 13;
+    public const int SEGMENT_WORD_COUNTS = 14;
+    public const int SECTION_COUNT = 15;
 
     public const int HEADER_SIZE = SECTION_TABLE_OFFSET + SECTION_COUNT * SECTION_ENTRY_SIZE;
 

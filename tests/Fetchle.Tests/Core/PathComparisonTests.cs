@@ -43,27 +43,27 @@ public class PathComparisonTests
         await Assert.That(RootsConfig.Covers(ROOT, P("/Volumes/Data/projects/app"))).IsFalse();
     }
 
-    // a volume answers for the flipped spelling of a path that exists
     [Test]
-    public async Task A_volume_that_resolves_a_case_flipped_path_is_case_insensitive()
-    {
-        var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ROOT };
-
-        await Assert.That(PathComparison.ForVolume(ROOT, existing.Contains)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
-    }
+    public async Task A_volume_that_says_case_sensitive_compares_ordinally() =>
+        await Assert.That(PathComparison.ForVolume(ROOT, _ => 1)).IsEqualTo(StringComparison.Ordinal);
 
     [Test]
-    public async Task A_volume_that_does_not_resolve_a_case_flipped_path_is_case_sensitive()
-    {
-        var existing = new HashSet<string>(StringComparer.Ordinal) { ROOT };
-
-        await Assert.That(PathComparison.ForVolume(ROOT, existing.Contains)).IsEqualTo(StringComparison.Ordinal);
-    }
+    public async Task A_volume_that_folds_case_compares_ignoring_case() =>
+        await Assert.That(PathComparison.ForVolume(ROOT, _ => 0)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
 
     [Test]
-    public async Task A_path_that_is_not_there_keeps_the_case_insensitive_default()
+    public async Task A_volume_that_wont_say_keeps_the_case_insensitive_default() =>
+        await Assert.That(PathComparison.ForVolume(ROOT, _ => -1)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
+
+    [Test]
+    public async Task The_real_volume_answers_on_macos()
     {
-        await Assert.That(PathComparison.ForVolume(ROOT, _ => false)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
-        await Assert.That(PathComparison.ForVolume("/123/456", _ => true)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
+        if (!OperatingSystem.IsMacOS())
+        {
+            Skip.Test("pathconf(_PC_CASE_SENSITIVE) is a macos question");
+        }
+
+        // a stock macos runner is apfs, case-insensitive; the call must return an answer, not an error
+        await Assert.That(PathComparison.ForVolume(Path.GetTempPath(), Fetchle.Core.Walking.MacVolume.CaseSensitive)).IsEqualTo(StringComparison.OrdinalIgnoreCase);
     }
 }

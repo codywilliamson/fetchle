@@ -5,13 +5,14 @@ namespace Fetchle.Cli.Install;
 // v0.1 setup: put the install dir on PATH and write the receipt. agent registration arrives in v0.3, so agents stay empty
 internal static class SetupAction
 {
-    public static Receipt Run(CliEnvironment env, TextWriter output)
+    // persistence is a seam for tests, which must not edit the real user PATH
+    public static Receipt Run(CliEnvironment env, TextWriter output, IPathPersistence? persistence = null)
     {
         var dirs = env.Dirs;
         var entry = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dirs.Bin));
         var previous = LoadPrevious(dirs.Receipt);
 
-        var persistence = PathPersistence.ForSetup(env);
+        persistence ??= PathPersistence.ForSetup(env);
         var alreadyOnPath = persistence.Count(entry) > 0;
         var edit = persistence.Add(entry);
         // a windows PATH entry the user had before fetchle isn't ours to record, so uninstall leaves it alone.
@@ -29,12 +30,14 @@ internal static class SetupAction
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // put things back the way the old receipt describes them: no new entry, the old edit restored
-            if (!alreadyOnPath)
+            // a block in the same rc file was replaced in place, so its old text goes back below instead of a removal
+            var replacedInPlace = IsSameRcFile(previous?.PathEdit, edit);
+            if (!alreadyOnPath && !replacedInPlace)
             {
                 persistence.Remove(entry);
             }
 
-            if (removedStale && previous?.PathEdit is { } old)
+            if ((removedStale || replacedInPlace) && previous?.PathEdit is { } old)
             {
                 PathPersistence.FromReceipt(old)?.Add(old.Entry);
             }
@@ -80,6 +83,9 @@ internal static class SetupAction
         persistence?.Remove(old.Entry);
         return persistence is not null;
     }
+
+    static bool IsSameRcFile(PathEdit? old, PathEdit current) =>
+        old is { Kind: PathEditKinds.SHELL_RC_BLOCK } && old.Kind == current.Kind && old.File == current.File;
 
     static bool SameEntry(PathEdit? a, PathEdit b) =>
         a is not null && a.Kind == b.Kind && PathRules.Current.Key(a.Entry).Equals(PathRules.Current.Key(b.Entry));

@@ -18,20 +18,25 @@ static class HomeCorpusWriter
         var dir = Path.Combine(root, plan.Paths[index].Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(dir);
 
+        foreach (var name in FileNames(plan, seed, index))
+        {
+            Touch(Path.Combine(dir, name));
+        }
+    }
+
+    // the files of one dir, the same names on every run and every thread
+    public static IEnumerable<string> FileNames(HomePlan plan, int seed, int index)
+    {
         var fixedNames = plan.FixedFiles.GetValueOrDefault(index) ?? [];
         var count = plan.GeneratedFiles[index];
         if (fixedNames.Count + count == 0)
         {
-            return;
+            return [];
         }
 
         // per-dir rng so the result doesn't depend on which thread got which dir
         var rng = new Random(unchecked(seed * RNG_STRIDE + index));
-        var generated = HomeFileNames.For(plan.Kinds[index], count, rng, fixedNames);
-        foreach (var name in fixedNames.Concat(generated))
-        {
-            Touch(Path.Combine(dir, name));
-        }
+        return fixedNames.Concat(HomeFileNames.For(plan.Kinds[index], count, rng, fixedNames));
     }
 
     static void Touch(string path)

@@ -10,6 +10,7 @@
   <ItemGroup>
     <!-- the bench sweeps internal knobs like the walker's worker count, tests poke internal types -->
     <InternalsVisibleTo Include="Fetchle.Bench" />
+    <InternalsVisibleTo Include="Fetchle.Evals" />
     <InternalsVisibleTo Include="Fetchle.Tests" />
   </ItemGroup>
 </Project>

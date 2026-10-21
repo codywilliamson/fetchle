@@ -69,7 +69,7 @@ static class RankedQuery
     }
 
     sealed class Pass(Snapshot snapshot, SearchRequest request, IReadOnlyList<IndexScope> scopes, TermScores scores, SemanticScores? semantic,
-        HashSet<uint> copies, byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
+        ulong[]? copies, byte[] state, byte[] depth, ulong[] carried, float[]? pathSums)
     {
         public EntryHeap Lexical { get; } = new(RankingWeights.CANDIDATES);
 
@@ -126,7 +126,7 @@ static class RankedQuery
                     continue;
                 }
 
-                var copy = (above & COPY) != 0 || (copies.Count > 0 && copies.Contains(names[i]));
+                var copy = (above & COPY) != 0 || (copies is not null && CopyMarks.IsSet(copies, names[i]));
                 state[i] = copy ? (byte)(INSIDE | COPY) : INSIDE;
                 var discount = copy ? RankingWeights.COPY_PENALTY : 1f;
                 // a scope's own name isn't part of its entries' paths, so its matches don't carry down

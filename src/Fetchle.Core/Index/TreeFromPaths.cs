@@ -8,9 +8,15 @@ static class TreeFromPaths
     {
         root = Path.TrimEndingDirectorySeparator(root);
         var children = new Dictionary<string, List<(string Name, bool IsDirectory)>>(StringComparer.Ordinal) { [""] = [] };
+        var files = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (relative, isDirectory) in entries)
         {
-            Add(children, relative.TrimEnd('/'), isDirectory);
+            var path = relative.TrimEnd('/');
+            // a path listed twice is one entry, as on disk
+            if (isDirectory || files.Add(path))
+            {
+                Add(children, path, isDirectory);
+            }
         }
 
         var collector = new TreeCollector();

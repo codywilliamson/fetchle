@@ -13,6 +13,7 @@ public sealed class IndexStore(string directory)
     public const string SNAPSHOT_FILE = "snapshot.fidx";
     public const string TEMP_SUFFIX = ".tmp";
     public const string LOCK_FILE = "write.lock";
+    public const string VECTORS_FILE = Ranking.Semantic.VectorFormat.FILE_NAME;
     const int LOCK_RETRY_MS = 50;
 
     public string Directory { get; } = directory;
@@ -23,7 +24,7 @@ public sealed class IndexStore(string directory)
 
     public string LockPath => Path.Combine(Directory, LOCK_FILE);
 
-    public string VectorsPath => Path.Combine(Directory, Ranking.Semantic.VectorFormat.FILE_NAME);
+    public string VectorsPath => Path.Combine(Directory, VECTORS_FILE);
 
     // how long a rebuild waits for another writer before giving up
     internal TimeSpan LockWait { get; init; } = TimeSpan.FromSeconds(3);

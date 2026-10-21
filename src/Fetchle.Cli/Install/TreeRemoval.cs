@@ -20,7 +20,8 @@ internal static class TreeRemoval
         "potion-retrieval-32M.fmodel", "THIRD-PARTY-NOTICES.md"];
     const string RECEIPT_FILE = "receipt.json";
     static readonly string[] DataFiles = [RECEIPT_FILE, RECEIPT_FILE + ".tmp", "config.json", "config.json.tmp"];
-    static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE];
+    static readonly string[] IndexFiles = [IndexStore.SNAPSHOT_FILE, IndexStore.SNAPSHOT_FILE + IndexStore.TEMP_SUFFIX, IndexStore.LOCK_FILE,
+        IndexStore.VECTORS_FILE, IndexStore.VECTORS_FILE + IndexStore.TEMP_SUFFIX];
     const string INDEX_DIR = "index";
 
     public static RemovalResult Remove(string installDir, string dataDir)

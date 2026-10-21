@@ -125,8 +125,8 @@
       },
       "XenoAtom.Ansi": {
         "type": "Transitive",
-        "resolved": "1.7.0",
-        "contentHash": "I6SZPpSrt5YoKRYQuzf93WZq6/lnEgAGrx25FYG4g/T+FjMSyTLN7xVhkgAvzIzqVYvnR0KwFBmnoSMLbjt6ig==",
+        "resolved": "1.7.1",
+        "contentHash": "TXxP5wKT4kMJBEG72crUoMPPntykmZhCizq2LNO21gk/GgGBxzcKA+CoewJNKe/qfncS3Zkd4ss4VbHsdE5BKA==",
         "dependencies": {
           "Wcwidth": "4.0.1"
         }
@@ -134,10 +134,11 @@
       "fetchle": {
         "type": "Project",
         "dependencies": {
-          "Fetchle.Core": "[0.0.0, )",
-          "Fetchle.Mcp": "[0.0.0, )",
+          "Fetchle.Core": "[0.1.0, )",
+          "Fetchle.Mcp": "[0.1.0, )",
           "XenoAtom.CommandLine": "[2.0.3, )",
-          "XenoAtom.Terminal": "[2.2.0, )"
+          "XenoAtom.Terminal": "[2.2.0, )",
+          "XenoAtom.Terminal.UI": "[3.10.0, )"
         }
       },
       "fetchle.core": {
@@ -152,7 +153,7 @@
       "fetchle.mcp": {
         "type": "Project",
         "dependencies": {
-          "Fetchle.Core": "[0.0.0, )",
+          "Fetchle.Core": "[0.1.0, )",
           "ModelContextProtocol.Core": "[2.2.0, )"
         }
       },
@@ -185,6 +186,16 @@
         "contentHash": "J3oOWIoJm24pAN2zsSesy8eyv6nUQyjmW6OFqmbH596HyaEOErQPKdQMEIPNqQT7QymipcbHm6qEAfREuomfkA==",
         "dependencies": {
           "XenoAtom.Ansi": "1.7.0"
+        }
+      },
+      "XenoAtom.Terminal.UI": {
+        "type": "CentralTransitive",
+        "requested": "[3.10.0, )",
+        "resolved": "3.10.0",
+        "contentHash": "Dvdgw2EyoSdL9NoXsuVKHfl9Ebz6tCpikv7lyzqgyLa7TNhOosR63cIus3EAaerDjWG891ujAvge2S5Tkse2pw==",
+        "dependencies": {
+          "XenoAtom.Ansi": "1.7.1",
+          "XenoAtom.Terminal": "2.2.0"
         }
       }
     }

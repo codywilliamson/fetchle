@@ -2,6 +2,7 @@
   <ItemGroup>
     <PackageVersion Include="XenoAtom.CommandLine" Version="2.0.3" />
     <PackageVersion Include="XenoAtom.Terminal" Version="2.2.0" />
+    <PackageVersion Include="XenoAtom.Terminal.UI" Version="3.10.0" />
     <PackageVersion Include="ModelContextProtocol.Core" Version="2.2.0" />
     <PackageVersion Include="System.IO.Hashing" Version="10.0.12" />
     <PackageVersion Include="TUnit" Version="1.72.16" />

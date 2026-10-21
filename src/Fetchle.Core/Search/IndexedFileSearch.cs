@@ -29,6 +29,8 @@ public sealed class IndexedFileSearch : IFileSearch
         return session.Search(request, cancellationToken);
     }
 
+    public bool IsRebuilding() => _store.IsRebuilding();
+
     public IndexStatus GetStatus(IReadOnlyList<string> roots)
     {
         using var session = SearchSession.Open(_store, _prune, _model);

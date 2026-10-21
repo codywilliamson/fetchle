@@ -100,6 +100,7 @@ public class IndexTests
     [Arguments("{\"roots\": [null]}")]
     [Arguments("{\"roots\": [\"\"]}")]
     [Arguments("{}")]
+    [Arguments("null")]
     [Arguments("{\"roots\": [\"bad\u0000path\"]}")]
     [Arguments("{\"roots\": [\"relative/dir\"]}")]
     public async Task A_config_with_a_null_or_missing_root_list_is_a_clean_usage_error(string json)

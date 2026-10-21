@@ -132,6 +132,8 @@ public class McpTests
                 StandardInputEncoding = new UTF8Encoding(false),
                 StandardOutputEncoding = Encoding.UTF8,
             };
+            // an empty data dir, so a machine with fetchle installed doesn't feed its own roots into the test
+            psi.Environment["FETCHLE_DATA_DIR"] = Path.Combine(Path.GetTempPath(), $"fetchle-e2e-mcp-data-{Guid.NewGuid():N}");
             return new McpSession(Process.Start(psi)!);
         }
 

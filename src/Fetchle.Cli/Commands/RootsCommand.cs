@@ -80,7 +80,7 @@ static class RootsCommand
         }
 
         var roots = RootsConfig.Load(dirs.Config);
-        var removed = roots.RemoveAll(r => r.Equals(root, Core.Walking.PathComparison.Default));
+        var removed = RootsConfig.Remove(roots, root);
         if (removed == 0)
         {
             ctx.Error.WriteLine($"fetchle roots: not a root: {root}");

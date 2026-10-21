@@ -17,7 +17,7 @@ internal sealed partial class WindowsUserPath : IPathPersistence
 
     public int Count(string entry) => PathEntries.Count(Read(), entry, PathRules.Windows);
 
-    public PathEdit Add(string entry)
+    public PathAdd Add(string entry)
     {
         var current = Read();
         var updated = PathEntries.Add(current, entry, PathRules.Windows);
@@ -26,7 +26,7 @@ internal sealed partial class WindowsUserPath : IPathPersistence
             Write(updated);
         }
 
-        return new PathEdit(PathEditKinds.WINDOWS_USER_PATH, entry);
+        return new PathAdd(new PathEdit(PathEditKinds.WINDOWS_USER_PATH, entry), ReplacedBlock: false);
     }
 
     public void Remove(string entry)

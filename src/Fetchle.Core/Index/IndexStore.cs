@@ -40,6 +40,25 @@ public sealed class IndexStore(string directory)
 
     internal Snapshot? Open() => Snapshot.Open(SnapshotPath);
 
+    // true while another process holds the writer lock. probes with the same exclusive open the writer uses and lets go
+    // at once, so it never creates the lock file and a writer starting right now only waits a few milliseconds
+    public bool IsRebuilding()
+    {
+        try
+        {
+            using var probe = new FileStream(LockPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, bufferSize: 1);
+            return false;
+        }
+        catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return true;
+        }
+    }
+
     // walks every root and swaps in a new snapshot, then, with a model, its vectors. the snapshot lands first, so
     // lexical search answers from the new tree while segments embed. throws IndexBusyException when another writer
     // holds the lock

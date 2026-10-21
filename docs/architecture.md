@@ -72,7 +72,7 @@ The MCP server, or `fetchle index`, is the only writer, guarded by a lock file. 
 
 ## Cross-platform from the first commit
 
-The core has no Windows dependency. What varies by OS sits behind small interfaces: path comparison (Linux is case-sensitive, Windows and default macOS are not), hidden-file rules (dotfiles vs the hidden attribute), default prune lists (`AppData\Local\Temp` vs `~/.cache` vs `~/Library/Caches`), watcher strategy, and agent config locations for `fetchle setup`.
+The core has no Windows dependency. What varies by OS sits behind small interfaces: path comparison (Linux is case-sensitive, Windows and default macOS are not; root matching asks a macOS volume which it is), hidden-file rules (dotfiles vs the hidden attribute), default prune lists (`AppData\Local\Temp` vs `~/.cache` vs `~/Library/Caches`), watcher strategy, and agent config locations for `fetchle setup`.
 
 CI runs the end-to-end suite on Windows, Linux and macOS for every change. That's what keeps cross-platform true without anyone remembering to check.
 

@@ -222,6 +222,12 @@ Windows can't delete a running exe, so uninstall deletes everything else, then s
 
 Evidence: `scripts/ci/install-lifecycle.ps1` run locally on Windows, two cycles; the E2E case `Uninstall_removes_the_dir_that_holds_its_own_exe`.
 
+## 2026-10-21: the segment scan checks the deadline every 1 MiB, between chunks
+
+`SegmentMatcher` ran one vectorized pass over the whole segment blob before the entry pass could see the deadline, so a huge blob could spend the budget with nothing to show. The scan now runs in chunks of about 1 MiB that end on a segment boundary (so no hit straddles an edge) and checks the deadline between them; the non-ASCII decode loops check every 1024 segments. Each chunk is still one `AsciiFinder.IndexOf` call, so the scan stays vectorized and the check costs one timestamp read per MiB. A scan cut short returns `completed = false` and the query reports `stopped early: budget`.
+
+Evidence: `IndexBenchmarks.Search` from the quiet linux runner (JIT, `[MemoryDiagnoser]`, bench.yml run 39628557808 on main at 087bb80 before, run 39629887529 on 9870e41 after). Mean, allocated: 50k `.json` 633.2 us / 7400 B before, 631.4 us / 7400 B after; 50k `settings` 170.2 us / 1536 B, 148.1 us / 1536 B; 50k `zzz` 159.4 us / 712 B, 139.1 us / 712 B; 1M `.json` 17,054.8 us / 7400 B, 16,026.2 us / 7400 B; 1M `settings` 3,828.9 us / 10,216 B, 3,428.1 us / 10,216 B; 1M `zzz` 3,642.3 us / 712 B, 3,168.2 us / 712 B. Gen0 stayed 0. No regression and no new allocations; the small gain is within what run-to-run noise can explain, so it isn't claimed. The windows runner could not load the benchmark assemblies in either run (Application Control policy, 0x800711C7), so there are no windows numbers.
+
 ## Open
 
 - Which env vars each agent sets, for agent output mode detection.

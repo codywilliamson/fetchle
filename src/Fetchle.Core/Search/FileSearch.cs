@@ -19,6 +19,9 @@ public sealed class FileSearch : IFileSearch
         _model = model;
     }
 
+    // a live walk has no index to rebuild
+    public bool IsRebuilding() => false;
+
     public SearchResult Search(SearchRequest request, CancellationToken cancellationToken)
     {
         using var session = SearchSession.Open(null, _prune, _model);

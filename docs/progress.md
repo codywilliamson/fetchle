@@ -1,27 +1,32 @@
-# v0.1 progress
+# v0.2 progress
 
-Resume notes for the v0.1 ship run (2026-10-20). Branch `v0.1-index`, PR codywilliamson/fetchle#7 to main. Delete this file when v0.1 is tagged.
+Resume notes for the v0.2 "ask it like a person" run (started 2026-10-21). Branch `v0.2-ranking`, PR to main not opened yet. The v0.1 follow-ups went into their own PR, codywilliamson/fetchle#11 (`v0.1-followups`), which should merge first; this branch deletes `SegmentMatcher`/`IndexQuery`, so its conflicts there resolve by taking the deletion. Delete this file when v0.2 is tagged.
 
 ## Done means
 
-docs/roadmap.md's v0.1 exit check passes in CI: e2e green on windows, linux and macos; benchmark JSON committed; the install script installs, runs a query and uninstalls twice in a row on a clean runner. Targets and how they measured: docs/decisions.md, the 2026-10-20 entries.
+docs/roadmap.md's v0.2 exit check passes in CI against the held-out eval split, and the quiet-runner bench says ranking cost no latency worth noticing. Targets and the eval protocol: docs/decisions.md, the 2026-10-21 entry. Release-please cuts the tag; Cody merges.
+
+## Eval set
+
+- `evals/queries/`: `spike.json` (12, always dev), `mined.json` (226, from Claude Code transcript hunts, pseudonymized), `blind.json` (80, written by a subagent from the corpus alone).
+- `evals/corpus/paths.txt`: 15,386 real paths behind the mined queries plus the listings around them, pseudonymized for the public repo. The eval adds the seeded 1M-entry `HomeCorpus` and prunes like the walker: 667,345 entries after pruning.
+- Split by hash of id: 228 dev, 81 held out, 9 set aside (answers under pruned dirs).
+- `dotnet run --project evals/Fetchle.Evals -c Release` runs dev. `--gate` and `--update-baseline` run held-out only. Never tune on held-out.
+- Raw mining outputs and the pseudonym map live only in the session scratchpad, never in the repo.
+
+## Numbers so far
+
+| | dev top-1 | dev top-3 | dev mrr | held-out top-1 | held-out top-3 | held-out mrr |
+|---|---|---|---|---|---|---|
+| v0.1 substring | 12.6% | 15.6% | 0.142 | 4.9% | 8.6% | 0.072 |
+| lexical only | 67.5% | 79.8% | 0.747 | not read | | |
 
 ## State
 
-- Path store and snapshot: `src/Fetchle.Core/Index/`. Format in `SnapshotFormat.cs`, swap protocol in `IndexStore.cs`, drawn in `docs/diagrams/path-store.excalidraw`.
-- Search reads the snapshot for covered roots (`IndexedFileSearch`) and walks the rest; tests pin it to the walker's exact output.
-- `roots`, `index`, `setup`, `uninstall`, `doctor`, install scripts and `install.yml`: done.
-- Bench: 1M home corpus, external runner, `bench.yml` on the self-hosted runners with BenchmarkDotNet on both. Results committed in `bench/results/` from run 39456621264.
-- Reviews: an independent reviewer subagent, two rounds of GitHub Codex (the cap Cody set), then a local `codex review --base main -c model='"gpt-6-astra"'`. All findings fixed or answered on the PR.
+- Done: tokenizer + noise filter, lexicon in snapshot format 2, lexical retriever, 512-bit sign-code vectors + semantic pass + RRF fusion, search session (indexed and live-walked roots rank the same way), rebuild writes `vectors.fvec`, tokenizer and lexical-index diagrams.
+- In flight (worker branches, merge into `v0.2-ranking`): `v0.2-model` (fetchle's own WordPiece + `.fmodel` from potion-retrieval-32M, `build.cs model`, parity test, notices) and `v0.2-picker` (`fetchle -i`).
+- Next: wire the real model into the CLI, MCP, doctor and evals; tune on dev (worktree copies outranking the main checkout, dir vs file, vocabulary gaps); benches on the quiet runners; diagrams for the vector store, query flow and picker; failure table; reviews.
 
 ## How to get numbers
 
-`gh workflow run bench.yml --ref <branch> [-f external=false] [-f filter='*IndexBenchmarks* *RebuildBenchmarks*']`, then `gh run download <id>`. Runs share one concurrency group, so dispatch one at a time or queued jobs get cancelled. Never quote numbers from the dev PC. BenchmarkDotNet's out-of-process toolchain fails locally while agent worktrees sit under `.claude/worktrees`; `--inProcess` works for smoke checks.
-
-## Open, for after v0.1
-
-- Snapshot open at 1M on windows is 10.3 ms against a 5 ms target; try `PrefetchVirtualMemory` before the checksum.
-- Cold rebuild on linux is 1.6-2.0x a bare walk against 1.2x; building rows inside the walk workers is the lever.
-- Case-sensitive macos volumes: root management (`RootsConfig.Covers`) still folds case.
-- Codex rounds past the cap raised: a top-level `null` config.json reads as no roots; install.ps1 doesn't restore `.old` if the copy itself fails; setup doesn't restore a same-file shell block after a failed receipt save; segment matching doesn't check the deadline mid-scan; the windows cleanup script hands paths to cmd without escaping `%`; the mcp footer doesn't say when a rebuild holds the lock.
-- fetchle.dev redirects to the release's install scripts aren't set up (Cloudflare).
+Same as v0.1: `gh workflow run bench.yml --ref v0.2-ranking [-f external=false] [-f filter='*IndexBenchmarks*']`, one dispatch at a time (shared concurrency group). The windows self-hosted runner was refusing to load the benchmark assemblies on 2026-10-21 (Application Control, 0x800711C7); linux numbers came through. Cody has to fix that on the box.

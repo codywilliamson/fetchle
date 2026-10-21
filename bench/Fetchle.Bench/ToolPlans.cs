@@ -11,6 +11,8 @@ public sealed record IndexDirs(string Query, string Rebuild, string Live);
 public static class ToolPlans
 {
     public const string QUERY = "settings";
+    // several words, so both retrievers and fusion run; QUERY is mostly one exact token
+    public const string RANKED_QUERY = "windows terminal settings";
     public const string NO_MATCH_QUERY = "zzzz-no-match";
 
     const string BUDGET = "5m";
@@ -95,6 +97,9 @@ public static class ToolPlans
                     new ToolCommand("fetchle roots add", fetchle, ["roots", "add", root], SUCCESS, queryEnv),
                     new ToolCommand("fetchle index rebuild", fetchle, ["index", "rebuild"], SUCCESS, queryEnv),
                 ]),
+
+            // the same index the row above built, asked in words
+            Plain(new ToolCommand("fetchle ranked query", fetchle, [RANKED_QUERY, "--budget", BUDGET, "--plain"], SUCCESS, queryEnv)),
 
             // the snapshot goes before every run so each rebuild starts cold
             new ToolPlan(

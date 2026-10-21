@@ -23,7 +23,7 @@ Reference for every command, flag and output mode. Behavior described here is th
 
 | flag | default | meaning |
 |---|---|---|
-| `--limit <n>` | 10 (TTY), 20 (agent) | Max results. At least 1, or exit 2. |
+| `--limit <n>` | 10 (TTY), 20 (agent), 50 (picker) | Max results. At least 1, or exit 2. |
 | `--budget <duration>` | `2s` | Stop and report what was skipped after this long. |
 | `--root <path>` | all roots | Restrict to one root. Repeatable. With no roots configured, the default is the current directory. A root that doesn't exist or isn't a valid path fails immediately with exit 2, before any walking. |
 | `--ext <ext>` | none | Filter by extension. Repeatable. |
@@ -48,6 +48,23 @@ When several apply, the first match wins: `--json`, `--plain`, agent env var, re
 Which env vars each agent actually sets must be confirmed before the agent mode ships. Until then only `CLAUDECODE` is checked.
 
 Pretty mode uses synchronized output (DEC 2026) for live regions, emits OSC 9;4 taskbar progress while indexing (rate-limited), and respects `NO_COLOR`. `NO_COLOR` drops color but keeps bold, dim and links, per no-color.org.
+
+## Picker (`-i`)
+
+`fetchle -i [query]` opens an input box, up to 10 ranked rows (fewer on a short terminal) and a footer with the match count and per-query time. Each row is the full path with the typed words highlighted, then size and age dimmed. An initial query is searched at once and the caret starts after it. An empty query shows nothing and runs no search.
+
+| key | does |
+|---|---|
+| any text, Backspace, Left/Right, Home/End | edit the query; every change re-ranks |
+| Up, Down, PageUp, PageDown | move the selection through the top 50 hits (`--limit` changes the 50) |
+| Enter | print the selected full path to stdout, exit 0. With no row to select it does nothing |
+| Esc, Ctrl+C | print nothing, exit 1 |
+
+The picker is pretty mode only, and `--root`, `--ext`, `--since`, `--type` and `--budget` apply to every keystroke. With stdout redirected, `--plain`, `--json` or an agent env var it writes `fetchle: the picker needs a terminal` to stderr and exits 2 without starting a widget. A snapshot that fails validation exits 3, as in search.
+
+Typing never waits on a search. The index is opened once when the picker starts. Every change goes to one background worker that cancels the search in flight, keeps only the newest waiting query, and drops a finished result when a newer keystroke exists, so the screen only moves forward. Searches never overlap. The last word of the query counts as still being typed, so `termi` already matches `terminal`.
+
+Target (v0.2): keystroke to the frame that shows its results, p95 under 16 ms over a 1M-entry index. `dotnet run --project bench/Fetchle.Bench -c Release -- --picker-latency` measures it on an in-memory terminal and prints p50, p95 and max. A real terminal's own paint time is not in that number.
 
 ## Roots and the index
 

@@ -9,10 +9,12 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Fetchle.Tests" />
+    <InternalsVisibleTo Include="Fetchle.Bench" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="XenoAtom.CommandLine" />
     <PackageReference Include="XenoAtom.Terminal" />
+    <PackageReference Include="XenoAtom.Terminal.UI" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fetchle.Core\Fetchle.Core.csproj" />

@@ -35,9 +35,9 @@ jobs:
           - { os: ubuntu-latest, rid: linux-x64, exe: fetchle }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: dotnet build.cs publish --rid ${{ matrix.rid }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: fetchle-${{ matrix.rid }}
           path: artifacts/publish/${{ matrix.exe }}
@@ -65,16 +65,16 @@ jobs:
       group: homelab-bench
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         env:
           DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: fetchle-win-x64
           path: ${{ runner.temp }}/fetchle-exe
@@ -91,7 +91,7 @@ jobs:
           FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
         run: dotnet build.cs bench-external
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: bench-external-windows
@@ -108,16 +108,16 @@ jobs:
       group: homelab-bench
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         env:
           DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
           global-json-file: global.json
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: fetchle-linux-x64
           path: ${{ runner.temp }}/fetchle-exe
@@ -135,7 +135,7 @@ jobs:
           FETCHLE_BENCH_CORPUS_DIR: ${{ runner.tool_cache }}/fetchle-bench-corpus
         run: dotnet build.cs bench-external
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: bench-external-linux
@@ -153,10 +153,10 @@ jobs:
       group: homelab-bench
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         env:
           DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
@@ -170,7 +170,7 @@ jobs:
         # unquoted so several space-separated patterns stay several filters; cmd doesn't glob
         run: dotnet run --project bench/Fetchle.Bench -c Release -- --filter %BENCH_FILTER%
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-windows
@@ -186,10 +186,10 @@ jobs:
       group: homelab-bench
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # the runner user can't write the system dotnet dir, so the sdk lives in the runner's tool cache
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         env:
           DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
         with:
@@ -203,7 +203,7 @@ jobs:
           set -f
           dotnet run --project bench/Fetchle.Bench -c Release -- --filter $BENCH_FILTER
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: bench-dotnet-linux
